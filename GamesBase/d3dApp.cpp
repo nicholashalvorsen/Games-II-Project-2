@@ -118,7 +118,7 @@ void D3DApp::initApp()
     fontDesc.OutputPrecision = OUT_DEFAULT_PRECIS;
     fontDesc.Quality         = DEFAULT_QUALITY;
     fontDesc.PitchAndFamily  = DEFAULT_PITCH | FF_DONTCARE;
-    wcscpy(fontDesc.FaceName, L"Times New Roman");
+    wcscpy_s(fontDesc.FaceName, L"Times New Roman");
 
 	D3DX10CreateFontIndirect(md3dDevice, &fontDesc, &mFont);
 }

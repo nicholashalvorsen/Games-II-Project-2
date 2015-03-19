@@ -5,8 +5,7 @@
 // Make sure you link: d3d10.lib d3dx10d.lib dxerr.lib dxguid.lib.
 // Link d3dx10.lib for release mode builds instead of d3dx10d.lib.
 //=======================================================================================
-
-
+#pragma warning (disable : 4005)
 #ifndef D3DAPP_H
 #define D3DAPP_H
 
