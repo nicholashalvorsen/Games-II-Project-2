@@ -9,18 +9,12 @@
 #include "ComplexGeometry.h"
 #include "Triangle.h"
 #include "audio.h"
+#include "Player.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <ctime>
 #include <random>
-
-const int NUM_OBSTACLES = 400;
-const int AREA_WIDTH = 600;
-const int AREA_DEPTH = 600;
-const int OBSTACLE_SPEED = 40;
-const int PLAYER_TURN_SPEED = 30;
-const float ABSORPTION_RATE = 30.0f;
 
 class App : public D3DApp {
 public:
@@ -46,13 +40,11 @@ private:
 	Triangle triangle;
 
 	//Models
-	ComplexGeometry wing;
-	ComplexGeometry shipGeo;
+	//ComplexGeometry wing;
 
 	//Objects
 	Axis axis;
-	Object ship;
-	Object blocks[NUM_OBSTACLES];
+	Player player;
 
 	RenderInfo ri;
 	ID3D10Effect* mFX;
@@ -61,8 +53,6 @@ private:
 	float mTheta;
 	float mPhi;
 	float mx, my, mz;
-
-	float previousPlayerScale;
 
 	std::uniform_real_distribution<float> randomScaleDistribution;
 	std::mt19937 generator;
@@ -113,35 +103,18 @@ void App::initApp() {
 	triangle.init(md3dDevice, WHITE);
 
 	//Complex Geometry
-	wing.init(&triangle);
-	wing.addChild(&triangle, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
-	wing.addChild(&quad, Vector3(0, 0, 0), Vector3(0, 0, ToRadian(90)), Vector3(1, 1, 1));
-	wing.addChild(&quad, Vector3(0, 0, 0), Vector3(ToRadian(-90), 0, 0), Vector3(1, 1, 1));
-	wing.addChild(&quad, Vector3(0, 0, 1), Vector3(ToRadian(-90), ToRadian(45), 0), Vector3(1.4142, 1, 1));
-
-	shipGeo.init(&box);
-	shipGeo.addChild(&pyramid, Vector3(1, 1, 0), Vector3(0, 0, ToRadian(-90)), Vector3(1, 1, 1), Vector4(0, 1, 0, 1));
-	shipGeo.addChild(&wing, Vector3(0, .4, 1.01), Vector3(0, 0, 0), Vector3(1, 0.2, 1),  Vector4(1, 0, 0, 1));
-	shipGeo.addChild(&wing, Vector3(0, .6, -0.01), Vector3(ToRadian(180), 0, 0), Vector3(1, 0.2, 1),  Vector4(1, 0, 0, 1));
+	//wing.init(&triangle);
+	//wing.addChild(&triangle, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
+	//wing.addChild(&quad, Vector3(0, 0, 0), Vector3(0, 0, ToRadian(90)), Vector3(1, 1, 1));
+	//wing.addChild(&quad, Vector3(0, 0, 0), Vector3(ToRadian(-90), 0, 0), Vector3(1, 1, 1));
+	//wing.addChild(&quad, Vector3(0, 0, 1), Vector3(ToRadian(-90), ToRadian(45), 0), Vector3(1.4142, 1, 1));
 
 	//Objects
 	axis.init(&line);
-	ship.init(&shipGeo, Vector3(0, 0, 0));
-	ship.setColor(0.0f, 1.0f, 0.0f, 1.0f);
-	ship.setRotation(Vector3(0, -90 * M_PI / 180, 0));
-	ship.setScale(Vector3(0.5, 0.5, 0.5));
-	previousPlayerScale = 0.5f;
-
-	for (int i = 0; i < NUM_OBSTACLES; i++) {
-		float randScale = randomScaleDistribution(generator);
-		// spawn the obstacles evenly over the z direction. if they spawn too close to the player, hide them until they hit the back wall.
-		blocks[i].init(&box, Vector3(rand() % AREA_WIDTH - AREA_WIDTH / 2, 0, 1.0f * AREA_DEPTH/NUM_OBSTACLES*i));
-		blocks[i].setColor(1.0f, 0.0f, 0.0f, 0.0f);
-		blocks[i].setVelocity(Vector3(0, 0, -OBSTACLE_SPEED));
-		blocks[i].setScale(Vector3(randScale, randScale, randScale));
-		if (blocks[i].getPosition().z < AREA_DEPTH / 3)
-			blocks[i].setInActive();
-	}
+	player.init(&box, Vector3(0, 0, 0));
+	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
+	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
+	player.setScale(Vector3(0.5, 0.5, 0.5));
 }
 
 void App::onResize() {
@@ -153,51 +126,19 @@ void App::onResize() {
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
 
-	float posChange = 0.0f;
-	if (GetAsyncKeyState(VK_LEFT)) {
-		posChange  = + PLAYER_TURN_SPEED * dt;
-	}
-	if (GetAsyncKeyState(VK_RIGHT)) {
-		posChange = - PLAYER_TURN_SPEED * dt;
-	}
+	if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
 
-	if(abs(ship.getScale().x - previousPlayerScale) > 0.25f) {
-		float ps = ship.getScale().x;
-		randomScaleDistribution = std::uniform_real_distribution<float>(ps - 0.15, ps + 0.75);
-		previousPlayerScale = ship.getScale().x;
-	}
+	if (GetAsyncKeyState('R')) player.resetPos();
 
-	ship.update(dt);
+	if (GetAsyncKeyState(VK_SPACE)) player.thrust(dt);
 
-	for (int i = 0; i < NUM_OBSTACLES; i++) {
-		blocks[i].setPosition(blocks[i].getPosition() + Vector3(posChange, 0, 0));
-		if (blocks[i].getPosition().z < -20) {
-			int x = rand() % AREA_WIDTH - AREA_WIDTH / 2;
-			blocks[i].setPosition(Vector3(x, 0, AREA_DEPTH));
-			blocks[i].setActive();
-		}
-		blocks[i].update(dt);
-		if(blocks[i].collided(&ship) && blocks[i].getActiveState() && ship.getActiveState()) {
-			if(blocks[i].getScale().x >= ship.getScale().x) {
-				float absorb = min(ABSORPTION_RATE * dt, ship.getScale().x);
-				ship.setScale(ship.getScale() - Vector3(ABSORPTION_RATE * .05, ABSORPTION_RATE * .05, ABSORPTION_RATE * .05));
-				blocks[i].setScale(blocks[i].getScale() + Vector3(ABSORPTION_RATE * .05, ABSORPTION_RATE * .05, ABSORPTION_RATE * .05));
-				if (ship.getScale().x <= 0) ship.setInActive();
-			} else {
-				float absorb = min(ABSORPTION_RATE * dt, blocks[i].getScale().x);
-				ship.setScale(ship.getScale() + Vector3(ABSORPTION_RATE * .05, ABSORPTION_RATE * .05, ABSORPTION_RATE * .05));
-				blocks[i].setScale(blocks[i].getScale() - Vector3(ABSORPTION_RATE * .05, ABSORPTION_RATE * .05, ABSORPTION_RATE * .05));
-				if(blocks[i].getScale().x <= 0) blocks[i].setInActive();
-			}
-		}
-	}
+	if (GetAsyncKeyState(VK_UP)) player.thrustUp(dt);
+	if (GetAsyncKeyState(VK_LEFT)) player.rotateLeft(dt);
+	if (GetAsyncKeyState(VK_RIGHT)) player.rotateRight(dt);
 
-	for (int i = 0; i < NUM_OBSTACLES; i++) {
-		if (blocks[i].getPosition().z >= AREA_DEPTH) {
-			float newScale = randomScaleDistribution(generator);
-			blocks[i].setScale(Vector3(newScale, newScale, newScale));
-		}
-	}
+
+
+	player.update(dt);
 
 	// Update angles based on input to orbit camera around box.
 	if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
@@ -237,11 +178,8 @@ void App::drawScene() {
 	//Draw Axis
 	axis.draw(&ri);
 
-	//Draw Object
-	ship.draw(&ri);
-	for (int i = 0; i < NUM_OBSTACLES; i++) {
-		blocks[i].draw(&ri);
-	}
+	//Draw Player
+	player.draw(&ri);
 
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT R = {5, 5, 0, 0};

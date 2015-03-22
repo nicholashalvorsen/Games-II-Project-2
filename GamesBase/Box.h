@@ -19,14 +19,14 @@ public:
 		mNumFaces    = 12;
 
 		Vertex vertices[] = {
-			{D3DXVECTOR3(0.0f, 0.0f, 0.0f), c},
-			{D3DXVECTOR3(0.0f, 1.0f, 0.0f), c},
-			{D3DXVECTOR3(1.0f, 1.0f, 0.0f), c},
-			{D3DXVECTOR3(1.0f, 0.0f, 0.0f), c},
-			{D3DXVECTOR3(0.0f, 0.0f, 1.0f), c},
-			{D3DXVECTOR3(0.0f, 1.0f, 1.0f), c},
-			{D3DXVECTOR3(1.0f, 1.0f, 1.0f), c},
-			{D3DXVECTOR3(1.0f, 0.0f, 1.0f), c}};
+			{D3DXVECTOR3(-0.5f, -0.5f, -0.5f), c},
+			{D3DXVECTOR3(-0.5f, 0.5f, -0.5f), c},
+			{D3DXVECTOR3(0.5f, 0.5f, -0.5f), c},
+			{D3DXVECTOR3(0.5f, -0.5f, -0.5f), c},
+			{D3DXVECTOR3(-0.5f, -0.5f, 0.5f), c},
+			{D3DXVECTOR3(-0.5f, 0.5f, 0.5f), c},
+			{D3DXVECTOR3(0.5f, 0.5f, 0.5f), c},
+			{D3DXVECTOR3(0.5f, -0.5f, 0.5f), c}};
 
 		D3D10_BUFFER_DESC vbd;
 		vbd.Usage = D3D10_USAGE_IMMUTABLE;

@@ -92,6 +92,7 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Pyramid.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="RenderInfo.h" />
@@ -103,6 +104,7 @@
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="d3dApp.cpp" />
     <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.fx">
