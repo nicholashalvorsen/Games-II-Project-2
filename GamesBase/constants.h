@@ -16,7 +16,12 @@
 const wchar_t WAVE_BANK[]  = L"audio\\Win\\MyWBank.xwb";
 const wchar_t SOUND_BANK[] = L"audio\\Win\\MySBank.xsb";
 
+const float GAME_WIDTH = 10;
+const float GAME_BOTTOM = -10;
+const float GAME_TOP = 8;
+
 const float GRAVITY = - 5;
+const float VELOCITY_LIMIT = 10;
 const float PLAYER_ROTATE_SPEED = 3;
 const float PLAYER_THRUST = 10;
 

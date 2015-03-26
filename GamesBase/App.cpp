@@ -15,6 +15,7 @@
 #include <math.h>
 #include <ctime>
 #include <random>
+#include <sstream>
 
 class App : public D3DApp {
 public:
@@ -35,6 +36,7 @@ private:
 	//Geometry
 	Line line;
 	Box box;
+	Box bouncerBox;
 	Quad quad;
 	Pyramid pyramid;
 	Triangle triangle;
@@ -45,6 +47,11 @@ private:
 	//Objects
 	Axis axis;
 	Player player;
+
+	Object sideBouncerL;
+	Object sideBouncerR;
+	Object topBouncer;
+	Object bottomBouncer;
 
 	RenderInfo ri;
 	ID3D10Effect* mFX;
@@ -98,6 +105,7 @@ void App::initApp() {
 	//Geometry
 	line.init(md3dDevice, WHITE);
 	box.init(md3dDevice, WHITE);
+	bouncerBox.init(md3dDevice, WHITE);
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
@@ -115,6 +123,19 @@ void App::initApp() {
 	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
+	sideBouncerL.init(&bouncerBox, Vector3(-GAME_WIDTH, 0, 0));
+	sideBouncerL.setScale(Vector3(1, 20, 1));
+	sideBouncerL.setColor(.9f, .4f, .4f, 1.0f);
+	sideBouncerR.init(&bouncerBox, Vector3(GAME_WIDTH, 0, 0));
+	sideBouncerR.setScale(Vector3(1, 20, 1));
+	sideBouncerR.setColor(.9f, .4f, .4f, 1.0f);
+	topBouncer.init(&bouncerBox, Vector3(0, GAME_TOP, 0));
+	topBouncer.setScale(Vector3(20, 1, 1));
+	topBouncer.setColor(.9f, .4f, .4f, 1.0f);
+	bottomBouncer.init(&bouncerBox, Vector3(0, GAME_BOTTOM, 0));
+	bottomBouncer.setScale(Vector3(20, 1, 1));
+	bottomBouncer.setColor(.9f, .4f, .4f, 1.0f);
+	
 }
 
 void App::onResize() {
@@ -136,9 +157,50 @@ void App::updateScene(float dt) {
 	if (GetAsyncKeyState(VK_LEFT)) player.rotateLeft(dt);
 	if (GetAsyncKeyState(VK_RIGHT)) player.rotateRight(dt);
 
-
+	Vector3 oldPlayerPosition = player.getPosition();
 
 	player.update(dt);
+	sideBouncerL.update(dt);
+	sideBouncerR.update(dt);
+	topBouncer.update(dt);
+	bottomBouncer.update(dt);
+
+	/* collision with side walls */
+	if (abs(player.getPosition().x) + player.getScale().x > GAME_WIDTH)
+	{
+		player.setVelocity(Vector3(player.getVelocity().x * -.8, player.getVelocity().y * .95, player.getVelocity().z));
+		player.setPosition(oldPlayerPosition);
+	}
+
+	/* collision with bottom area */
+	if (player.getPosition().y - player.getScale().y < GAME_BOTTOM)
+	{
+		player.setVelocity(Vector3(player.getVelocity().x, -player.getVelocity().y, player.getVelocity().z));
+
+		if (player.getVelocity().y < 7 && player.getVelocity() > 0)
+			player.setVelocity(Vector3(player.getVelocity().x, 7, player.getVelocity().z));
+
+		player.setPosition(oldPlayerPosition);
+	}
+
+	/* collision with top area */
+	if (player.getPosition().y + player.getScale().y > GAME_TOP)
+	{
+		player.setVelocity(Vector3(player.getVelocity().x, -player.getVelocity().y, player.getVelocity().z));
+		player.setPosition(oldPlayerPosition);
+	}
+
+	/* don't let the player go too fast */
+	if (abs(player.getVelocity().x) > VELOCITY_LIMIT)
+		player.setVelocity(Vector3(player.getVelocity().x * .99, player.getVelocity().y, player.getVelocity().z));
+
+	if (abs(player.getVelocity().y) > VELOCITY_LIMIT)
+		player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y * .99, player.getVelocity().z));
+
+	if (abs(player.getVelocity().y) > VELOCITY_LIMIT)
+		player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y, player.getVelocity().z * .99));
+
+
 
 	// Update angles based on input to orbit camera around box.
 	if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
@@ -166,6 +228,7 @@ void App::updateScene(float dt) {
 
 void App::drawScene() {
 	D3DApp::drawScene();
+	mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 
 	// Restore default states, input layout and primitive topology 
 	// because mFont->DrawText changes them.  Note that we can 
@@ -181,9 +244,27 @@ void App::drawScene() {
 	//Draw Player
 	player.draw(&ri);
 
+	sideBouncerL.draw(&ri);
+	sideBouncerR.draw(&ri);
+	topBouncer.draw(&ri);
+	bottomBouncer.draw(&ri);
+
+
+	//Draw text to screen
+
+	std::wostringstream outs;
+	outs.precision(3);
+	outs << "Controls:\n"
+		<< "Turn: Left/Right\n"
+		<< "Up: Up\n" 
+		<< "Thrust: Space\n"
+		<< "Reset: R\n";
+	mFrameStats.clear();
+	mFrameStats.append(outs.str());
+
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT R = {5, 5, 0, 0};
-	mFont->DrawText(0, mFrameStats.c_str(), -1, &R, DT_NOCLIP, BLACK);
+	mFont->DrawText(0, mFrameStats.c_str(), -1, &R, DT_NOCLIP, WHITE);
 	mSwapChain->Present(0, 0);
 }
 

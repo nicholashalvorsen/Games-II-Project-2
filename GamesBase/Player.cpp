@@ -17,7 +17,7 @@ void Player::draw(RenderInfo* ri) {
 
 void Player::update(float dt) {
 	setVelocity(getVelocity() + Vector3(0, GRAVITY * dt, 0));
-	setVelocity(Vector3(getVelocity().x * .9999, getVelocity().y, getVelocity().z));
+	setVelocity(Vector3(getVelocity().x * .99992, getVelocity().y, getVelocity().z));
 	Object::update(dt);
 }
 
