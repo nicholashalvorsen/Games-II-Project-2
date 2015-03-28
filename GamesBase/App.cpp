@@ -10,6 +10,7 @@
 #include "Triangle.h"
 #include "audio.h"
 #include "Player.h"
+#include "Waves.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -40,6 +41,7 @@ private:
 	Quad quad;
 	Pyramid pyramid;
 	Triangle triangle;
+	Waves waves;
 
 	//Models
 	//ComplexGeometry wing;
@@ -47,6 +49,7 @@ private:
 	//Objects
 	Axis axis;
 	Player player;
+	Object wavesObject;
 
 	Object sideBouncerL;
 	Object sideBouncerR;
@@ -109,6 +112,8 @@ void App::initApp() {
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
+	//waves.init(md3dDevice, 257, 257, 0.5f, 0.03f, 3.25f, 0.4f);
+	waves.init(md3dDevice, 257, 257, 0.5f, 0.03f, 3.25f, 0.0f);
 
 	//Complex Geometry
 	//wing.init(&triangle);
@@ -135,7 +140,20 @@ void App::initApp() {
 	bottomBouncer.init(&bouncerBox, Vector3(0, GAME_BOTTOM, 0));
 	bottomBouncer.setScale(Vector3(20, 1, 1));
 	bottomBouncer.setColor(.9f, .4f, .4f, 1.0f);
-	
+	wavesObject.init(&waves, Vector3(0, -5, 0));
+	wavesObject.setColor(40.0f / 255.0f, 60.0f / 255.0f, 255.0f / 255.0f, 1);
+
+	for (int x = 0; x < 25; x++)
+	{
+
+		DWORD i = 5 + rand() % 250;
+		DWORD j = 5 + rand() % 250;
+
+		float r = RandF(2.0f, 2.2f);
+
+		waves.disturb(i, j, r);
+	}
+
 }
 
 void App::onResize() {
@@ -146,6 +164,20 @@ void App::onResize() {
 
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
+
+	// Every quarter second, generate a random wave.
+	/*static float t_base = 0.0f;
+	if ((mTimer.getGameTime() - t_base) >= 0.25f)
+	{
+		t_base += 0.25f;
+
+		DWORD i = 5 + rand() % 250;
+		DWORD j = 5 + rand() % 250;
+
+		float r = RandF(1.0f, 2.0f);
+
+		waves.disturb(i, j, r);
+	}*/
 
 	if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
 
@@ -164,6 +196,8 @@ void App::updateScene(float dt) {
 	sideBouncerR.update(dt);
 	topBouncer.update(dt);
 	bottomBouncer.update(dt);
+	waves.update(dt);
+	wavesObject.update(dt);
 
 	/* collision with side walls */
 	if (abs(player.getPosition().x) + player.getScale().x > GAME_WIDTH)
@@ -199,7 +233,6 @@ void App::updateScene(float dt) {
 
 	if (abs(player.getVelocity().y) > VELOCITY_LIMIT)
 		player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y, player.getVelocity().z * .99));
-
 
 
 	// Update angles based on input to orbit camera around box.
@@ -248,10 +281,10 @@ void App::drawScene() {
 	sideBouncerR.draw(&ri);
 	topBouncer.draw(&ri);
 	bottomBouncer.draw(&ri);
+	wavesObject.draw(&ri);
 
 
 	//Draw text to screen
-
 	std::wostringstream outs;
 	outs.precision(3);
 	outs << "Controls:\n"
