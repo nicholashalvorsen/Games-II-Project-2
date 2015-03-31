@@ -37,7 +37,7 @@ private:
 	//Geometry
 	Line line;
 	Box box;
-	Box bouncerBox;
+	Box pillarBox;
 	Quad quad;
 	Pyramid pyramid;
 	Triangle triangle;
@@ -51,10 +51,7 @@ private:
 	Player player;
 	Object wavesObject;
 
-	Object sideBouncerL;
-	Object sideBouncerR;
-	Object topBouncer;
-	Object bottomBouncer;
+	Object pillars[NUM_PILLARS];
 
 	RenderInfo ri;
 	ID3D10Effect* mFX;
@@ -108,7 +105,7 @@ void App::initApp() {
 	//Geometry
 	line.init(md3dDevice, WHITE);
 	box.init(md3dDevice, WHITE);
-	bouncerBox.init(md3dDevice, WHITE);
+	pillarBox.init(md3dDevice, WHITE);
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
@@ -128,20 +125,18 @@ void App::initApp() {
 	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
-	sideBouncerL.init(&bouncerBox, Vector3(-GAME_WIDTH, 0, 0));
-	sideBouncerL.setScale(Vector3(1, 20, 1));
-	sideBouncerL.setColor(.9f, .4f, .4f, 1.0f);
-	sideBouncerR.init(&bouncerBox, Vector3(GAME_WIDTH, 0, 0));
-	sideBouncerR.setScale(Vector3(1, 20, 1));
-	sideBouncerR.setColor(.9f, .4f, .4f, 1.0f);
-	topBouncer.init(&bouncerBox, Vector3(0, GAME_TOP, 0));
-	topBouncer.setScale(Vector3(20, 1, 1));
-	topBouncer.setColor(.9f, .4f, .4f, 1.0f);
-	bottomBouncer.init(&bouncerBox, Vector3(0, GAME_BOTTOM, 0));
-	bottomBouncer.setScale(Vector3(20, 1, 1));
-	bottomBouncer.setColor(.9f, .4f, .4f, 1.0f);
-	wavesObject.init(&waves, Vector3(0, -5, 0));
+	wavesObject.init(&waves, Vector3(0, 0, 0));
 	wavesObject.setColor(40.0f / 255.0f, 60.0f / 255.0f, 255.0f / 255.0f, 1);
+	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
+
+	for (int i = 0; i < NUM_PILLARS; i++)
+	{
+		pillars[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*i));
+		pillars[i].setScale(Vector3(1.5, rand() % 2 + PILLAR_HEIGHT_START * 2, 1.5));
+		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
+		pillars[i].setColor(1, 1, .9, 1);
+	}
+
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -192,35 +187,38 @@ void App::updateScene(float dt) {
 	Vector3 oldPlayerPosition = player.getPosition();
 
 	player.update(dt);
-	sideBouncerL.update(dt);
-	sideBouncerR.update(dt);
-	topBouncer.update(dt);
-	bottomBouncer.update(dt);
 	waves.update(dt);
 	wavesObject.update(dt);
 
-	/* collision with side walls */
-	if (abs(player.getPosition().x) + player.getScale().x > GAME_WIDTH)
+	for (int i = 0; i < NUM_PILLARS; i++)
 	{
-		player.setVelocity(Vector3(player.getVelocity().x * -.8, player.getVelocity().y * .95, player.getVelocity().z));
-		player.setPosition(oldPlayerPosition);
+		if (pillars[i].getPosition().y < 0)
+			pillars[i].setVelocity(Vector3(pillars[i].getVelocity().x, 1, pillars[i].getVelocity().z));
+		else
+			pillars[i].setVelocity(Vector3(pillars[i].getVelocity().x, 0, pillars[i].getVelocity().z));
+
+		if (pillars[i].getPosition().z < -2)
+			pillars[i].setVelocity(Vector3(pillars[i].getVelocity().x, -1, pillars[i].getVelocity().z));
+
+		pillars[i].update(dt);
+
+		if (pillars[i].getPosition().z < -10)
+		{
+			int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+			pillars[i].setPosition(Vector3(x, 0 - PILLAR_HEIGHT_START, GAME_DEPTH));
+		}
 	}
 
-	/* collision with bottom area */
-	if (player.getPosition().y - player.getScale().y < GAME_BOTTOM)
+
+
+	/* collision with bottom area, temp */
+	if (player.getPosition().y - player.getScale().y < -2)
 	{
 		player.setVelocity(Vector3(player.getVelocity().x, -player.getVelocity().y, player.getVelocity().z));
 
 		if (player.getVelocity().y < 7 && player.getVelocity() > 0)
 			player.setVelocity(Vector3(player.getVelocity().x, 7, player.getVelocity().z));
 
-		player.setPosition(oldPlayerPosition);
-	}
-
-	/* collision with top area */
-	if (player.getPosition().y + player.getScale().y > GAME_TOP)
-	{
-		player.setVelocity(Vector3(player.getVelocity().x, -player.getVelocity().y, player.getVelocity().z));
 		player.setPosition(oldPlayerPosition);
 	}
 
@@ -274,14 +272,11 @@ void App::drawScene() {
 	//Draw Axis
 	axis.draw(&ri);
 
-	//Draw Player
 	player.draw(&ri);
-
-	sideBouncerL.draw(&ri);
-	sideBouncerR.draw(&ri);
-	topBouncer.draw(&ri);
-	bottomBouncer.draw(&ri);
 	wavesObject.draw(&ri);
+
+	for (int i = 0; i < NUM_PILLARS; i++)
+		pillars[i].draw(&ri);
 
 
 	//Draw text to screen
