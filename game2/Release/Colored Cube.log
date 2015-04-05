@@ -1,0 +1,40 @@
+﻿Build started 1/23/2014 9:58:15 AM.
+     1>Project "C:\Users\birminghamwp\Documents\Classes\Comp 446\Comp 446 S14\PartII\My Code\Scene Design Added Primitives\Colored Cube.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\Colored Cube.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Box.cpp "Colored Cube App.cpp" ..\..\Common\d3dApp.cpp ..\..\Common\GameTimer.cpp GameObject.cpp Line.cpp Quad.cpp
+         Box.cpp
+         Colored Cube App.cpp
+     1>Colored Cube App.cpp(107): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>Colored Cube App.cpp(110): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>Colored Cube App.cpp(112): warning C4305: 'argument' : truncation from 'double' to 'FLOAT'
+     1>Colored Cube App.cpp(275): warning C4244: 'argument' : conversion from 'double' to 'FLOAT', possible loss of data
+         d3dApp.cpp
+     1>..\..\Common\d3dApp.cpp(122): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(283) : see declaration of 'wcscpy'
+         GameTimer.cpp
+         GameObject.cpp
+         Line.cpp
+         Quad.cpp
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\birminghamwp\Documents\Classes\Comp 446\Comp 446 S14\PartII\My Code\Scene Design Added Primitives\Release\Colored Cube.exe" /INCREMENTAL:NO /NOLOGO d3d10.lib d3dx10.lib dxerr.lib dxguid.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\Colored Cube.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\birminghamwp\Documents\Classes\Comp 446\Comp 446 S14\PartII\My Code\Scene Design Added Primitives\Release\Colored Cube.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\birminghamwp\Documents\Classes\Comp 446\Comp 446 S14\PartII\My Code\Scene Design Added Primitives\Release\Colored Cube.lib" /MACHINE:X86 Release\Box.obj
+         "Release\Colored Cube App.obj"
+         Release\d3dApp.obj
+         Release\GameTimer.obj
+         Release\GameObject.obj
+         Release\Line.obj
+         Release\Quad.obj
+         Generating code
+         Finished generating code
+         Colored Cube.vcxproj -> C:\Users\birminghamwp\Documents\Classes\Comp 446\Comp 446 S14\PartII\My Code\Scene Design Added Primitives\Release\Colored Cube.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\birminghamwp\Documents\Classes\Comp 446\Comp 446 S14\PartII\My Code\Scene Design Added Primitives\Release\Colored Cube.exe;#1" /manifest "Release\Colored Cube.exe.intermediate.manifest"
+       FinalizeBuildStatus:
+         Deleting file "Release\Colored Cube.unsuccessfulbuild".
+         Touching "Release\Colored Cube.lastbuildstate".
+     1>Done Building Project "C:\Users\birminghamwp\Documents\Classes\Comp 446\Comp 446 S14\PartII\My Code\Scene Design Added Primitives\Colored Cube.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:05.01
