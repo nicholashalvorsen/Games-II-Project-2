@@ -22,6 +22,8 @@ public:
 	void resetPos();
 
 	float rotationAngle;
+
+	float animationTimer;
 };
 
 

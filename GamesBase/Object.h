@@ -20,10 +20,19 @@ public:
 		velocity = Vector3(0, 0, 0);
 		color = Vector4(0, 0, 0, 1.0f);
 		active = true;
+		newAnimation = false;
+		animation = 0;
+		animationLength = 0;
 	}
 
 	void update(float dt) {
 		position += velocity * dt;
+
+		if (newAnimation) {
+			newAnimation = false;
+			geometry->setInitialState(animation);
+		}
+		geometry->update(animation, animationLength, dt);
 
 		Matrix rotXM, rotYM, rotZM, transM, scaleM;
 		RotateX(&rotXM, rotation.x);
@@ -74,8 +83,15 @@ public:
 		color.z = b;
 		color.w = a;
 	}
-private:
+
+	void setAnimation(int animation, float animationLength) {
+		newAnimation = true;
+		this->animation = animation;
+		this->animationLength = animationLength;
+	}
+protected:
 	Geometry* geometry;
+private:
 	Vector3 position;
 	Vector3 scale;
 	Vector3 rotation;
@@ -83,6 +99,10 @@ private:
 
 	Vector3 velocity;
 	float radiusSquared;
+
+	bool newAnimation;
+	int animation;
+	float animationLength;
 
 	bool active;
 

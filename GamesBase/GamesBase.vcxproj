@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationState.h" />
     <ClInclude Include="audio.h" />
     <ClInclude Include="Axis.h" />
     <ClInclude Include="Box.h" />

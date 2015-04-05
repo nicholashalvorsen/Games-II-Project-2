@@ -8,6 +8,7 @@
 Player::Player() {
 	Object();
 	rotationAngle = 0;
+	animationTimer = 0;
 }
 
 void Player::draw(RenderInfo* ri) {
@@ -19,6 +20,13 @@ void Player::update(float dt) {
 	setVelocity(getVelocity() + Vector3(0, GRAVITY * dt, 0));
 	setVelocity(Vector3(getVelocity().x * .99992, getVelocity().y, getVelocity().z));
 	Object::update(dt);
+
+	animationTimer += dt;
+	if (animationTimer < 6) {
+		geometry->update(1, 5.0f, dt);
+	} else if (animationTimer < 12) {
+		geometry->update(0, 5.0f, dt);
+	} else animationTimer = 0;
 }
 
 

@@ -11,6 +11,7 @@
 #include "audio.h"
 #include "Player.h"
 #include "Waves.h"
+#include "AnimationState.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -37,7 +38,7 @@ private:
 	//Geometry
 	Line line;
 	Box box;
-	Box bouncerBox;
+	ComplexGeometry bouncerBox;
 	Quad quad;
 	Pyramid pyramid;
 	Triangle triangle;
@@ -108,7 +109,6 @@ void App::initApp() {
 	//Geometry
 	line.init(md3dDevice, WHITE);
 	box.init(md3dDevice, WHITE);
-	bouncerBox.init(md3dDevice, WHITE);
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
@@ -116,6 +116,11 @@ void App::initApp() {
 	waves.init(md3dDevice, 257, 257, 0.5f, 0.03f, 3.25f, 0.0f);
 
 	//Complex Geometry
+	bouncerBox.init(&box);
+	AnimationState* bbani = new AnimationState();
+	bbani->addAnimation(Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
+	bbani->addAnimation(Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
+	bouncerBox.addChild(&box, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), bbani, Vector4(1, 0, 0, 1));
 	//wing.init(&triangle);
 	//wing.addChild(&triangle, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
 	//wing.addChild(&quad, Vector3(0, 0, 0), Vector3(0, 0, ToRadian(90)), Vector3(1, 1, 1));
@@ -124,7 +129,7 @@ void App::initApp() {
 
 	//Objects
 	axis.init(&line);
-	player.init(&box, Vector3(0, 0, 0));
+	player.init(&bouncerBox, Vector3(0, 0, 0));
 	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
