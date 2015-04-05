@@ -53,6 +53,7 @@ private:
 	Player player;
 	Object wavesObject;
 
+	Object beginningPlatform;
 	Object pillars[NUM_PILLARS];
 
 	RenderInfo ri;
@@ -145,6 +146,11 @@ void App::initApp() {
 		pillars[i].setColor(1, 1, .9, 1);
 	}
 
+	beginningPlatform.init(&pillarBox, Vector3(0, -1, GAME_DEPTH / 2));
+	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 2));
+	beginningPlatform.setVelocity(Vector3(0, 0, PILLAR_SPEED));
+	beginningPlatform.setColor(1, 1, .9, 1);
+
 
 	for (int x = 0; x < 25; x++)
 	{
@@ -183,20 +189,33 @@ void App::updateScene(float dt) {
 	}*/
 
 	if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
-
 	if (GetAsyncKeyState('R')) player.resetPos();
-
-	if (GetAsyncKeyState(VK_SPACE)) player.thrust(dt);
-
-	if (GetAsyncKeyState(VK_UP)) player.thrustUp(dt);
-	if (GetAsyncKeyState(VK_LEFT)) player.rotateLeft(dt);
-	if (GetAsyncKeyState(VK_RIGHT)) player.rotateRight(dt);
+	if (GetAsyncKeyState(VK_SPACE)) player.thrustUp(dt);
+	if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
+	if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
+	if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
+	if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
+	else
+		player.setGliding(false);
+	if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
+	else
+		player.setDiving(false);
 
 	Vector3 oldPlayerPosition = player.getPosition();
 
 	player.update(dt);
 	waves.update(dt);
 	wavesObject.update(dt);
+
+
+
+	beginningPlatform.update(dt);
+	if (beginningPlatform.getPosition().y < 1)
+		beginningPlatform.setVelocity(Vector3(beginningPlatform.getVelocity().x, 1, beginningPlatform.getVelocity().z));
+	else
+		beginningPlatform.setVelocity(Vector3(beginningPlatform.getVelocity().x, 0, beginningPlatform.getVelocity().z));
+
+
 
 	for (int i = 0; i < NUM_PILLARS; i++)
 	{
@@ -217,15 +236,10 @@ void App::updateScene(float dt) {
 		}
 	}
 
-
-
-	/* collision with bottom area, temp */
-	if (player.getPosition().y - player.getScale().y < -2)
+    /* bottom collision, temp */
+	if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y)
 	{
-		player.setVelocity(Vector3(player.getVelocity().x, -player.getVelocity().y, player.getVelocity().z));
-
-		if (player.getVelocity().y < 7 && player.getVelocity() > 0)
-			player.setVelocity(Vector3(player.getVelocity().x, 7, player.getVelocity().z));
+		player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 
 		player.setPosition(oldPlayerPosition);
 	}
@@ -286,15 +300,17 @@ void App::drawScene() {
 	for (int i = 0; i < NUM_PILLARS; i++)
 		pillars[i].draw(&ri);
 
+	beginningPlatform.draw(&ri);
+
 
 	//Draw text to screen
 	std::wostringstream outs;
 	outs.precision(3);
 	outs << "Controls:\n"
-		<< "Turn: Left/Right\n"
-		<< "Up: Up\n" 
-		<< "Thrust: Space\n"
-		<< "Reset: R\n";
+		<< "Move: Left/Right\n"
+		<< "Glide: Up\n" 
+		<< "Dive: Down\n"
+		<< "Thrust: Space\n";
 	mFrameStats.clear();
 	mFrameStats.append(outs.str());
 
