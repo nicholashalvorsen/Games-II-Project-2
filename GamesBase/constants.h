@@ -19,6 +19,7 @@ const wchar_t SOUND_BANK[] = L"audio\\Win\\MySBank.xsb";
 const int GAME_WIDTH = 20;
 const int GAME_DEPTH = 20;
 const int GAME_BEHIND_DEPTH = 5;
+const int NUM_SCENERY = 2;
 
 const float GRAVITY = - 8;
 const float VELOCITY_LIMIT = 10;
@@ -36,5 +37,6 @@ const float PILLAR_HEIGHT_START = 3;
 const float PILLAR_SPEED = -3;
 
 const float WATER_RISE_SPEED = 0.05;
+
 
 #endif
