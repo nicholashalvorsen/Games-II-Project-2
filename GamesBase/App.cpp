@@ -309,7 +309,7 @@ void App::updateScene(float dt) {
 	}
 
     /* bottom collision, temp */
-	if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y)
+	if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
 	{
 		player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 
