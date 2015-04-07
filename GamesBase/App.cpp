@@ -48,7 +48,9 @@ private:
 	//Models
 	//ComplexGeometry wing;
 	ComplexGeometry sceneryGeometry[NUM_SCENERY];
+	ComplexGeometry cliffsGeometry;
 	Object scenery[NUM_SCENERY];
+	Object cliffs[NUM_CLIFFS];
 
 	//Objects
 	Axis axis;
@@ -164,7 +166,7 @@ void App::initApp() {
 	ship.addChild(&quad, Vector3(SHIP_WIDTH / 4, 1, SHIP_LENGTH), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 2, 1, SHIP_WIDTH / 2), shipAni, shipColor);
 	// forward long thing
 	ship.addChild(&box, Vector3(SHIP_WIDTH / 2.0f, .745, SHIP_LENGTH + SHIP_FRONT_LENGTH / 1.5), Vector3(0, ToRadian(-90), 0), Vector3(SHIP_FRONT_LENGTH * 1.5, .5, .5), shipAni, shipColor2);
-	// rearccccccccccccccccccccc
+	// rear
 	ship.addChild(&box, Vector3(SHIP_WIDTH / 2, .7, .249), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(.5, 1.7, SHIP_WIDTH * .9), shipAni, shipColor2);
 	// mast
 	ship.addChild(&box, Vector3(SHIP_WIDTH / 2, MAST_HEIGHT / 2 + 1, SHIP_LENGTH / 2), Vector3(0, 0, 0), Vector3(.25, MAST_HEIGHT, .25), shipAni, shipColor3);
@@ -172,9 +174,21 @@ void App::initApp() {
 	sailAni->addAnimation(Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1), Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1));
 	sailAni->addAnimation(Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1));
 	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2 - SAIL_WIDTH / 2, MAST_HEIGHT * .8 + 1, SHIP_LENGTH / 2 + .25), Vector3(ToRadian(90), 0, 0), Vector3(SAIL_WIDTH, 0, SAIL_HEIGHT), sailAni, Vector4(1, 1, 1, 1));
-	
+
 	sceneryGeometry[0] = ship;
 	sceneryGeometry[1] = ship;
+
+	cliffsGeometry.init(&line);
+	Vector4 cliffsColor(.4f, .4f, .4f, 1);
+	Vector4 cliffsColor2(0.0f, 92.0f / 255.0f, 9.0f / 255.0f, 1);
+	AnimationState* cliffsAni = new AnimationState();
+	cliffsGeometry.addChild(&box, Vector3(0, 0, 0), Vector3(ToRadian(90), 0, ToRadian(90)), Vector3(CLIFF_HEIGHT, 1, 1), cliffsAni, cliffsColor);
+	cliffsGeometry.addChild(&box, Vector3(.7, 0, .2), Vector3(ToRadian(60), 0, ToRadian(90)), Vector3(CLIFF_HEIGHT, 1, 1), cliffsAni, cliffsColor);
+	cliffsGeometry.addChild(&box, Vector3(.95, 0, .4), Vector3(ToRadian(120), 0, ToRadian(90)), Vector3(CLIFF_HEIGHT, 1, 1), cliffsAni, cliffsColor);
+	cliffsGeometry.addChild(&box, Vector3(1.4, 0, .3), Vector3(ToRadian(100), 0, ToRadian(90)), Vector3(CLIFF_HEIGHT, 1, 1), cliffsAni, cliffsColor);
+	cliffsGeometry.addChild(&box, Vector3(2.2, 0, .2), Vector3(ToRadian(95), 0, ToRadian(90)), Vector3(CLIFF_HEIGHT, 1, 1), cliffsAni, cliffsColor);
+	cliffsGeometry.addChild(&box, Vector3(2.9, 0, .2), Vector3(ToRadian(80), 0, ToRadian(90)), Vector3(CLIFF_HEIGHT, 1, 1), cliffsAni, cliffsColor);
+	cliffsGeometry.addChild(&box, Vector3(0, CLIFF_HEIGHT / 2 + .25/2, 0), Vector3(ToRadian(90), 0, ToRadian(90)), Vector3(.25, .25, CLIFF_WIDTH), cliffsAni, cliffsColor2);
 
 	//Objects
 	axis.init(&line);
@@ -213,8 +227,14 @@ void App::initApp() {
 		scenery[i].setVelocity(Vector3(0, 0, -1));
 	}
 
+	for (int i = 0; i < NUM_CLIFFS; i++)
+	{
+		cliffs[i].init(&cliffsGeometry, Vector3(CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2, CLIFF_HEIGHT / 2, 40));
+	}
+
 	// create initial disturbance of waves
 	// the waves are set to never dampen so this will create waves that last forever
+	// to do: make these appear out of view (covered by a menu, behind walls, etc
 	for (int x = 0; x < 25; x++)
 	{
 
@@ -312,6 +332,9 @@ void App::updateScene(float dt) {
 		}
 	}
 
+	for (int i = 0; i < NUM_CLIFFS; i++)
+		cliffs[i].update(dt);
+
     /* bottom collision, temp */
 	if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
 	{
@@ -371,7 +394,7 @@ void App::drawScene() {
 	axis.draw(&ri);
 
 	//Draw objects
-
+	
 	player.draw(&ri);
 	wavesObject.draw(&ri);
 	
@@ -382,6 +405,9 @@ void App::drawScene() {
 
 	for (int i = 0; i < NUM_SCENERY; i++)
 		scenery[i].draw(&ri);
+		
+	for (int i = 0; i < NUM_CLIFFS; i++)
+		cliffs[i].draw(&ri);
 
 	//Draw text to screen
 	std::wostringstream outs;

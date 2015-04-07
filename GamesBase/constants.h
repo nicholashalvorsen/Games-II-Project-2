@@ -20,6 +20,9 @@ const int GAME_WIDTH = 20;
 const int GAME_DEPTH = 20;
 const int GAME_BEHIND_DEPTH = 5;
 const int NUM_SCENERY = 2;
+const int NUM_CLIFFS = 30;
+const float CLIFF_HEIGHT = 10;
+const float CLIFF_WIDTH = 3.9;
 
 const float GRAVITY = - 8;
 const float VELOCITY_LIMIT = 10;
