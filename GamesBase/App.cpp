@@ -110,7 +110,9 @@ void App::initApp() {
 
 	audio = new Audio();
 	audio->initialize();
-	audio->playCue("music");
+	
+	// temp, I don't feel like listening to this 100 times 
+	//audio->playCue("music");
 
 	srand(time(0));
 
@@ -335,12 +337,29 @@ void App::updateScene(float dt) {
 	for (int i = 0; i < NUM_CLIFFS; i++)
 		cliffs[i].update(dt);
 
-    /* bottom collision, temp */
+    /* bottom collision, temp */ 
 	if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
 	{
 		player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 
 		player.setPosition(oldPlayerPosition);
+	}
+
+	// collision
+	for (int i = 0; i < NUM_PILLARS; i++)
+	{
+		if (player.collided(&pillars[i]))
+		{
+			player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
+			player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+		}
+	}
+
+	if (player.collided(&beginningPlatform))
+	{
+		player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
+		player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+
 	}
 
 	/* don't let the player go too fast */

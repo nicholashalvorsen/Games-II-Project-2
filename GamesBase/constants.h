@@ -31,7 +31,7 @@ const float PLAYER_ROTATE_SPEED = 3;
 const float PLAYER_THRUST = 20;
 const float PLAYER_BOUNCE_FORCE = 8;
 const float PLAYER_X_SPEED = 5;
-const float PLAYER_X_ACCEL = 100;
+const float PLAYER_X_ACCEL = 150;
 const float PLAYER_GLIDE_DROP = -1;
 const float PLAYER_DIVE_SPEED = -10;
 
