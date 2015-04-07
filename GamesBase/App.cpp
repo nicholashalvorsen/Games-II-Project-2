@@ -33,7 +33,7 @@ private:
 	void buildFX();
 	void buildVertexLayouts();
 
-	Audio audio;
+	Audio *audio;
 
 	//Geometry
 	Line line;
@@ -105,7 +105,11 @@ void App::initApp() {
 	D3DApp::initApp();
 	buildFX();
 	buildVertexLayouts();
-	audio.initialize();
+
+	audio = new Audio();
+	audio->initialize();
+	audio->playCue("music");
+
 	srand(time(0));
 
 	//Geometry
@@ -160,7 +164,7 @@ void App::initApp() {
 	ship.addChild(&quad, Vector3(SHIP_WIDTH / 4, 1, SHIP_LENGTH), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 2, 1, SHIP_WIDTH / 2), shipAni, shipColor);
 	// forward long thing
 	ship.addChild(&box, Vector3(SHIP_WIDTH / 2.0f, .745, SHIP_LENGTH + SHIP_FRONT_LENGTH / 1.5), Vector3(0, ToRadian(-90), 0), Vector3(SHIP_FRONT_LENGTH * 1.5, .5, .5), shipAni, shipColor2);
-	// rear
+	// rearccccccccccccccccccccc
 	ship.addChild(&box, Vector3(SHIP_WIDTH / 2, .7, .249), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(.5, 1.7, SHIP_WIDTH * .9), shipAni, shipColor2);
 	// mast
 	ship.addChild(&box, Vector3(SHIP_WIDTH / 2, MAST_HEIGHT / 2 + 1, SHIP_LENGTH / 2), Vector3(0, 0, 0), Vector3(.25, MAST_HEIGHT, .25), shipAni, shipColor3);
@@ -179,7 +183,7 @@ void App::initApp() {
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
 	wavesObject.init(&waves, Vector3(0, 0, 0));
-	wavesObject.setColor(40.0f / 255.0f, 60.0f / 255.0f, 255.0f / 255.0f, 1);
+	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
 
 	for (int i = 0; i < NUM_PILLARS; i++)
