@@ -34,7 +34,10 @@ private:
 	void buildVertexLayouts();
 
 	Audio *audio;
-
+	//to zoom the camera in/out
+	float zoom;
+	//to limit boosting
+	float thrust_timer;
 	//Geometry
 	Line line;
 	Box box;
@@ -115,7 +118,8 @@ void App::initApp() {
 	//audio->playCue("music");
 
 	srand(time(0));
-
+	zoom = 1.0f;
+	thrust_timer = 0.0f;
 	//Geometry
 	line.init(md3dDevice, WHITE);
 	box.init(md3dDevice, WHITE);
@@ -275,7 +279,17 @@ void App::updateScene(float dt) {
 
 	if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
 	if (GetAsyncKeyState('R')) player.resetPos();
-	if (GetAsyncKeyState(VK_SPACE)) player.thrustUp(dt);
+	//Thrust with a timer of a 1:2 thrust to cooldown ratio and a 2 second starting thrust bank.
+	if (GetAsyncKeyState(VK_SPACE)){ 
+		
+		if(thrust_timer < 0.5f){
+			thrust_timer+=dt;
+            player.thrustUp(dt);
+		}
+	
+	}else if(thrust_timer > 0){
+       	  thrust_timer -= 0.5*dt;
+	}
 	if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
 	if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
 	if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
@@ -314,6 +328,7 @@ void App::updateScene(float dt) {
 		{
 			int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 			pillars[i].setPosition(Vector3(x, 0 - PILLAR_HEIGHT_START, GAME_DEPTH));
+			pillars[i].setScale(Vector3(pillars[i].getScale().x * 0.9f, pillars[i].getScale().y *1.15f, pillars[i].getScale().z *.9f));
 		}
 	}
 
@@ -331,6 +346,8 @@ void App::updateScene(float dt) {
 				xpos = 10 + rand() % 3;
 
 			scenery[i].setPosition(Vector3(xpos, 1, GAME_DEPTH * 2));
+			//Scale boxes to get smaller every time they are re-positioned.
+			
 		}
 	}
 
@@ -387,12 +404,25 @@ void App::updateScene(float dt) {
 	// and mTheta measured counterclockwise from -z.
 	float d = 4;
 	float x =  5.0f*sinf(mPhi)*sinf(mTheta) * d;
-	float z = -5.0f*sinf(mPhi)*cosf(mTheta) * d;
-	float y =  5.0f*cosf(mPhi) * d;
-
+	float z = player.getPosition().z -5;
+	float y =  player.getPosition().y + 1;
+	
 	// Build the view matrix.
+
 	D3DXVECTOR3 pos(x, y, z);
-	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
+	//zoom out when thrusting
+	if (player.getVelocity().y > 0){
+		zoom += 0.02 * player.getVelocity().y * dt;
+		pos = pos * zoom;
+	}
+	else if(zoom > 1){
+		zoom += 0.02 * player.getVelocity().y * dt;
+		pos = pos * zoom;
+	}
+	else{
+		zoom = 1.0f;
+	}
+	D3DXVECTOR3 target(player.getPosition());
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMatrixLookAtLH(&ri.mView, &pos, &target, &up);
 }
