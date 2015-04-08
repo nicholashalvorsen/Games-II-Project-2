@@ -59,10 +59,15 @@ private:
 
 	Object beginningPlatform;
 	Object pillars[NUM_PILLARS];
+	Object clouds[NUM_CLOUDS];
 
 	RenderInfo ri;
 	ID3D10Effect* mFX;
 	ID3D10InputLayout* mVertexLayout;
+
+	bool atCloudHeight;
+	float cameraYBoost;
+	float cameraZBoost;
 
 	float mTheta;
 	float mPhi;
@@ -90,7 +95,7 @@ App::App(HINSTANCE hInstance):D3DApp(hInstance), mFX(0), mVertexLayout(0), rando
 	D3DXMatrixIdentity(&ri.mProj);
 
 	mTheta = 0;
-	mPhi = M_PI*0.40f;
+	mPhi = M_PI*0.33f;
 	mx = 0;
 	my = 0;
 	mz = 0;
@@ -194,11 +199,11 @@ void App::initApp() {
 
 	//Objects
 	axis.init(&line);
-	player.init(&bouncerBox, Vector3(0, 0, 0));
+	player.init(&box, Vector3(0, 0, 0));
 	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
-	wavesObject.init(&waves, Vector3(0, 0, 0));
+	wavesObject.init(&waves, Vector3(0, -.5, 0));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
 
@@ -209,11 +214,19 @@ void App::initApp() {
 		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
 		pillars[i].setColor(1, 1, .9, 1);
 	}
-
-	beginningPlatform.init(&pillarBox, Vector3(0, 0, GAME_DEPTH * .75));
+		 
+	beginningPlatform.init(&pillarBox, Vector3(0, .5, GAME_DEPTH * .75));
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
 	beginningPlatform.setVelocity(Vector3(0, 0, PILLAR_SPEED));
 	beginningPlatform.setColor(1, 1, .9, 1);
+
+	for (int i = 0; i < NUM_CLOUDS; i++)
+	{
+		clouds[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_CLOUDS*i));
+		clouds[i].setScale(Vector3(CLOUD_SIZE, 1, CLOUD_SIZE));
+		clouds[i].setVelocity(Vector3(0, 0, CLOUD_SPEED));
+		clouds[i].setColor(.8, .8, .8, 1);
+	}
 
 	for (int i = 0; i < NUM_SCENERY; i++)
 	{
@@ -236,7 +249,6 @@ void App::initApp() {
 
 	// create initial disturbance of waves
 	// the waves are set to never dampen so this will create waves that last forever
-	// to do: make these appear out of view (covered by a menu, behind walls, etc
 	for (int x = 0; x < 25; x++)
 	{
 
@@ -247,6 +259,10 @@ void App::initApp() {
 
 		waves.disturb(i, j, r);
 	}
+
+	atCloudHeight = false;
+	cameraYBoost = 0;
+	cameraZBoost = 0;
 
 }
 
@@ -285,12 +301,37 @@ void App::updateScene(float dt) {
 	if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
 	else
 		player.setDiving(false);
+	if (GetAsyncKeyState('B')) {
+		player.setVelocity(Vector3(0, 20, 0));
+		atCloudHeight = true;
+	}
 
 	Vector3 oldPlayerPosition = player.getPosition();
 
 	player.update(dt);
 	waves.update(dt);
 	wavesObject.update(dt);
+
+	if (player.getPosition().y < CLOUD_HEIGHT_START - 1 && player.getVelocity().y < 0)
+		atCloudHeight = false;
+
+	if (atCloudHeight)
+	{
+		if (cameraYBoost < CLOUD_HEIGHT_START)
+			cameraYBoost += CAMERA_MOVE_SPEED * dt;	
+
+		if (cameraZBoost < 10)
+			cameraZBoost += CAMERA_MOVE_SPEED * dt;
+	}
+	if (!atCloudHeight)
+	{
+		if (cameraYBoost > 0)
+			cameraYBoost -= CAMERA_MOVE_SPEED * dt;
+
+		if (cameraZBoost > 0)
+			cameraZBoost -= CAMERA_MOVE_SPEED * dt;
+
+	}
 
 	beginningPlatform.update(dt);
 	if (beginningPlatform.getPosition().y < .8)
@@ -310,10 +351,21 @@ void App::updateScene(float dt) {
 
 		pillars[i].update(dt);
 
-		if (pillars[i].getPosition().z < -10)
+		if (pillars[i].getPosition().z < -GAME_BEHIND_DEPTH)
 		{
 			int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 			pillars[i].setPosition(Vector3(x, 0 - PILLAR_HEIGHT_START, GAME_DEPTH));
+		}
+	}
+
+	for (int i = 0; i < NUM_CLOUDS; i++)
+	{
+		clouds[i].update(dt);
+
+		if (clouds[i].getPosition().z < -GAME_BEHIND_DEPTH)
+		{
+			int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+			clouds[i].setPosition(Vector3(x, CLOUD_HEIGHT_START, GAME_DEPTH));
 		}
 	}
 
@@ -355,6 +407,17 @@ void App::updateScene(float dt) {
 		}
 	}
 
+	for (int i = 0; i < NUM_CLOUDS; i++)
+	{
+		if (player.collided(&clouds[i]))
+		{
+			player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
+			player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+		}
+	}
+
+
+
 	if (player.collided(&beginningPlatform))
 	{
 		player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
@@ -391,8 +454,8 @@ void App::updateScene(float dt) {
 	float y =  5.0f*cosf(mPhi) * d;
 
 	// Build the view matrix.
-	D3DXVECTOR3 pos(x, y, z);
-	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 pos(x, y+cameraYBoost, z+cameraZBoost);
+	D3DXVECTOR3 target(0.0f, 0.0f+cameraYBoost*.7, 0.0f+cameraZBoost*.7);
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMatrixLookAtLH(&ri.mView, &pos, &target, &up);
 }
@@ -410,7 +473,7 @@ void App::drawScene() {
     md3dDevice->IASetInputLayout(mVertexLayout);
 
 	//Draw axis
-	axis.draw(&ri);
+	//axis.draw(&ri);
 
 	//Draw objects
 	
@@ -419,6 +482,9 @@ void App::drawScene() {
 	
 	for (int i = 0; i < NUM_PILLARS; i++)
 		pillars[i].draw(&ri);
+
+	for (int i = 0; i < NUM_CLOUDS; i++)
+		clouds[i].draw(&ri);
 
 	beginningPlatform.draw(&ri);
 
@@ -433,9 +499,10 @@ void App::drawScene() {
 	outs.precision(3);
 	outs << "Controls:\n"
 		<< "Move: Left/Right\n"
-		<< "Glide: Up\n" 
+		<< "Glide: Up\n"
 		<< "Dive: Down\n"
-		<< "Thrust: Space\n";
+		<< "Thrust: Space\n"
+		<< "Ascend (debug): B\n";
 	mFrameStats.clear();
 	mFrameStats.append(outs.str());
 

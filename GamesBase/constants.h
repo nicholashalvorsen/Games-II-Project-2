@@ -17,8 +17,8 @@ const wchar_t WAVE_BANK[]  = L"audio\\Win\\MyWBank.xwb";
 const wchar_t SOUND_BANK[] = L"audio\\Win\\MySBank.xsb";
 
 const int GAME_WIDTH = 20;
-const int GAME_DEPTH = 20;
-const int GAME_BEHIND_DEPTH = 5;
+const int GAME_DEPTH = 25;
+const int GAME_BEHIND_DEPTH = 10;
 const int NUM_SCENERY = 2;
 const int NUM_CLIFFS = 30;
 const float CLIFF_HEIGHT = 10;
@@ -39,7 +39,14 @@ const int NUM_PILLARS = 20;
 const float PILLAR_HEIGHT_START = 3;
 const float PILLAR_SPEED = -3;
 
-const float WATER_RISE_SPEED = 0.05;
+const int NUM_CLOUDS = 20;
+const float CLOUD_SPEED = -5;
+const float CLOUD_HEIGHT_START = 14;
+const float CLOUD_SIZE = 3;
+
+const float WATER_RISE_SPEED = 0;
+
+const float CAMERA_MOVE_SPEED = 16;
 
 
 #endif
