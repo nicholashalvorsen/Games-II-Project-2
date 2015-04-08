@@ -490,9 +490,6 @@ void App::updateScene(float dt) {
 	mEyePos.x =  5.0f*sinf(mPhi)*sinf(mTheta) * d;
 	mEyePos.z = player.getPosition().z - 10 + cameraZBoost;
 	mEyePos.y =  player.getPosition().y + 2 + cameraYBoost;
-
-	// Build the view matrix.
-	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 	
 	// Build the view matrix.
 	/*D3DXVECTOR3 pos(x, y, z);
