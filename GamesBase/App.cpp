@@ -298,7 +298,7 @@ void App::updateScene(float dt) {
 	//Thrust with a timer of a 1:2 thrust to cooldown ratio and a 2 second starting thrust bank.
 	if (GetAsyncKeyState(VK_SPACE)){ 
 		
-		if(thrust_timer < 0.5f){
+		if(thrust_timer < 1.0f){
 			thrust_timer+=dt;
             player.thrustUp(dt);
 		}
@@ -467,8 +467,8 @@ void App::updateScene(float dt) {
 	// and mTheta measured counterclockwise from -z.
 	float d = 4;
 	float x =  5.0f*sinf(mPhi)*sinf(mTheta) * d;
-	float z = player.getPosition().z -5;
-	float y =  player.getPosition().y + 1;
+	float z = player.getPosition().z -10;
+	float y =  player.getPosition().y + 2;
 	
 	// Build the view matrix.
 
@@ -486,10 +486,10 @@ void App::updateScene(float dt) {
 	else{
 		zoom = 1.0f;
 	}*/
-	D3DXVECTOR3 target(player.getPosition());
+	//D3DXVECTOR3 target(player.getPosition());
 
 	D3DXVECTOR3 pos(x, y+cameraYBoost, z+cameraZBoost);
-	D3DXVECTOR3 target(0.0f, 0.0f+cameraYBoost*.7, 0.0f+cameraZBoost*.7);
+	D3DXVECTOR3 target(player.getPosition() + Vector3(0.0f, 0.0f+cameraYBoost*.7, 0.0f+cameraZBoost*.7));
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMatrixLookAtLH(&ri.mView, &pos, &target, &up);
 }
