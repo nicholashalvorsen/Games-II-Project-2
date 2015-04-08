@@ -162,7 +162,7 @@ void Menu::update()
 			activeMenu = children[linePtr];
 			activeMenu->setOffset(MENU_OFFSET);	// set it forward and move it back
 			menuState = (lastMenuState-(lastMenuState % MODDER)+linePtr+1)*MODDER;
-		} else if(!GetAsyncKeyState(VK_RETURN)) {
+		} else if(GetAsyncKeyState(VK_RETURN)) {
 			menuState = lastMenuState-(lastMenuState % MODDER) + linePtr+1;
 		}
 		lastMenuState = menuState;

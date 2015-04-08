@@ -20,10 +20,19 @@ public:
 		velocity = Vector3(0, 0, 0);
 		color = Vector4(0, 0, 0, 1.0f);
 		active = true;
+		newAnimation = false;
+		animation = 0;
+		animationLength = 0;
 	}
 
 	void update(float dt) {
 		position += velocity * dt;
+
+		if (newAnimation) {
+			newAnimation = false;
+			geometry->setInitialState(animation);
+		}
+		geometry->update(animation, animationLength, dt);
 
 		Matrix rotXM, rotYM, rotZM, transM, scaleM;
 		RotateX(&rotXM, rotation.x);
@@ -41,12 +50,26 @@ public:
 	}
 
 	bool collided(Object *object) {
+		// collision using radius
+		/*
 		Vector3 diff = position - object->getPosition();
 		float length = D3DXVec3LengthSq(&diff);
 		float radii = radiusSquared + object->radiusSquared;
 		if (length <= radii)
 			return true;
 		return false;
+		*/
+
+		// box collision
+		if (getPosition().x + getScale().x / 2 > object->getPosition().x - object->getScale().x / 2 &&
+			getPosition().x - getScale().x / 2 < object->getPosition().x + object->getScale().x / 2 &&
+			getPosition().y - getScale().y / 2 > object->getPosition().y - object->getScale().y / 2 &&
+			getPosition().y + getScale().y / 2 < object->getPosition().y + object->getScale().y / 2 &&
+			getPosition().z - getScale().z / 2 > object->getPosition().z - object->getScale().z / 2 &&
+			getPosition().z + getScale().z / 2 < object->getPosition().z + object->getScale().z / 2)
+			return true;
+		else
+			return false;
 	}
 
 	void setPosition (Vector3 pos) { position = pos; }
@@ -74,8 +97,15 @@ public:
 		color.z = b;
 		color.w = a;
 	}
-private:
+
+	void setAnimation(int animation, float animationLength) {
+		newAnimation = true;
+		this->animation = animation;
+		this->animationLength = animationLength;
+	}
+protected:
 	Geometry* geometry;
+private:
 	Vector3 position;
 	Vector3 scale;
 	Vector3 rotation;
@@ -83,6 +113,10 @@ private:
 
 	Vector3 velocity;
 	float radiusSquared;
+
+	bool newAnimation;
+	int animation;
+	float animationLength;
 
 	bool active;
 

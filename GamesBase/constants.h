@@ -16,21 +16,46 @@
 const wchar_t WAVE_BANK[]  = L"audio\\Win\\MyWBank.xwb";
 const wchar_t SOUND_BANK[] = L"audio\\Win\\MySBank.xsb";
 
-const float GAME_WIDTH = 10;
-const float GAME_BOTTOM = -10;
-const float GAME_TOP = 8;
+const int GAME_WIDTH = 20;
+const int GAME_DEPTH = 25;
+const int GAME_BEHIND_DEPTH = 10;
+const int NUM_SCENERY = 2;
+const int NUM_CLIFFS = 30;
+const float CLIFF_HEIGHT = 10;
+const float CLIFF_WIDTH = 3.9;
 
-const float GRAVITY = - 5;
+const float GRAVITY = - 8;
 const float VELOCITY_LIMIT = 10;
+// not used currently
 const float PLAYER_ROTATE_SPEED = 3;
-const float PLAYER_THRUST = 10;
+const float PLAYER_THRUST = 20;
+const float PLAYER_BOUNCE_FORCE = 8;
+const float PLAYER_X_SPEED = 5;
+const float PLAYER_X_ACCEL = 150;
+const float PLAYER_GLIDE_DROP = -1;
+const float PLAYER_DIVE_SPEED = -10;
+
+const int NUM_PILLARS = 20;
+const float PILLAR_HEIGHT_START = 3;
+const float PILLAR_SPEED = -3;
+
+const int NUM_CLOUDS = 20;
+const float CLOUD_SPEED = -5;
+const float CLOUD_HEIGHT_START = 14;
+const float CLOUD_SIZE = 3;
+
+const float WATER_RISE_SPEED = 0;
+
+const float CAMERA_MOVE_SPEED = 16;
+
 
 const int MENU_OFFSET = 125;
 
-enum menuStates { GAME_MODE = 1, SFX, CHEATS, FEELING_LUCKY,
-					MODE_1_PLAYER = 11, MODE_2_PLAYER,
-					SFX_ON = 21, SFX_OFF,
-					CHEATS_ON = 31, CHEATS_OFF
+enum menuStates { NEW_GAME = 1, SFX, CHEATS, FEELING_LUCKY,
+};
+
+enum gameStates {
+	MENU, LEVEL1, LEVEL2, GAME_OVER
 };
 
 #endif

@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationState.h" />
     <ClInclude Include="audio.h" />
     <ClInclude Include="Axis.h" />
     <ClInclude Include="Box.h" />
@@ -90,6 +91,7 @@
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="Object.h" />
@@ -112,6 +114,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lighthelper.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
