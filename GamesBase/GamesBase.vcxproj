@@ -91,6 +91,7 @@
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Line.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Pyramid.h" />
@@ -105,6 +106,7 @@
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="d3dApp.cpp" />
     <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="menu.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>

@@ -20,7 +20,6 @@ class D3DApp
 public:
 	D3DApp(HINSTANCE hInstance);
 	virtual ~D3DApp();
-
 	HINSTANCE getAppInst();
 	HWND      getMainWnd();
 
@@ -65,6 +64,7 @@ protected:
 	D3DXCOLOR mClearColor;
 	int mClientWidth;
 	int mClientHeight;
+	
 };
 
 

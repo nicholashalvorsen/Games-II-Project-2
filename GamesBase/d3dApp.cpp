@@ -120,7 +120,7 @@ void D3DApp::initApp()
     fontDesc.PitchAndFamily  = DEFAULT_PITCH | FF_DONTCARE;
     wcscpy_s(fontDesc.FaceName, L"Times New Roman");
 
-	D3DX10CreateFontIndirect(md3dDevice, &fontDesc, &mFont);
+	D3DX10CreateFontIndirect(md3dDevice, &fontDesc, &mFont);  
 }
  
 void D3DApp::onResize()

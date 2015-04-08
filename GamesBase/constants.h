@@ -25,4 +25,12 @@ const float VELOCITY_LIMIT = 10;
 const float PLAYER_ROTATE_SPEED = 3;
 const float PLAYER_THRUST = 10;
 
+const int MENU_OFFSET = 125;
+
+enum menuStates { GAME_MODE = 1, SFX, CHEATS, FEELING_LUCKY,
+					MODE_1_PLAYER = 11, MODE_2_PLAYER,
+					SFX_ON = 21, SFX_OFF,
+					CHEATS_ON = 31, CHEATS_OFF
+};
+
 #endif

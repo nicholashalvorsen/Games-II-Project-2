@@ -11,6 +11,7 @@
 #include "audio.h"
 #include "Player.h"
 #include "Waves.h"
+#include "menu.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -64,6 +65,11 @@ private:
 	float mPhi;
 	float mx, my, mz;
 
+	float diff;
+
+	Menu* mainMenu;
+	bool activeMenu;
+
 	std::uniform_real_distribution<float> randomScaleDistribution;
 	std::mt19937 generator;
 };
@@ -100,6 +106,7 @@ App::~App() {
 }
 
 void App::initApp() {
+	diff = 0.0f;
 	D3DApp::initApp();
 	buildFX();
 	buildVertexLayouts();
@@ -154,6 +161,21 @@ void App::initApp() {
 		waves.disturb(i, j, r);
 	}
 
+	activeMenu = false;
+	mainMenu = new Menu();
+	
+	mainMenu->initialize(md3dDevice, NULL);
+
+
+	mainMenu->setMenuHeading("Stick Fight");
+
+	std::vector<std::string> menuItems;
+	menuItems.push_back("New Game >");	// Menu 1
+	menuItems.push_back("Sound FX >");	// Menu 2
+	menuItems.push_back("Cheats >");	// Menu 3
+	menuItems.push_back("I'm Feeling Lucky");
+	mainMenu->setMenuItems(menuItems);
+
 }
 
 void App::onResize() {
@@ -164,6 +186,7 @@ void App::onResize() {
 
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
+	mainMenu->update();
 
 	// Every quarter second, generate a random wave.
 	/*static float t_base = 0.0f;
@@ -257,6 +280,8 @@ void App::updateScene(float dt) {
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMatrixLookAtLH(&ri.mView, &pos, &target, &up);
+	
+	diff = dt;
 }
 
 void App::drawScene() {
@@ -298,6 +323,7 @@ void App::drawScene() {
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT R = {5, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R, DT_NOCLIP, WHITE);
+	mainMenu->displayMenu(diff);
 	mSwapChain->Present(0, 0);
 }
 
