@@ -9,6 +9,7 @@ struct RenderInfo {
 	Matrix mProj;
 
 	ID3D10EffectTechnique* mTech;
+	ID3D10EffectMatrixVariable* mfxWorldVar;
 	ID3D10EffectMatrixVariable* mfxWVPVar;
 	ID3D10EffectVectorVariable* mfxColorVar;
 };

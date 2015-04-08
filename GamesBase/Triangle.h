@@ -59,6 +59,7 @@ public:
 	void draw(RenderInfo* ri, Matrix world, Vector4 color) {
 		Matrix mWVP = world * ri->mView * ri->mProj;
 		ri->mfxWVPVar->SetMatrix((float*)&mWVP);
+		ri->mfxWorldVar->SetMatrix((float*)&world);
 		ri->mfxColorVar->SetFloatVectorArray(color, 0, 4);
 		D3D10_TECHNIQUE_DESC techDesc;
 		ri->mTech->GetDesc( &techDesc );

@@ -12,6 +12,7 @@
 #include "Player.h"
 #include "Waves.h"
 #include "AnimationState.h"
+#include "Light.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -34,6 +35,14 @@ private:
 	void buildVertexLayouts();
 
 	Audio audio;
+
+	//Lighting
+	ID3D10EffectVariable* mfxEyePosVar;
+	ID3D10EffectVariable* mfxLightVar;
+	ID3D10EffectScalarVariable* mfxLightType;
+	D3DXVECTOR3 mEyePos;
+
+	Light mLight;
 
 	//Geometry
 	Line line;
@@ -78,7 +87,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	return theApp.run();
 }
 
-App::App(HINSTANCE hInstance):D3DApp(hInstance), mFX(0), mVertexLayout(0), randomScaleDistribution(0.25f, 2.25f) {
+App::App(HINSTANCE hInstance):D3DApp(hInstance), mFX(0), mVertexLayout(0), randomScaleDistribution(0.25f, 2.25f), mEyePos(0.0f, 0.0f, 0.0f) {
 	ri.mTech = 0;
 	ri.mfxWVPVar = 0;
 	D3DXMatrixIdentity(&ri.mView);
@@ -142,7 +151,7 @@ void App::initApp() {
 		pillars[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*i));
 		pillars[i].setScale(Vector3(1.5, rand() % 2 + PILLAR_HEIGHT_START * 2, 1.5));
 		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
-		pillars[i].setColor(1, 1, .9, 1);
+		pillars[i].setColor(1, 0, .9, 1);
 	}
 
 
@@ -156,6 +165,18 @@ void App::initApp() {
 
 		waves.disturb(i, j, r);
 	}
+
+	//Light
+	mLight.ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
+	mLight.diffuse = D3DXCOLOR(0.1f, 0.1f, 0.1f, 0.1f);
+	mLight.specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 0.7f);
+	mLight.att.x    = 1.0f;
+	mLight.att.y    = 0.0f;
+	mLight.att.z    = 0.0f;
+	mLight.spotPow  = 64.0f;
+	mLight.range    = 10000.0f;
+	mLight.pos = Vector3(0, 15.0f, 0);
+	mLight.dir = Vector3(0.0f, -1.0f, 0.0f);
 
 }
 
@@ -254,15 +275,14 @@ void App::updateScene(float dt) {
 	// Convert Spherical to Cartesian coordinates: mPhi measured from +y
 	// and mTheta measured counterclockwise from -z.
 	float d = 4;
-	float x =  5.0f*sinf(mPhi)*sinf(mTheta) * d;
-	float z = -5.0f*sinf(mPhi)*cosf(mTheta) * d;
-	float y =  5.0f*cosf(mPhi) * d;
+	mEyePos.x =  5.0f*sinf(mPhi)*sinf(mTheta) * d;
+	mEyePos.z = -5.0f*sinf(mPhi)*cosf(mTheta) * d;
+	mEyePos.y =  5.0f*cosf(mPhi) * d;
 
 	// Build the view matrix.
-	D3DXVECTOR3 pos(x, y, z);
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
-	D3DXMatrixLookAtLH(&ri.mView, &pos, &target, &up);
+	D3DXMatrixLookAtLH(&ri.mView, &mEyePos, &target, &up);
 }
 
 void App::drawScene() {
@@ -276,6 +296,11 @@ void App::drawScene() {
 	float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
     md3dDevice->IASetInputLayout(mVertexLayout);
+
+	//Set Lighting
+	mfxEyePosVar->SetRawValue(&mEyePos, 0, sizeof(D3DXVECTOR3));
+	mfxLightVar->SetRawValue(&mLight, 0, sizeof(Light));
+	mfxLightType->SetInt(0);
 
 	//Draw Axis
 	axis.draw(&ri);
@@ -322,10 +347,14 @@ void App::buildFX() {
 		DXTrace(__FILE__, (DWORD)__LINE__, hr, L"D3DX10CreateEffectFromFile", true);
 	} 
 
-	ri.mTech = mFX->GetTechniqueByName("ColorTech");
+	ri.mTech = mFX->GetTechniqueByName("Tech");
 	
 	ri.mfxWVPVar = mFX->GetVariableByName("gWVP")->AsMatrix();
+	ri.mfxWorldVar  = mFX->GetVariableByName("gWorld")->AsMatrix();
 	ri.mfxColorVar = mFX->GetVariableByName("colorOverride")->AsVector();
+	mfxEyePosVar = mFX->GetVariableByName("gEyePosW");
+	mfxLightVar  = mFX->GetVariableByName("gLight");
+	mfxLightType = mFX->GetVariableByName("gLightType")->AsScalar();
 }
 
 void App::buildVertexLayouts()
@@ -334,12 +363,14 @@ void App::buildVertexLayouts()
 	D3D10_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0}
+		{"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0},
+		{"DIFFUSE",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D10_INPUT_PER_VERTEX_DATA, 0},
+		{"SPECULAR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 40, D3D10_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	// Create the input layout
     D3D10_PASS_DESC PassDesc;
     ri.mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
-    HR(md3dDevice->CreateInputLayout(vertexDesc, 2, PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &mVertexLayout));
+    HR(md3dDevice->CreateInputLayout(vertexDesc, 4, PassDesc.pIAInputSignature,PassDesc.IAInputSignatureSize, &mVertexLayout));
 }
  
