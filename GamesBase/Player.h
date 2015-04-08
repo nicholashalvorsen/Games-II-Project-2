@@ -19,11 +19,20 @@ public:
 	void thrust(float dt);
 	void rotateRight(float dt);
 	void rotateLeft(float dt);
+	void accelLeft(float dt);
+	void accelRight(float dt);
+	void decelX(float dt);
+	void setGliding(bool g);
+	void setDiving(bool d);
+	void airBounce();
 	void resetPos();
 
 	float rotationAngle;
 
 	float animationTimer;
+
+	bool diving;
+	bool gliding;
 };
 
 

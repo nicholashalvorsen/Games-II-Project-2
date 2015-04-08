@@ -50,12 +50,26 @@ public:
 	}
 
 	bool collided(Object *object) {
+		// collision using radius
+		/*
 		Vector3 diff = position - object->getPosition();
 		float length = D3DXVec3LengthSq(&diff);
 		float radii = radiusSquared + object->radiusSquared;
 		if (length <= radii)
 			return true;
 		return false;
+		*/
+
+		// box collision
+		if (getPosition().x + getScale().x / 2 > object->getPosition().x - object->getScale().x / 2 &&
+			getPosition().x - getScale().x / 2 < object->getPosition().x + object->getScale().x / 2 &&
+			getPosition().y - getScale().y / 2 > object->getPosition().y - object->getScale().y / 2 &&
+			getPosition().y + getScale().y / 2 < object->getPosition().y + object->getScale().y / 2 &&
+			getPosition().z - getScale().z / 2 > object->getPosition().z - object->getScale().z / 2 &&
+			getPosition().z + getScale().z / 2 < object->getPosition().z + object->getScale().z / 2)
+			return true;
+		else
+			return false;
 	}
 
 	void setPosition (Vector3 pos) { position = pos; }
