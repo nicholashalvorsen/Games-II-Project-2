@@ -73,7 +73,9 @@ private:
 	Object cliffs[NUM_CLIFFS];
 	Object leftCliffs[NUM_CLIFFS];
 	Object rightCliffs[NUM_CLIFFS];
-	
+	Object simpleCliff;
+	Object simpleLeftCliff;
+	Object simpleRightCliff;
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
 
@@ -316,6 +318,18 @@ void App::initApp() {
 		rightCliffs[i].init(&cliffsGeometry, Vector3(38, CLIFF_HEIGHT / 2, CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH * 3.5));
 		rightCliffs[i].setRotation(Vector3(0, ToRadian(90), 0));
 	}
+
+	simpleCliff.init(&box, Vector3(0, 5, 53));
+	simpleCliff.setScale(Vector3(70, 10, 2));
+	simpleCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+	
+	simpleLeftCliff.init(&box, Vector3(-36, 5, 20));
+	simpleLeftCliff.setScale(Vector3(2, 10, 68));
+	simpleLeftCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+
+	simpleRightCliff.init(&box, Vector3(36, 5, 20));
+	simpleRightCliff.setScale(Vector3(2, 10, 68));
+	simpleRightCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
 
 	for (int i = 0; i < NUM_STARS; i++)
 	{
@@ -576,10 +590,14 @@ void App::updateScene(float dt) {
 
 		for (int i = 0; i < NUM_CLIFFS; i++)
 		{
-			cliffs[i].update(dt);
-			leftCliffs[i].update(dt);
-			rightCliffs[i].update(dt);
+			//cliffs[i].update(dt);
+			//leftCliffs[i].update(dt);
+			//rightCliffs[i].update(dt);
 		}
+
+		simpleCliff.update(dt);
+		simpleLeftCliff.update(dt);
+		simpleRightCliff.update(dt);
 
 		for (int i = 0; i < NUM_STARS; i++)
 		{
@@ -765,6 +783,9 @@ void App::drawScene() {
 			//	leftCliffs[i].draw(&ri);
 			//	rightCliffs[i].draw(&ri);
 			//}
+			simpleCliff.draw(&ri);
+			simpleLeftCliff.draw(&ri);
+			simpleRightCliff.draw(&ri);
 
 			if (atLayer >= 2)
 				for (int i = 0; i < NUM_STARS; i++)
