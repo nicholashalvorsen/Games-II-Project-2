@@ -123,6 +123,8 @@ private:
 	float fadeTextOpacity;
 	float fadeTextCurrentDuration;
 
+	bool gameWon;
+
 	int points;
 };
 
@@ -166,6 +168,7 @@ void App::initApp() {
 	buildVertexLayouts();
 
 	easyMode = false;
+	gameWon = false;
 
 	audio = new Audio();
 	audio->initialize();
@@ -174,7 +177,6 @@ void App::initApp() {
 	trampObject.init(&testTramp, D3DXVECTOR3(0, -100, 0));
 	trampObject.update(0.0f);
 
-	// temp, I don't feel like listening to this 100 times 
 	audio->playCue("music");
 	//audio_timer = 0;
 	srand(time(0));
@@ -302,18 +304,18 @@ void App::initApp() {
 		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
-	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]+5, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
+	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]-100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
     trampObject.setScale(Vector3(1,1,1));
     trampObject.setVelocity(Vector3(0, 0, PILLAR_SPEED));
     trampObject.setInActive();
     trampObject.update(0.0f);
 
-
+	/*
 	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]+5, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
     trampObject.setScale(Vector3(1,1,1));
     trampObject.setVelocity(Vector3(0, 0, PILLAR_SPEED));
     trampObject.setInActive();
-    trampObject.update(0.0f);
+    trampObject.update(0.0f);*/
 
 		 
 	beginningPlatform.init(&box, Vector3(0, .5, GAME_DEPTH * .4));
@@ -490,7 +492,7 @@ void App::updateScene(float dt) {
 		}*/
 
 		if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
-		if(gameState != GAME_OVER) {
+		if(gameState != GAME_OVER && !gameWon) {
 			if (GetAsyncKeyState('R')) player.resetPos();
 			//Thrust with a timer of a 1:2 thrust to cooldown ratio and a 2 second starting thrust bank.
 			if (GetAsyncKeyState(VK_SPACE)){ 
@@ -534,7 +536,7 @@ void App::updateScene(float dt) {
 					fadeText(LAYER_NAMES[1]);
 					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
                     trampObject.setInActive();
-                    trampObject.setPosition(Vector3(x, LAYER_HEIGHT[1], GAME_DEPTH));
+                    trampObject.setPosition(Vector3(x, LAYER_HEIGHT[1] + 2, GAME_DEPTH));
 
 					player.setVelocity(Vector3(0, 18, 0));
 					atLayer = 1;
@@ -544,13 +546,14 @@ void App::updateScene(float dt) {
 					fadeText(LAYER_NAMES[2]);
 					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
                     trampObject.setInActive();
-                    trampObject.setPosition(Vector3(x, LAYER_HEIGHT[2], GAME_DEPTH));
+                    trampObject.setPosition(Vector3(x, LAYER_HEIGHT[2] + 2, GAME_DEPTH));
 
 					player.setVelocity(Vector3(0, 27, 0));
 					atLayer = 2;
 				} else
                 if (atLayer == 2) {
-                    fadeText(L"YOU WIN!");
+                    //fadeText(L"YOU WIN!");
+					gameWon = true;
                 }
 
 			}
@@ -560,6 +563,9 @@ void App::updateScene(float dt) {
 		if(gameState != GAME_OVER) {
 			player.update(dt);
 		}
+		if (gameWon)
+			player.setVelocity(Vector3(0, 20, 0));
+
 		pWings.first.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
 		pWings.second.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
 	
@@ -647,7 +653,7 @@ void App::updateScene(float dt) {
 			}
 			if(trampObject.getPosition().z < -GAME_BEHIND_DEPTH) {
                 int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
-                trampObject.setPosition(Vector3(x, LAYER_HEIGHT[atLayer], GAME_DEPTH));
+                trampObject.setPosition(Vector3(x, LAYER_HEIGHT[atLayer] + 2, GAME_DEPTH));
             }
 
 		}
@@ -925,7 +931,7 @@ void App::drawScene() {
 		po << "Points: " << points;
 		pt.clear();
 		pt.append(po.str());
-		RECT Rp = {600, 5, 0, 0};
+		RECT Rp = {580, 5, 0, 0};
 		mFont->DrawText(0, pt.c_str(), -1, &Rp, DT_NOCLIP, WHITE);
 			break;
 		}
@@ -942,7 +948,7 @@ void App::drawScene() {
 		  height = rect.bottom - rect.top;
 		}
 		RECT R2 = {0, 100, width, height / 4};
-		std::string gameOverString = "Game Over";
+		std::string gameOverString = "G A M E   O V E R";
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 	} else if (gameState == MENU) {
 		RECT rect;
@@ -961,7 +967,19 @@ void App::drawScene() {
 		RECT R3 = {300, 200, width, height / 2};
 		gameOverString = "Controls:\nMove: Left/Right\nGlide: Up\nDive: Down";
 		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
-	}
+	} else if (gameWon) {
+		RECT rect;
+		int width;
+		int height;
+		if (GetWindowRect(mhMainWnd, &rect))
+		{
+			width = rect.right - rect.left;
+			height = rect.bottom - rect.top;
+		}
+		RECT R2 = { 0, 100, width, height / 4 };
+		std::string gameOverString = "Y O U   W I N !";
+		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+		}
 	else if (fadeTextActive)
 	{
 		RECT rect;
@@ -988,7 +1006,7 @@ void App::drawScene() {
 		  height = rect.bottom - rect.top;
 		}
 		
-		RECT rect2 = {height, 10, width, height/4};
+		RECT rect2 = {height, 5, width, height/4};
 		std::wstring easyMessage = L"Easy mode";
 		mFont->DrawText(0, easyMessage.c_str(), -1, &rect2, DT_CENTER, D3DXCOLOR(1, 1, 1, .5));
 
