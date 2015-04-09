@@ -459,7 +459,7 @@ void App::onResize() {
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
 	updateGameState(dt);
-	if(elapsedTime >= 00.0f) {
+	if(elapsedTime >= 30.0f) {
         trampObject.setActive();
     } else {
         trampObject.setInActive();
