@@ -482,7 +482,7 @@ void App::updateScene(float dt) {
 		waves.update(dt);
 		wavesObject.update(dt);
 
-		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0)
+		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
 			atLayer--;
 			fadeText(LAYER_NAMES[atLayer]);
@@ -585,6 +585,7 @@ void App::updateScene(float dt) {
 		}
 
 		// collision
+
 		if (atLayer == 0)
 		{
 			for (int i = 0; i < NUM_PILLARS; i++)
