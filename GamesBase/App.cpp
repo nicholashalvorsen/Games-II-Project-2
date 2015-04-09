@@ -171,7 +171,7 @@ void App::initApp() {
 	audio->initialize();
 	
 	testTramp.init(md3dDevice, RED);
-	trampObject.init(&testTramp, D3DXVECTOR3(0, 5, 0));
+	trampObject.init(&testTramp, D3DXVECTOR3(0, -100, 0));
 	trampObject.update(0.0f);
 
 	// temp, I don't feel like listening to this 100 times 
@@ -469,11 +469,11 @@ void App::updateScene(float dt) {
 	case GAME_OVER:
 	case LEVEL1:
 		{
-		if (gameState != GAME_OVER) {
-			if (atLayer == 0) points += 100 * dt;
-			if (atLayer == 1) points += 200 * dt;
-			if (atLayer == 2) points += 400 * dt;
-		}
+		//if (gameState != GAME_OVER) {
+		//	if (atLayer == 0) points += 100 * dt;
+		//	if (atLayer == 1) points += 200 * dt;
+		//	if (atLayer == 2) points += 400 * dt;
+		//}
 
 		// Every quarter second, generate a random wave.
 		/*static float t_base = 0.0f;
@@ -563,18 +563,14 @@ void App::updateScene(float dt) {
 		pWings.first.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
 		pWings.second.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
 	
-
-
 		pWings.first.update(dt);
 		pWings.second.update(dt);
-
 
 		waves.update(dt);
 		wavesObject.update(dt);
 		if(trampObject.getActiveState()) {
             trampObject.update(dt);
         }
-
 
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
@@ -604,7 +600,11 @@ void App::updateScene(float dt) {
 		for (int i = 0; i < NUM_DIAMONDS; i++)
 		{
 			diamond.increaseRotation(1);
+
 			//diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180, 0));//Spinning effect diamond.getRotation() * M_PI / 180
+
+			diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180*dt, 0));//Spinning effect diamond.getRotation() * M_PI / 180
+
 			
 			if ((atLayer == 0 && diamonds[i].getPosition().y < LAYER_HEIGHT[0] + 4) || 
 				(atLayer == 1 && diamonds[i].getPosition().y < LAYER_HEIGHT[1] + 4) ||
@@ -739,6 +739,7 @@ void App::updateScene(float dt) {
 					{
 						player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 						player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+						points += 10;
 					}
 				}
 			}
@@ -749,14 +750,15 @@ void App::updateScene(float dt) {
 			{
 				if( clouds[i].getActiveState())
 				{
-					if ((rand() % 10000) == 1)
-						clouds[i].setInActive();
+					//if ((rand() % 10000) == 1)
+					//	clouds[i].setInActive();
 				}
 				
 				if (player.collided(&clouds[i]))
 				{
 					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+					points += 20;
 				}
 			}
 		}
@@ -768,6 +770,7 @@ void App::updateScene(float dt) {
 				{
 					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+					points += 40;
 				}
 			}
 		}
@@ -786,10 +789,10 @@ void App::updateScene(float dt) {
 			
 
 		// Update angles based on input to orbit camera around box.
-		if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
-		if(GetAsyncKeyState('D') & 0x8000)	mTheta += 2.0f*dt;
-		if(GetAsyncKeyState('W') & 0x8000)	mPhi -= 2.0f*dt;
-		if(GetAsyncKeyState('S') & 0x8000)	mPhi += 2.0f*dt;
+		//if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
+		//if(GetAsyncKeyState('D') & 0x8000)	mTheta += 2.0f*dt;
+		//if(GetAsyncKeyState('W') & 0x8000)	mPhi -= 2.0f*dt;
+		//if(GetAsyncKeyState('S') & 0x8000)	mPhi += 2.0f*dt;
 
 		// Restrict the angle mPhi.
 		if( mPhi < 0.1f )	mPhi = 0.1f;
