@@ -64,7 +64,7 @@ const int MENU_OFFSET = 125;
 const float FADE_TEXT_DURATION = 2;
 const float FADE_TEXT_FADE_SPEED = 1;
 
-enum menuStates { NEW_GAME = 1, SFX, CHEATS, FEELING_LUCKY,
+enum menuStates { PLAY = 1, PLAY_EASY, SOUNDS
 };
 
 enum gameStates {
