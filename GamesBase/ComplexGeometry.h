@@ -41,7 +41,6 @@ public:
 		c.m = scaleM * rotXM * rotYM * rotZM * transM;
 		c.c = color;
 		c.hasColor = true;
-
 		children.push_back(c);
 	}
 
@@ -80,6 +79,8 @@ public:
 		if (time == 0) return;
 		for (int i = 0; i < children.size(); i++) {
 			Child c = children[i];
+
+			if (c.animation == 0) continue;
 
 			Animation ani = c.animation->getAnimation(animation);
 			c.rotate.x += (ani.Erotate.x - ani.Srotate.x) / time * dt;

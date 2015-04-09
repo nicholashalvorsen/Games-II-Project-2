@@ -47,15 +47,16 @@ private:
 	ID3D10EffectVariable* mfxEyePosVar;
 	ID3D10EffectVariable* mfxLightVar;
 	ID3D10EffectScalarVariable* mfxLightType;
+	ID3D10EffectVariable* mfxPlayerPos;
 	D3DXVECTOR3 mEyePos;
 
 	Light mLight;
 	Light pointlights[8];
 	//Geometry
 	Line line;
-	Box box;
+	ComplexGeometry box;
 	ComplexGeometry bouncerBox;
-	Box pillarBox;
+	ComplexGeometry pillarBox;
 	Quad quad;
 	Pyramid pyramid;
 	Triangle triangle;
@@ -157,8 +158,7 @@ void App::initApp() {
 	thrust_timer = 0.0f;
 	//Geometry
 	line.init(md3dDevice, WHITE);
-	box.init(md3dDevice, WHITE);
-	pillarBox.init(md3dDevice, WHITE);
+	//box.init(md3dDevice, WHITE);
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
@@ -166,11 +166,22 @@ void App::initApp() {
 
 	//Complex Geometry
 	// ---------------------------ANIMATION TEST
+	box.init(&quad);
+	box.addChild(&quad, Vector3(0, 0, -0.5f), Vector3(ToRadian(90), 0, 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, 0, +0.5f), Vector3(ToRadian(-90), 0, 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(-0.5f, 0, 0), Vector3(0, 0, ToRadian(-90)), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(+0.5f, 0, 0), Vector3(0, 0, ToRadian(90)), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, -0.5f, 0), Vector3(0, ToRadian(180), 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, 0.5f, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), 0);
+
 	bouncerBox.init(&box);
 	AnimationState* bbani = new AnimationState();
 	bbani->addAnimation(Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
 	bbani->addAnimation(Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
 	bouncerBox.addChild(&box, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), bbani, Vector4(1, 0, 0, 1));
+
+	pillarBox.init(&box);
+	pillarBox.addChild(&box, Vector3(0, 0.55f, 0), Vector3(0, 0, 0), Vector3(1.2f, 0.1f, 1.2f), 0);
 
 	ComplexGeometry ship;
 	ship.init(&line);
@@ -249,7 +260,7 @@ void App::initApp() {
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
 		 
-	beginningPlatform.init(&pillarBox, Vector3(0, .5, GAME_DEPTH * .75));
+	beginningPlatform.init(&pillarBox, Vector3(0, .5, GAME_DEPTH * .4));
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
 	beginningPlatform.setVelocity(Vector3(0, 0, PILLAR_SPEED));
 	beginningPlatform.setColor(1, 1, .9, 1);
@@ -342,8 +353,8 @@ void App::initApp() {
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
-	mLight.pos = Vector3(15.0f, 15.0f, 0);
-	mLight.dir = Vector3(0.0f, -1.0f, 1.0f);
+	mLight.pos = Vector3(0.0f, 15.0f, 0.0f);
+	mLight.dir = Vector3(0.0f, -1.0f, 2.0f);
 	
 	for(int i = 0; i < 8; i++){
 		pointlights[i].ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
@@ -409,6 +420,7 @@ void App::updateScene(float dt) {
 	
 			}else if(thrust_timer > 0){
        			  thrust_timer -= 0.5*dt;
+
 			}
 			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
 			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
@@ -444,7 +456,6 @@ void App::updateScene(float dt) {
 
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0)
 		{
-			player.setVelocity(Vector3(player.getVelocity().x, 0, player.getVelocity().z));
 			atLayer--;
 			fadeText(LAYER_NAMES[atLayer]);
 		}
@@ -550,10 +561,13 @@ void App::updateScene(float dt) {
 		{
 			for (int i = 0; i < NUM_PILLARS; i++)
 			{
-				if (player.collided(&pillars[i]) && abs((oldPlayerPosition.y - player.getScale().y / 2) > pillars[i].getPosition().y + pillars[i].getScale().y / 2))
+				if (player.collided(&pillars[i]))
 				{
-					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
-					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+					if (abs((oldPlayerPosition.y - player.getScale().y / 2) + .1 > pillars[i].getPosition().y + pillars[i].getScale().y / 2))
+					{
+						player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
+						player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+					}
 				}
 			}
 		}
@@ -588,15 +602,10 @@ void App::updateScene(float dt) {
 		}
 
 		/* don't let the player go too fast */
-		/*if (abs(player.getVelocity().x) > VELOCITY_LIMIT)
-			player.setVelocity(Vector3(player.getVelocity().x * .99, player.getVelocity().y, player.getVelocity().z));
 
-		if (abs(player.getVelocity().y) > VELOCITY_LIMIT)
+		if (player.getVelocity().y < Y_VELOCITY_LIMIT)
 			player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y * .99, player.getVelocity().z));
-
-		if (abs(player.getVelocity().y) > VELOCITY_LIMIT)
-			player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y, player.getVelocity().z * .99));
-			*/
+			
 
 		// Update angles based on input to orbit camera around box.
 		if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
@@ -669,28 +678,30 @@ void App::drawScene() {
 	case LEVEL1:
 	case LEVEL2:
 		{
-			D3DApp::drawScene();
-			mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
-			if (atLayer == 2)
-				mClearColor = D3DXCOLOR(0, 0, 0, 1);
 
-			// Restore default states, input layout and primitive topology 
-			// because mFont->DrawText changes them.  Note that we can 
-			// restore the default states by passing null.
-			md3dDevice->OMSetDepthStencilState(0, 0);
-			float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
-			md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
-			md3dDevice->IASetInputLayout(mVertexLayout);
+		D3DApp::drawScene();
+		mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
+		if (atLayer == 2)
+			mClearColor = D3DXCOLOR(0, 0, 0, 1);
 
-			//Set Lighting
-			mfxEyePosVar->SetRawValue(&mEyePos, 0, sizeof(D3DXVECTOR3));
-			mfxLightVar->SetRawValue(&mLight, 0, sizeof(Light));
-			mfxLightType->SetInt(0);
+		// Restore default states, input layout and primitive topology 
+		// because mFont->DrawText changes them.  Note that we can 
+		// restore the default states by passing null.
+		md3dDevice->OMSetDepthStencilState(0, 0);
+		float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
+		md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
+		md3dDevice->IASetInputLayout(mVertexLayout);
 
-			//Draw Axis
-			//axis.draw(&ri);
+		//Set Lighting
+		mfxEyePosVar->SetRawValue(&mEyePos, 0, sizeof(D3DXVECTOR3));
+		mfxLightVar->SetRawValue(&mLight, 0, sizeof(Light));
+		mfxLightType->SetInt(0);
+		mfxPlayerPos->SetRawValue(&player.getPosition(), 0, sizeof(D3DXVECTOR3));
 
-			//Draw objects
+		//Draw Axis
+		//axis.draw(&ri);
+
+		//Draw objects
 	
 			player.draw(&ri);
 			wavesObject.draw(&ri);
@@ -748,6 +759,7 @@ void App::drawScene() {
 
 		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
 	}
+	
 	
 	RECT R1 = {200, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
@@ -818,6 +830,7 @@ void App::buildFX() {
 	mfxEyePosVar = mFX->GetVariableByName("gEyePosW");
 	mfxLightVar  = mFX->GetVariableByName("gLight");
 	mfxLightType = mFX->GetVariableByName("gLightType")->AsScalar();
+	mfxPlayerPos = mFX->GetVariableByName("playerPos");
 }
 
 void App::buildVertexLayouts()
