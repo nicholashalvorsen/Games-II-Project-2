@@ -15,8 +15,8 @@ public:
 
 	void init(ID3D10Device* device, D3DXCOLOR c) {
 		md3dDevice = device;
-		mNumVertices = 10;
-		mNumFaces    = 8;
+		mNumVertices = 20;
+		mNumFaces    = 20;
 
 		Vertex vertices[] = {
 			{D3DXVECTOR3(-3.0f, 0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
@@ -28,7 +28,17 @@ public:
 			{D3DXVECTOR3(2.0f, 0.5f, -3.0f), D3DXVECTOR3(0, 1, 0), c},
 			{D3DXVECTOR3(0.0f, 0.5f, -1.5f), D3DXVECTOR3(0, 1, 0), c},
 			{D3DXVECTOR3(-2.0f, 0.5f, -3.0f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f), D3DXVECTOR3(0, 1, 0), c}};
+			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(-3.0f, -0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(-0.75f, -0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(0.0f, -0.5f, 3.0f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(0.75f, -0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(3.0f, -0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(1.5f, -0.5f, -0.25f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(2.0f, -0.5f, -3.0f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(0.0f, -0.5f, -1.5f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(-2.0f, -0.5f, -3.0f), D3DXVECTOR3(0, 1, 0), c},
+			{D3DXVECTOR3(-1.5f, -0.5f, -0.25f), D3DXVECTOR3(0, 1, 0), c}};
 
 		D3D10_BUFFER_DESC vbd;
 		vbd.Usage = D3D10_USAGE_IMMUTABLE;
@@ -55,7 +65,32 @@ public:
 
 			// right face
 			9, 3, 7,
-			1, 3, 9
+			1, 3, 9,
+
+
+
+			// front face
+			18, 8, 7,
+			7, 17, 18,
+
+			// back face
+			17, 7, 6,
+			6, 16, 17,
+
+			// left face
+			6, 5, 15,
+			15, 16, 6,
+
+			// right face
+			5, 4, 14,
+			14, 15, 5,
+
+			9, 8, 18,
+			18, 19, 9,
+
+			// back face
+			0, 9, 19,
+			19, 10, 0,
 		};
 
 		D3D10_BUFFER_DESC ibd;
