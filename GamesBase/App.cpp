@@ -455,7 +455,7 @@ void App::updateScene(float dt) {
 		waves.update(dt);
 		wavesObject.update(dt);
 
-		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0)
+		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
 			atLayer--;
 			fadeText(LAYER_NAMES[atLayer]);
@@ -558,6 +558,7 @@ void App::updateScene(float dt) {
 		}
 
 		// collision
+
 		if (atLayer == 0)
 		{
 			for (int i = 0; i < NUM_PILLARS; i++)
@@ -760,7 +761,6 @@ void App::drawScene() {
 
 		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
 	}
-	
 	
 	RECT R1 = {200, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
