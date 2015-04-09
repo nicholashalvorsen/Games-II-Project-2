@@ -276,9 +276,9 @@ void App::initApp() {
 		int xpos;
 
 		if (lr == 1)
-			xpos = -GAME_WIDTH / 2 - 4 - rand() % 5;
+			xpos = -GAME_WIDTH / 2 - 7 - rand() % 5;
 		else
-			xpos =  GAME_WIDTH / 2 + 4 + rand() % 5;
+			xpos =  GAME_WIDTH / 2 + 7 + rand() % 5;
 
 		scenery[i].init(&sceneryGeometry[i], Vector3(xpos, 1, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_SCENERY*i));
 		scenery[i].setVelocity(Vector3(0, 0, -1));
@@ -546,7 +546,7 @@ void App::updateScene(float dt) {
 		{
 			for (int i = 0; i < NUM_PILLARS; i++)
 			{
-				if (player.collided(&pillars[i]))
+				if (player.collided(&pillars[i]) && abs((oldPlayerPosition.y - player.getScale().y / 2) > pillars[i].getPosition().y + pillars[i].getScale().y / 2))
 				{
 					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
