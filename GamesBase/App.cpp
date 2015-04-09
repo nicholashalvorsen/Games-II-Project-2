@@ -15,7 +15,7 @@
 #include "AnimationState.h"
 #include "Light.h"
 #include "Trampoline.h"
-
+#include "wing.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <ctime>
@@ -62,6 +62,7 @@ private:
 	Pyramid pyramid;
 	Triangle triangle;
 	Waves waves;
+	Wing wing;
 	Trampoline testTramp;
 	Object trampObject;
 
@@ -83,7 +84,7 @@ private:
 	Axis axis;
 	Player player;
 	Object wavesObject;
-
+	std::pair<Object, Object> pWings;
 	Object beginningPlatform;
 	Object pillars[NUM_PILLARS];
 	Object clouds[NUM_CLOUDS];
@@ -176,6 +177,7 @@ void App::initApp() {
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
+	wing.init(md3dDevice, GREEN);
 	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
 
 	//Complex Geometry
@@ -262,11 +264,17 @@ void App::initApp() {
 	player.init(&box, Vector3(0, 0, 0));
 	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
-	player.setScale(Vector3(0.5, 0.5, 0.5));
+	player.setScale(Vector3(2.5, 0.5, 0.5));
+	player.setPosition(player.getPosition() - Vector3(0.0f, 0.0f, 2.0f));
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
-
+	pWings.first.init(&wing, player.getPosition());
+	pWings.second.init(&wing, player.getPosition());
+	pWings.second.setRotation(Vector3(0, 0, PI));
+	pWings.first.setScale(Vector3(0.75, 0.75, 0.75));
+	pWings.second.setScale(Vector3(0.75, 0.75, 0.75));
+	
 	for (int i = 0; i < NUM_PILLARS; i++)
 	{
 		pillars[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*i));
@@ -458,8 +466,20 @@ void App::updateScene(float dt) {
        			  thrust_timer -= 0.5*dt;
 
 			}
-			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
-			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
+			if (GetAsyncKeyState(VK_LEFT)){ 
+				player.accelLeft(dt);
+				pWings.first.setRotation(Vector3(0 , 0, PI/6));
+				pWings.second.setRotation(Vector3(0 , 0, PI+PI/6));
+			}
+			else if (GetAsyncKeyState(VK_RIGHT)){ 
+				pWings.first.setRotation(Vector3(0 , 0, -PI/6));
+				pWings.second.setRotation(Vector3(0 , 0, PI-PI/6));
+				player.accelRight(dt);
+			}
+			else{
+				pWings.first.setRotation(Vector3(0 , 0, 0));
+				pWings.second.setRotation(Vector3(0 , 0, PI));
+			}
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
 			if (GetAsyncKeyState(VK_UP))
 			{
@@ -496,6 +516,15 @@ void App::updateScene(float dt) {
 		if(gameState != GAME_OVER) {
 			player.update(dt);
 		}
+		pWings.first.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
+		pWings.second.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
+	
+
+
+		pWings.first.update(dt);
+		pWings.second.update(dt);
+
+
 		waves.update(dt);
 		wavesObject.update(dt);
 
@@ -758,7 +787,8 @@ void App::drawScene() {
 		//axis.draw(&ri);
 
 		//Draw objects
-		
+			pWings.first.draw(&ri);
+			pWings.second.draw(&ri);
 			trampObject.draw(&ri);
 			player.draw(&ri);
 			wavesObject.draw(&ri);
