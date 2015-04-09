@@ -38,7 +38,7 @@ const float PLAYER_X_ACCEL = 150;
 const float PLAYER_GLIDE_DROP = -1;
 const float PLAYER_DIVE_SPEED = -10;
 
-const int NUM_PILLARS = 20;
+const int NUM_PILLARS = 15;
 const float PILLAR_HEIGHT_START = 1.5;
 const float PILLAR_SPEED = -3;
 const float PILLAR_SIZE = 4;
@@ -47,7 +47,7 @@ const int NUM_CLOUDS = 15;
 const float CLOUD_SPEED = -5;
 const float CLOUD_SIZE = 3;
 
-const int NUM_PLANETS = 15;
+const int NUM_PLANETS = 20;
 const float PLANET_SPEED = -5;
 const float PLANET_SIZE = 2;
 
@@ -57,7 +57,7 @@ const float WATER_RISE_SPEED = 0;
 const float CAMERA_MOVE_SPEED = 20;
 
 const float LAYER_HEIGHT[3] = {0, 20, 60};
-const std::wstring LAYER_NAMES[3] = {L"SHIPWRECK", L"SKYLINE", L"SPACE"};
+const std::wstring LAYER_NAMES[3] = {L"S H I P W R E C K", L"S K Y L I N E", L"S P A C E"};
 
 const int MENU_OFFSET = 125;
 

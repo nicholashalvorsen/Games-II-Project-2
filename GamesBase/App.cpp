@@ -50,7 +50,7 @@ private:
 	D3DXVECTOR3 mEyePos;
 
 	Light mLight;
-
+	Light pointlights[8];
 	//Geometry
 	Line line;
 	Box box;
@@ -342,8 +342,21 @@ void App::initApp() {
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
-	mLight.pos = Vector3(0, 20.0f, 0);
-	mLight.dir = Vector3(0.0f, -1.0f, 0.0f);
+	mLight.pos = Vector3(15.0f, 15.0f, 0);
+	mLight.dir = Vector3(0.0f, -1.0f, 1.0f);
+	
+	for(int i = 0; i < 8; i++){
+		pointlights[i].ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
+		pointlights[i].diffuse = D3DXCOLOR(0.1f, 0.1f, 0.1f, 0.1f);
+		pointlights[i].specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 0.7f);
+		pointlights[i].att.x    = 1.0f;
+		pointlights[i].att.y    = 0.0f;
+		pointlights[i].att.z    = 0.0f;
+		pointlights[i].spotPow  = 64.0f;
+		pointlights[i].range    = 10000.0f;
+		pointlights[i].pos = Vector3(15.0f * i, 0, 0);
+		pointlights[i].dir = Vector3(0.0f, 1.0f, 0.0f);
+	}
 
 	atLayer = 0;
 	cameraYBoost = 0;
@@ -709,12 +722,21 @@ void App::drawScene() {
 	//Draw text to screen
 	if (fadeTextActive)
 	{
-		RECT R2 = {380, 200, 0, 0};
-		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_NOCLIP, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
+		RECT rect;
+		int width;
+		int height;
+		if(GetWindowRect(mhMainWnd, &rect))
+		{
+		  width = rect.right - rect.left;
+		  height = rect.bottom - rect.top;
+		}
+		RECT R2 = {0, 100, width, height / 4};
+
+		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
 	}
 	
 	RECT R1 = {200, 5, 0, 0};
-	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .2));
+	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
 
 	std::wostringstream outs;
 	std::wstring debugText;
