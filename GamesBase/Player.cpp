@@ -22,7 +22,7 @@ void Player::update(float dt) {
 	setVelocity(Vector3(getVelocity().x * .99992, getVelocity().y, getVelocity().z));
 
 	if (gliding && getVelocity().y < PLAYER_GLIDE_DROP)
-		setVelocity(getVelocity() + Vector3(0, GRAVITY * -1.5 * dt, 0));
+		setVelocity(getVelocity() + Vector3(0, GRAVITY * -1 * dt, 0));
 	
 	if (diving && getVelocity().y < PLAYER_BOUNCE_FORCE * .5)
 		setVelocity(getVelocity() + Vector3(0, PLAYER_DIVE_SPEED * dt, 0));

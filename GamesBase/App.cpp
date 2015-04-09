@@ -73,6 +73,9 @@ private:
 	Object cliffs[NUM_CLIFFS];
 	Object leftCliffs[NUM_CLIFFS];
 	Object rightCliffs[NUM_CLIFFS];
+	Object simpleCliff;
+	Object simpleLeftCliff;
+	Object simpleRightCliff;
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
 
@@ -316,6 +319,18 @@ void App::initApp() {
 		rightCliffs[i].setRotation(Vector3(0, ToRadian(90), 0));
 	}
 
+	simpleCliff.init(&box, Vector3(0, 5, 53));
+	simpleCliff.setScale(Vector3(70, 10, 2));
+	simpleCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+	
+	simpleLeftCliff.init(&box, Vector3(-36, 5, 20));
+	simpleLeftCliff.setScale(Vector3(2, 10, 68));
+	simpleLeftCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+
+	simpleRightCliff.init(&box, Vector3(36, 5, 20));
+	simpleRightCliff.setScale(Vector3(2, 10, 68));
+	simpleRightCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+
 	for (int i = 0; i < NUM_STARS; i++)
 	{
 		float theta = (float)rand() / (float)RAND_MAX * 3.14;
@@ -446,9 +461,18 @@ void App::updateScene(float dt) {
 			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
 			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
-			if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
+			if (GetAsyncKeyState(VK_UP))
+			{
+				player.setGliding(false);
+
+				if (atLayer < 2 && !(1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * player.getPosition().y < .2 * (1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * LAYER_HEIGHT[atLayer]))) // can't glide when you just fell from a layer to prevent from staying off screen
+					player.setGliding(true);
+				else if (atLayer == 2) // max layer
+					player.setGliding(true);
+			}
 			else
 				player.setGliding(false);
+
 			if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
 			else
 				player.setDiving(false);
@@ -478,16 +502,17 @@ void App::updateScene(float dt) {
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
 			atLayer--;
+			player.setVelocity(Vector3(player.getVelocity().x, 0, player.getVelocity().z));
 			fadeText(LAYER_NAMES[atLayer]);
 		}
 
-		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4 * atLayer + 2)
+		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 3 * atLayer + 2)
 			cameraYBoost += CAMERA_MOVE_SPEED * dt;	
 
 		if (cameraZBoost < 10 && atLayer >= 1)
 			cameraZBoost += CAMERA_MOVE_SPEED * dt;
 
-		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 4 * atLayer - 2)
+		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 3 * atLayer - 2)
 			cameraYBoost -= CAMERA_MOVE_SPEED * dt;
 
 		if (cameraZBoost > 0 && atLayer < 1)
@@ -565,10 +590,14 @@ void App::updateScene(float dt) {
 
 		for (int i = 0; i < NUM_CLIFFS; i++)
 		{
-			cliffs[i].update(dt);
-			leftCliffs[i].update(dt);
-			rightCliffs[i].update(dt);
+			//cliffs[i].update(dt);
+			//leftCliffs[i].update(dt);
+			//rightCliffs[i].update(dt);
 		}
+
+		simpleCliff.update(dt);
+		simpleLeftCliff.update(dt);
+		simpleRightCliff.update(dt);
 
 		for (int i = 0; i < NUM_STARS; i++)
 		{
@@ -729,6 +758,7 @@ void App::drawScene() {
 		//axis.draw(&ri);
 
 		//Draw objects
+		
 			trampObject.draw(&ri);
 			player.draw(&ri);
 			wavesObject.draw(&ri);
@@ -747,12 +777,15 @@ void App::drawScene() {
 			for (int i = 0; i < NUM_SCENERY; i++)
 				scenery[i].draw(&ri);
 		
-			for (int i = 0; i < NUM_CLIFFS; i++)
-			{
-				cliffs[i].draw(&ri);
-				leftCliffs[i].draw(&ri);
-				rightCliffs[i].draw(&ri);
-			}
+			//for (int i = 0; i < NUM_CLIFFS; i++)
+			//{
+			//	cliffs[i].draw(&ri);
+			//	leftCliffs[i].draw(&ri);
+			//	rightCliffs[i].draw(&ri);
+			//}
+			simpleCliff.draw(&ri);
+			simpleLeftCliff.draw(&ri);
+			simpleRightCliff.draw(&ri);
 
 			if (atLayer >= 2)
 				for (int i = 0; i < NUM_STARS; i++)
