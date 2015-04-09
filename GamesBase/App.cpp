@@ -73,6 +73,7 @@ private:
 	Object cliffs[NUM_CLIFFS];
 	Object leftCliffs[NUM_CLIFFS];
 	Object rightCliffs[NUM_CLIFFS];
+	
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
 
@@ -491,13 +492,13 @@ void App::updateScene(float dt) {
 			fadeText(LAYER_NAMES[atLayer]);
 		}
 
-		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4 * atLayer + 2)
+		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 3 * atLayer + 2)
 			cameraYBoost += CAMERA_MOVE_SPEED * dt;	
 
 		if (cameraZBoost < 10 && atLayer >= 1)
 			cameraZBoost += CAMERA_MOVE_SPEED * dt;
 
-		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 4 * atLayer - 2)
+		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 3 * atLayer - 2)
 			cameraYBoost -= CAMERA_MOVE_SPEED * dt;
 
 		if (cameraZBoost > 0 && atLayer < 1)
@@ -739,6 +740,7 @@ void App::drawScene() {
 		//axis.draw(&ri);
 
 		//Draw objects
+		
 			trampObject.draw(&ri);
 			player.draw(&ri);
 			wavesObject.draw(&ri);
@@ -757,12 +759,12 @@ void App::drawScene() {
 			for (int i = 0; i < NUM_SCENERY; i++)
 				scenery[i].draw(&ri);
 		
-			for (int i = 0; i < NUM_CLIFFS; i++)
-			{
-				cliffs[i].draw(&ri);
-				leftCliffs[i].draw(&ri);
-				rightCliffs[i].draw(&ri);
-			}
+			//for (int i = 0; i < NUM_CLIFFS; i++)
+			//{
+			//	cliffs[i].draw(&ri);
+			//	leftCliffs[i].draw(&ri);
+			//	rightCliffs[i].draw(&ri);
+			//}
 
 			if (atLayer >= 2)
 				for (int i = 0; i < NUM_STARS; i++)
