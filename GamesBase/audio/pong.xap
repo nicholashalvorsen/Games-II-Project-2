@@ -16,8 +16,8 @@ Global Settings
     Header File = pong.h;
     Exclude Category Names = 0;
     Exclude Variable Names = 0;
-    Last Modified Low = 30438022;
-    Last Modified High = 2879102060;
+    Last Modified Low = 3272704572;
+    Last Modified High = 30438022;
 
     Category
     {
@@ -225,6 +225,10 @@ Wave Bank
     Windows Bank Path Edited = 0;
     Seek Tables = 1;
     Compression Preset Name = <none>;
+    Xbox Bank Last Modified Low = 0;
+    Xbox Bank Last Modified High = 0;
+    PC Bank Last Modified Low = 3272744575;
+    PC Bank Last Modified High = 30438022;
     Bank Last Revised Low = 3149187508;
     Bank Last Revised High = 30438022;
 
@@ -305,6 +309,10 @@ Sound Bank
     Windows File = Win\MySBank.xsb;
     Xbox Bank Path Edited = 0;
     Windows Bank Path Edited = 0;
+    Bank Last Modified Low = 3272974588;
+    Bank Last Modified High = 30438022;
+    Header Last Modified High = 0;
+    Header Last Modified Low = 0;
 
     Sound
     {
