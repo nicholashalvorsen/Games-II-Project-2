@@ -446,9 +446,18 @@ void App::updateScene(float dt) {
 			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
 			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
-			if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
+			if (GetAsyncKeyState(VK_UP))
+			{
+				player.setGliding(false);
+
+				if (atLayer < 2 && !(1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * player.getPosition().y < .2 * (1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * LAYER_HEIGHT[atLayer]))) // can't glide when you just fell from a layer to prevent from staying off screen
+					player.setGliding(true);
+				else if (atLayer == 2) // max layer
+					player.setGliding(true);
+			}
 			else
 				player.setGliding(false);
+
 			if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
 			else
 				player.setDiving(false);
@@ -478,6 +487,7 @@ void App::updateScene(float dt) {
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
 			atLayer--;
+			player.setVelocity(Vector3(player.getVelocity().x, 0, player.getVelocity().z));
 			fadeText(LAYER_NAMES[atLayer]);
 		}
 
