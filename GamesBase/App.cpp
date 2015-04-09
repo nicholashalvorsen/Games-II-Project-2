@@ -224,7 +224,7 @@ void App::initApp() {
 	const float SAIL_WIDTH = SHIP_WIDTH * 1.8;
 	const float SAIL_HEIGHT = SHIP_WIDTH * 1.2;
 	// deck
-	ship.addChild(&quad, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(SHIP_WIDTH, 1, SHIP_LENGTH), shipAni, shipColor);
+	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2, 1, SHIP_LENGTH / 2), Vector3(0, 0, 0), Vector3(SHIP_WIDTH, 1, SHIP_LENGTH), shipAni, shipColor);
 	// bottom left
 	ship.addChild(&box, Vector3(0, .8, SHIP_LENGTH / 2), Vector3(ToRadian(90+20), ToRadian(-90), 0), Vector3(SHIP_LENGTH, 1, 2), shipAni, shipColor2);
 	ship.addChild(&box, Vector3(.55, -.25, SHIP_LENGTH / 2), Vector3(ToRadian(90+40), ToRadian(-90), 0), Vector3(SHIP_LENGTH, 1, 1), shipAni, shipColor2);
@@ -242,7 +242,7 @@ void App::initApp() {
 	ship.addChild(&triangle, Vector3(SHIP_WIDTH - SHIP_WIDTH / 4, 1, SHIP_LENGTH), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 2, 1, SHIP_WIDTH / 4), shipAni, shipColor);
 	ship.addChild(&triangle, Vector3(SHIP_WIDTH - (2 * SHIP_WIDTH / 4), 1, SHIP_LENGTH + SHIP_FRONT_LENGTH / 2), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 4, 1, SHIP_WIDTH / 4), shipAni, shipColor);
 	// forward deck center
-	ship.addChild(&quad, Vector3(SHIP_WIDTH / 4, 1, SHIP_LENGTH), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 2, 1, SHIP_WIDTH / 2), shipAni, shipColor);
+	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2, 1, SHIP_LENGTH + SHIP_FRONT_LENGTH / 4), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 2, 1, SHIP_WIDTH / 2), shipAni, shipColor);
 	// forward long thing
 	ship.addChild(&box, Vector3(SHIP_WIDTH / 2.0f, .745, SHIP_LENGTH + SHIP_FRONT_LENGTH / 1.5), Vector3(0, ToRadian(-90), 0), Vector3(SHIP_FRONT_LENGTH * 1.5, .5, .5), shipAni, shipColor2);
 	// rear
@@ -252,8 +252,7 @@ void App::initApp() {
 	// sail
 	sailAni->addAnimation(Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1), Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1));
 	sailAni->addAnimation(Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1));
-	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2 - SAIL_WIDTH / 2, MAST_HEIGHT * .8 + 1, SHIP_LENGTH / 2 + .25), Vector3(ToRadian(90), 0, 0), Vector3(SAIL_WIDTH, 0, SAIL_HEIGHT), sailAni, Vector4(1, 1, 1, 1));
-
+	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2, MAST_HEIGHT * .8 + 1, SHIP_LENGTH / 2 + .25), Vector3(ToRadian(90), 0, 0), Vector3(SAIL_WIDTH, 0, SAIL_HEIGHT), sailAni, Vector4(1, 1, 1, 1));
 	sceneryGeometry[0] = ship;
 	sceneryGeometry[1] = ship;
 
@@ -272,18 +271,18 @@ void App::initApp() {
 	//Objects
 	axis.init(&line);
 	player.init(&box, Vector3(0, 0, 0));
-	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
+	//player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
+	player.setColor(0, 0, 0, 1);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
-	player.setScale(Vector3(2.5, 0.5, 0.5));
-	player.setPosition(player.getPosition() - Vector3(0.0f, 0.0f, 2.0f));
+	player.setScale(Vector3(0.5, 0.5, 0.5));
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
 	pWings.first.init(&wing, player.getPosition());
 	pWings.second.init(&wing, player.getPosition());
 	pWings.second.setRotation(Vector3(0, 0, PI));
-	pWings.first.setScale(Vector3(0.75, 0.75, 0.75));
-	pWings.second.setScale(Vector3(0.75, 0.75, 0.75));
+	pWings.first.setScale(Vector3(0.4, 0.4, 0.4));
+	pWings.second.setScale(Vector3(0.4, 0.4, 0.4));
 	
 	for (int i = 0; i < NUM_PILLARS; i++)
 	{
@@ -365,6 +364,7 @@ void App::initApp() {
 		float x= radius * cos(theta) * sin(phi);
 		float y = radius * sin(theta) * sin(phi);
 		float z = radius * cos(phi);
+		z = fabs(z);
 		stars[i].init(&box, Vector3(x, y, z));
 		stars[i].setColor(1, 1, 1, 1);
 		stars[i].setScale(Vector3(.1, .1, .1));
@@ -395,7 +395,6 @@ void App::initApp() {
 	menuItems.push_back("Play");	// Menu 1
 	menuItems.push_back("Play (easy)");	// Menu 2
 	//menuItems.push_back("Music on/off");	// Menu 3
-	//menuItems.push_back("I'm Feeling Lucky");
 	mainMenu->setMenuItems(menuItems);
 
 	//Light
@@ -407,8 +406,8 @@ void App::initApp() {
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
-	mLight.pos = Vector3(0.0f, 15.0f, -1.0f);
-	mLight.dir = Vector3(0.0f, -1.0f, 2.0f);
+	mLight.pos = Vector3(0.0f, 15.0f, 1.0f);
+	mLight.dir = Vector3(0.0f, -1.0f, 3.0f);
 	
 	for(int i = 0; i < 8; i++){
 		pointlights[i].ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
@@ -610,15 +609,17 @@ void App::updateScene(float dt) {
 				int lr = rand() % 2;
 				int xpos;
 
-				if (lr = 1)
-					xpos = -10 - rand() % 3;
+				if (lr == 1)
+					xpos = -GAME_WIDTH / 2 - 7 - rand() % 5;
 				else
-					xpos = 10 + rand() % 3;
+					xpos =  GAME_WIDTH / 2 + 7 + rand() % 5;
 
-				scenery[i].setPosition(Vector3(xpos, 1, GAME_DEPTH * 2));
-				//Scale boxes to get smaller every time they are re-positioned.
-			
+				scenery[i].setPosition(Vector3(xpos, 1, GAME_DEPTH * 1.2));
 			}
+			if (scenery[i].getPosition().y < 0)
+				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 1, scenery[i].getVelocity().z));
+			else
+				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 0, scenery[i].getVelocity().z));
 		}
 
 		//for (int i = 0; i < NUM_CLIFFS; i++)
