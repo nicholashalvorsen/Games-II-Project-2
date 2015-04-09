@@ -61,12 +61,17 @@ public:
 		*/
 
 		// box collision
-		if (getPosition().x + getScale().x / 2 > object->getPosition().x - object->getScale().x / 2 &&
-			getPosition().x - getScale().x / 2 < object->getPosition().x + object->getScale().x / 2 &&
-			getPosition().y - getScale().y / 2 > object->getPosition().y - object->getScale().y / 2 &&
-			getPosition().y + getScale().y / 2 < object->getPosition().y + object->getScale().y / 2 &&
-			getPosition().z - getScale().z / 2 > object->getPosition().z - object->getScale().z / 2 &&
-			getPosition().z + getScale().z / 2 < object->getPosition().z + object->getScale().z / 2)
+
+		Vector3 pos1 = getPosition();
+		Vector3 scale1 = getScale();
+		Vector3 pos2 = object->getPosition();
+		Vector3 scale2 = object->getScale();
+		if (pos1.x + scale1.x / 2 > pos2.x - scale2.x / 2 &&
+			pos1.x - scale1.x / 2 < pos2.x + scale2.x / 2 &&
+			pos1.y + scale1.y / 2 > pos2.y - scale2.y / 2 &&
+			pos1.y - scale1.y / 2 < pos2.y + scale2.y / 2 &&
+			pos1.z - scale1.z / 2 > pos2.z - scale2.z / 2 &&
+			pos1.z + scale1.z / 2 < pos2.z + scale2.z / 2)
 			return true;
 		else
 			return false;

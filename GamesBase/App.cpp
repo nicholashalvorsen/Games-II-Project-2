@@ -35,6 +35,7 @@ private:
 	void buildFX();
 	void buildVertexLayouts();
 	void updateGameState(float dt);
+	void fadeText(std::wstring msg);
 
 	Audio *audio;
 	//to zoom the camera in/out
@@ -66,6 +67,8 @@ private:
 	ComplexGeometry cliffsGeometry;
 	Object scenery[NUM_SCENERY];
 	Object cliffs[NUM_CLIFFS];
+	Object planets[NUM_PLANETS];
+	Object stars[NUM_STARS];
 
 	//Objects
 	Axis axis;
@@ -80,7 +83,7 @@ private:
 	ID3D10Effect* mFX;
 	ID3D10InputLayout* mVertexLayout;
 
-	bool atCloudHeight;
+	int atLayer;
 	float cameraYBoost;
 	float cameraZBoost;
 
@@ -98,6 +101,11 @@ private:
 
 	int gameState;
 	float elapsedTime;
+
+	bool fadeTextActive;
+	std::wstring fadeTextMessage;
+	float fadeTextOpacity;
+	float fadeTextCurrentDuration;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
@@ -154,7 +162,7 @@ void App::initApp() {
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
-	waves.init(md3dDevice, 257, 257, 0.5f, 0.03f, 3.25f, 0.0f);
+	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
 
 	//Complex Geometry
 	// ---------------------------ANIMATION TEST
@@ -229,16 +237,16 @@ void App::initApp() {
 	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
-	wavesObject.init(&waves, Vector3(0, -.5, 0));
+	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
 
 	for (int i = 0; i < NUM_PILLARS; i++)
 	{
 		pillars[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*i));
-		pillars[i].setScale(Vector3(1.5, rand() % 2 + PILLAR_HEIGHT_START * 2, 1.5));
+		pillars[i].setScale(Vector3(PILLAR_SIZE, rand() % 2 + PILLAR_HEIGHT_START * 2, PILLAR_SIZE));
 		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
-		pillars[i].setColor(1, 0, .9, 1);
+		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
 		 
 	beginningPlatform.init(&pillarBox, Vector3(0, .5, GAME_DEPTH * .75));
@@ -252,6 +260,14 @@ void App::initApp() {
 		clouds[i].setScale(Vector3(CLOUD_SIZE, 1, CLOUD_SIZE));
 		clouds[i].setVelocity(Vector3(0, 0, CLOUD_SPEED));
 		clouds[i].setColor(.8, .8, .8, 1);
+	}
+
+	for (int i = 0; i < NUM_PLANETS; i++)
+	{
+		planets[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PLANETS*i));
+		planets[i].setScale(Vector3(PLANET_SIZE, 1, PLANET_SIZE));
+		planets[i].setVelocity(Vector3(0, 0, PLANET_SPEED));
+		planets[i].setColor(1, 1, 1, 1);
 	}
 
 	for (int i = 0; i < NUM_SCENERY; i++)
@@ -273,13 +289,30 @@ void App::initApp() {
 		cliffs[i].init(&cliffsGeometry, Vector3(CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2, CLIFF_HEIGHT / 2, 40));
 	}
 
+	for (int i = 0; i < NUM_STARS; i++)
+	{
+		float theta = (float)rand() / (float)RAND_MAX * 3.14;
+		float phi = (float)rand() / (float)RAND_MAX * 3.14;
+		float radius = 80;
+		if (rand() % 2 == 0)
+			theta *= -1;
+		if (rand() % 2 == 0)
+			phi *= -1;
+		float x= radius * cos(theta) * sin(phi);
+		float y = radius * sin(theta) * sin(phi);
+		float z = radius * cos(phi);
+		stars[i].init(&box, Vector3(x, y, z));
+		stars[i].setColor(1, 1, 1, 1);
+		stars[i].setScale(Vector3(.1, .1, .1));
+	}
+
 	// create initial disturbance of waves
 	// the waves are set to never dampen so this will create waves that last forever
-	for (int x = 0; x < 25; x++)
+	for (int x = 0; x < SEA_SIZE / 20; x++)
 	{
 
-		DWORD i = 5 + rand() % 250;
-		DWORD j = 5 + rand() % 250;
+		DWORD i = 5 + rand() % SEA_SIZE;
+		DWORD j = 5 + rand() % SEA_SIZE;
 
 		float r = RandF(2.0f, 2.2f);
 
@@ -291,7 +324,6 @@ void App::initApp() {
 	
 	mainMenu->initialize(md3dDevice, NULL);
 
-
 	mainMenu->setMenuHeading("Bouncy Bouncy");
 
 	std::vector<std::string> menuItems;
@@ -302,20 +334,23 @@ void App::initApp() {
 	mainMenu->setMenuItems(menuItems);
 
 	//Light
-	mLight.ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
-	mLight.diffuse = D3DXCOLOR(0.1f, 0.1f, 0.1f, 0.1f);
-	mLight.specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 0.7f);
+	mLight.ambient = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
+	mLight.diffuse = D3DXCOLOR(0.4f, 0.4f, 0.4f, 0.4f);
+	mLight.specular = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
 	mLight.att.x    = 1.0f;
 	mLight.att.y    = 0.0f;
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
-	mLight.pos = Vector3(0, 15.0f, 0);
+	mLight.pos = Vector3(0, 20.0f, 0);
 	mLight.dir = Vector3(0.0f, -1.0f, 0.0f);
 
-	atCloudHeight = false;
+	atLayer = 0;
 	cameraYBoost = 0;
 	cameraZBoost = 0;
+
+	
+	fadeText(LAYER_NAMES[0]);
 }
 
 void App::onResize() {
@@ -370,8 +405,18 @@ void App::updateScene(float dt) {
 		else
 			player.setDiving(false);
 		if (GetAsyncKeyState('B')) {
-			player.setVelocity(Vector3(0, 20, 0));
-			atCloudHeight = true;
+			if (atLayer == 0)
+			{
+				fadeText(LAYER_NAMES[1]);
+				player.setVelocity(Vector3(0, 18, 0));
+				atLayer = 1;
+			}
+			if (atLayer == 1 && player.getPosition().y > LAYER_HEIGHT[1])
+			{
+				fadeText(LAYER_NAMES[2]);
+				player.setVelocity(Vector3(0, 27, 0));
+				atLayer = 2;
+			}
 		}
 
 		Vector3 oldPlayerPosition = player.getPosition();
@@ -380,26 +425,25 @@ void App::updateScene(float dt) {
 		waves.update(dt);
 		wavesObject.update(dt);
 
-		if (player.getPosition().y < CLOUD_HEIGHT_START - 1 && player.getVelocity().y < 0)
-			atCloudHeight = false;
-
-		if (atCloudHeight)
+		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0)
 		{
-			if (cameraYBoost < CLOUD_HEIGHT_START)
-				cameraYBoost += CAMERA_MOVE_SPEED * dt;	
-
-			if (cameraZBoost < 10)
-				cameraZBoost += CAMERA_MOVE_SPEED * dt;
+			player.setVelocity(Vector3(player.getVelocity().x, 0, player.getVelocity().z));
+			atLayer--;
+			fadeText(LAYER_NAMES[atLayer]);
 		}
-		if (!atCloudHeight)
-		{
-			if (cameraYBoost > 0)
-				cameraYBoost -= CAMERA_MOVE_SPEED * dt;
 
-			if (cameraZBoost > 0)
-				cameraZBoost -= CAMERA_MOVE_SPEED * dt;
+		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4 * atLayer + 2)
+			cameraYBoost += CAMERA_MOVE_SPEED * dt;	
 
-		}
+		if (cameraZBoost < 10 && atLayer >= 1)
+			cameraZBoost += CAMERA_MOVE_SPEED * dt;
+
+		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 4 * atLayer - 2)
+			cameraYBoost -= CAMERA_MOVE_SPEED * dt;
+
+		if (cameraZBoost > 0 && atLayer < 1)
+			cameraZBoost -= CAMERA_MOVE_SPEED * dt;
+			
 
 		beginningPlatform.update(dt);
 		if (beginningPlatform.getPosition().y < .8)
@@ -423,7 +467,7 @@ void App::updateScene(float dt) {
 			{
 				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 				pillars[i].setPosition(Vector3(x, 0 - PILLAR_HEIGHT_START, GAME_DEPTH));
-				pillars[i].setScale(Vector3(pillars[i].getScale().x * 0.9f, pillars[i].getScale().y *1.15f, pillars[i].getScale().z *.9f));
+				//pillars[i].setScale(Vector3(pillars[i].getScale().x * 0.9f, pillars[i].getScale().y *1.15f, pillars[i].getScale().z *.9f));
 			}
 		}
 
@@ -434,7 +478,18 @@ void App::updateScene(float dt) {
 			if (clouds[i].getPosition().z < -GAME_BEHIND_DEPTH)
 			{
 				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
-				clouds[i].setPosition(Vector3(x, CLOUD_HEIGHT_START, GAME_DEPTH));
+				clouds[i].setPosition(Vector3(x, LAYER_HEIGHT[1], GAME_DEPTH));
+			}
+		}
+
+		for (int i = 0; i < NUM_PLANETS; i++)
+		{
+			planets[i].update(dt);
+
+			if (planets[i].getPosition().z < -GAME_BEHIND_DEPTH)
+			{
+				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+				planets[i].setPosition(Vector3(x, LAYER_HEIGHT[2], GAME_DEPTH));
 			}
 		}
 
@@ -460,6 +515,11 @@ void App::updateScene(float dt) {
 		for (int i = 0; i < NUM_CLIFFS; i++)
 			cliffs[i].update(dt);
 
+		for (int i = 0; i < NUM_STARS; i++)
+		{
+			stars[i].update(dt);
+		}
+
 		/* bottom collision, temp */ 
 		if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
 		{
@@ -469,25 +529,39 @@ void App::updateScene(float dt) {
 		}
 
 		// collision
-		for (int i = 0; i < NUM_PILLARS; i++)
+		if (atLayer == 0)
 		{
-			if (player.collided(&pillars[i]))
+			for (int i = 0; i < NUM_PILLARS; i++)
 			{
-				player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
-				player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+				if (player.collided(&pillars[i]))
+				{
+					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
+					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+				}
 			}
 		}
-
-		for (int i = 0; i < NUM_CLOUDS; i++)
+		if (atLayer == 1)
 		{
-			if (player.collided(&clouds[i]))
+			for (int i = 0; i < NUM_CLOUDS; i++)
 			{
-				player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
-				player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+				if (player.collided(&clouds[i]))
+				{
+					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
+					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+				}
 			}
 		}
-
-
+		if (atLayer == 2)
+		{
+			for (int i = 0; i < NUM_PLANETS; i++)
+			{
+				if (player.collided(&planets[i]))
+				{
+					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
+					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+				}
+			}
+		}
 
 		if (player.collided(&beginningPlatform))
 		{
@@ -497,7 +571,7 @@ void App::updateScene(float dt) {
 		}
 
 		/* don't let the player go too fast */
-		if (abs(player.getVelocity().x) > VELOCITY_LIMIT)
+		/*if (abs(player.getVelocity().x) > VELOCITY_LIMIT)
 			player.setVelocity(Vector3(player.getVelocity().x * .99, player.getVelocity().y, player.getVelocity().z));
 
 		if (abs(player.getVelocity().y) > VELOCITY_LIMIT)
@@ -505,7 +579,7 @@ void App::updateScene(float dt) {
 
 		if (abs(player.getVelocity().y) > VELOCITY_LIMIT)
 			player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y, player.getVelocity().z * .99));
-
+			*/
 
 		// Update angles based on input to orbit camera around box.
 		if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
@@ -521,8 +595,11 @@ void App::updateScene(float dt) {
 		// and mTheta measured counterclockwise from -z.
 		float d = 4;
 		mEyePos.x =  5.0f*sinf(mPhi)*sinf(mTheta) * d;
-		mEyePos.z = player.getPosition().z - 10 + cameraZBoost;
-		mEyePos.y =  player.getPosition().y + 2 + cameraYBoost;
+		mEyePos.z = -5.0f*sinf(mPhi)*cosf(mTheta) * d + cameraZBoost;
+		mEyePos.y = 5.0f*cosf(mPhi) * d + cameraYBoost;
+		//mEyePos.z = player.getPosition().z - 10 + cameraZBoost;
+		//mEyePos.y =  player.getPosition().y + 2 + cameraYBoost;
+
 	
 		// Build the view matrix.
 		/*D3DXVECTOR3 pos(x, y, z);
@@ -540,8 +617,19 @@ void App::updateScene(float dt) {
 		}*/
 		//D3DXVECTOR3 target(player.getPosition());
 
-		D3DXVECTOR3 target(player.getPosition() + Vector3(0.0f, 0.0f+cameraYBoost*.7, 0.0f+cameraZBoost*.7));
+		D3DXVECTOR3 target(/*player.getPosition() + */Vector3(0.0f, 0.0f+cameraYBoost*.7, 0.0f+cameraZBoost*atLayer));
 		D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
+
+		if (fadeTextActive)
+		{
+			fadeTextCurrentDuration += dt;
+			if (fadeTextCurrentDuration < FADE_TEXT_FADE_SPEED)
+				fadeTextOpacity = fadeTextCurrentDuration / FADE_TEXT_FADE_SPEED;
+			if (fadeTextCurrentDuration > FADE_TEXT_FADE_SPEED + FADE_TEXT_DURATION)
+				fadeTextOpacity = 1 - (fadeTextCurrentDuration - FADE_TEXT_DURATION - FADE_TEXT_FADE_SPEED) / FADE_TEXT_FADE_SPEED;
+			if (fadeTextCurrentDuration > 2*FADE_TEXT_FADE_SPEED + FADE_TEXT_DURATION)
+				fadeTextActive = false;
+		}
 	
 		diff = dt;
 		D3DXMatrixLookAtLH(&ri.mView, &mEyePos, &target, &up);
@@ -565,6 +653,8 @@ void App::drawScene() {
 		{
 		D3DApp::drawScene();
 		mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
+		if (atLayer == 2)
+			mClearColor = D3DXCOLOR(0, 0, 0, 1);
 
 		// Restore default states, input layout and primitive topology 
 		// because mFont->DrawText changes them.  Note that we can 
@@ -580,7 +670,7 @@ void App::drawScene() {
 		mfxLightType->SetInt(0);
 
 		//Draw Axis
-		axis.draw(&ri);
+		//axis.draw(&ri);
 
 		//Draw objects
 	
@@ -593,6 +683,9 @@ void App::drawScene() {
 		for (int i = 0; i < NUM_CLOUDS; i++)
 			clouds[i].draw(&ri);
 
+		for (int i = 0; i < NUM_PLANETS; i++)
+			planets[i].draw(&ri);
+
 		beginningPlatform.draw(&ri);
 
 		for (int i = 0; i < NUM_SCENERY; i++)
@@ -600,6 +693,11 @@ void App::drawScene() {
 		
 		for (int i = 0; i < NUM_CLIFFS; i++)
 			cliffs[i].draw(&ri);
+
+		if (atLayer >= 2)
+			for (int i = 0; i < NUM_STARS; i++)
+				stars[i].draw(&ri);
+
 
 		break;
 		}
@@ -609,7 +707,17 @@ void App::drawScene() {
 	}
 
 	//Draw text to screen
+	if (fadeTextActive)
+	{
+		RECT R2 = {380, 200, 0, 0};
+		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_NOCLIP, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
+	}
+	
+	RECT R1 = {200, 5, 0, 0};
+	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .2));
+
 	std::wostringstream outs;
+	std::wstring debugText;
 	outs.precision(3);
 	outs << "Controls:\n"
 		<< "Move: Left/Right\n"
@@ -617,14 +725,15 @@ void App::drawScene() {
 		<< "Dive: Down\n"
 		<< "Thrust: Space\n"
 		<< "Ascend (debug): B\n"
-		<< "Menu State: " << mainMenu->getMenuState();
+		<< "Menu State: " << mainMenu->getMenuState()
+		<< "\nLayer: " << atLayer;
 		
-	mFrameStats.clear();
-	mFrameStats.append(outs.str());
-
+	debugText.clear();
+	debugText.append(outs.str());
+	
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT R = {5, 5, 0, 0};
-	mFont->DrawText(0, mFrameStats.c_str(), -1, &R, DT_NOCLIP, WHITE);
+	mFont->DrawText(0, debugText.c_str(), -1, &R, DT_NOCLIP, WHITE);
 	mSwapChain->Present(0, 0);
 }
 
@@ -685,4 +794,11 @@ void App::buildVertexLayouts()
     ri.mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
     HR(md3dDevice->CreateInputLayout(vertexDesc, 4, PassDesc.pIAInputSignature,PassDesc.IAInputSignatureSize, &mVertexLayout));
 }
- 
+
+void App::fadeText(std::wstring msg)
+{
+	fadeTextActive = true;
+	fadeTextMessage = msg;
+	fadeTextCurrentDuration = 0;
+	fadeTextOpacity = 0;
+}

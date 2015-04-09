@@ -45,6 +45,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mRenderTargetView   = 0;
 	mDepthStencilView   = 0;
 	mFont               = 0;
+	mFont2               = 0;
 
 	mMainWndCaption = L"Game 1";
 	md3dDriverType  = D3D10_DRIVER_TYPE_HARDWARE;
@@ -61,6 +62,7 @@ D3DApp::~D3DApp()
 	ReleaseCOM(mDepthStencilBuffer);
 	ReleaseCOM(md3dDevice);
 	ReleaseCOM(mFont);
+	ReleaseCOM(mFont2);
 }
 
 HINSTANCE D3DApp::getAppInst()
@@ -109,7 +111,7 @@ void D3DApp::initApp()
 	initDirect3D();
 
 	D3DX10_FONT_DESC fontDesc;
-	fontDesc.Height          = 24;
+	fontDesc.Height          = 20;
     fontDesc.Width           = 0;
     fontDesc.Weight          = 0;
     fontDesc.MipLevels       = 1;
@@ -118,9 +120,23 @@ void D3DApp::initApp()
     fontDesc.OutputPrecision = OUT_DEFAULT_PRECIS;
     fontDesc.Quality         = DEFAULT_QUALITY;
     fontDesc.PitchAndFamily  = DEFAULT_PITCH | FF_DONTCARE;
-    wcscpy_s(fontDesc.FaceName, L"Times New Roman");
+    wcscpy_s(fontDesc.FaceName, L"Tahoma");
+	
+	D3DX10CreateFontIndirect(md3dDevice, &fontDesc, &mFont);
 
-	D3DX10CreateFontIndirect(md3dDevice, &fontDesc, &mFont);  
+	D3DX10_FONT_DESC fontDesc2;
+	fontDesc2.Height          = 40;
+    fontDesc2.Width           = 0;
+    fontDesc2.Weight          = 2;
+    fontDesc2.MipLevels       = 1;
+    fontDesc2.Italic          = false;
+    fontDesc2.CharSet         = DEFAULT_CHARSET;
+    fontDesc2.OutputPrecision = OUT_DEFAULT_PRECIS;
+    fontDesc2.Quality         = DEFAULT_QUALITY;
+    fontDesc2.PitchAndFamily  = DEFAULT_PITCH | FF_DONTCARE;
+    wcscpy_s(fontDesc2.FaceName, L"Batang");
+
+	D3DX10CreateFontIndirect(md3dDevice, &fontDesc2, &mFont2);  
 }
  
 void D3DApp::onResize()
