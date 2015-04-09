@@ -1,6 +1,7 @@
 #include "d3dApp.h"
 #include "Line.h"
 #include "Box.h"
+#include "Diamond.h"
 #include "Quad.h"
 #include "Object.h"
 #include "Axis.h"
@@ -61,6 +62,7 @@ private:
 	ComplexGeometry pillarBox;
 	Quad quad;
 	Pyramid pyramid;
+	Diamond diamond;
 	Triangle triangle;
 	Waves waves;
 	Wing wing;
@@ -84,7 +86,12 @@ private:
 	Axis axis;
 	Player player;
 	Object wavesObject;
+<<<<<<< HEAD
+	
+	Object diamonds[NUM_PILLARS/5];
+=======
 	std::pair<Object, Object> pWings;
+>>>>>>> 70b6d68ef172071b364806e55a6e91901af1a016
 	Object beginningPlatform;
 	Object pillars[NUM_PILLARS];
 	Object clouds[NUM_CLOUDS];
@@ -180,6 +187,7 @@ void App::initApp() {
 	//box.init(md3dDevice, WHITE);
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
+	diamond.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
 	wing.init(md3dDevice, GREEN);
 	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
@@ -272,12 +280,24 @@ void App::initApp() {
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
+<<<<<<< HEAD
+
+	for (int i = 0; i < NUM_DIAMONDS; i++)
+	{
+		diamonds[i].init(&diamond, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_DIAMONDS*i));
+		diamonds[i].setScale(Vector3(DIAMOND_SIZE, rand() % 2 + DIAMOND_HEIGHT_START * 2, DIAMOND_SIZE));
+		diamonds[i].setVelocity(Vector3(0, 0, DIAMOND_SPEED));
+		diamonds[i].setColor(1,1,0, 0.5);
+	}
+
+=======
 	pWings.first.init(&wing, player.getPosition());
 	pWings.second.init(&wing, player.getPosition());
 	pWings.second.setRotation(Vector3(0, 0, PI));
 	pWings.first.setScale(Vector3(0.4, 0.4, 0.4));
 	pWings.second.setScale(Vector3(0.4, 0.4, 0.4));
 	
+>>>>>>> 70b6d68ef172071b364806e55a6e91901af1a016
 	for (int i = 0; i < NUM_PILLARS; i++)
 	{
 		pillars[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*i));
@@ -584,6 +604,32 @@ void App::updateScene(float dt) {
 		else
 			beginningPlatform.setVelocity(Vector3(beginningPlatform.getVelocity().x, 0, beginningPlatform.getVelocity().z));
 
+		for (int i = 0; i < NUM_DIAMONDS; i++)
+		{
+			diamond.increaseRotation(1);
+			diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180, 0));//Spinning effect diamond.getRotation() * M_PI / 180
+			
+			if ((atLayer == 0 && diamonds[i].getPosition().y < LAYER_HEIGHT[0] + 2) || 
+				(atLayer == 1 && diamonds[i].getPosition().y < LAYER_HEIGHT[1] + 2) ||
+				(atLayer == 2 && diamonds[i].getPosition().y < LAYER_HEIGHT[2] + 2))
+				diamonds[i].setVelocity(Vector3(diamonds[i].getVelocity().x, 100, diamonds[i].getVelocity().z));
+			else
+				{
+					diamonds[i].setVelocity(Vector3(pillars[i].getVelocity().x, 0, pillars[i].getVelocity().z));
+				}
+
+			if (diamonds[i].getPosition().z < -2)
+				diamonds[i].setVelocity(Vector3(diamonds[i].getVelocity().x, -1, diamonds[i].getVelocity().z));
+
+			diamonds[i].update(dt);
+
+			if (diamonds[i].getPosition().z < -GAME_BEHIND_DEPTH)
+			{
+				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+				diamonds[i].setPosition(Vector3(x, 0 - PILLAR_HEIGHT_START, GAME_DEPTH));
+			}
+		}
+
 		for (int i = 0; i < NUM_PILLARS; i++)
 		{
 			if (pillars[i].getPosition().y < 0)
@@ -675,6 +721,16 @@ void App::updateScene(float dt) {
 		}
 
 		// collision
+		for (int i = 0; i < NUM_DIAMONDS; i++)
+			{
+				if (player.collided(&diamonds[i]))
+				{
+					diamonds[i].setInActive();
+					//player.incrementPoints();
+					//audio->playCue();
+				}
+			}
+
 
 		if (atLayer == 0)
 		{
@@ -818,12 +874,17 @@ void App::drawScene() {
 		//Draw Axis
 		//axis.draw(&ri);
 
+		
+
 		//Draw objects
 			pWings.first.draw(&ri);
 			pWings.second.draw(&ri);
 			player.draw(&ri);
 			wavesObject.draw(&ri);
 	
+			for (int i = 0; i < NUM_DIAMONDS; i++)
+				diamonds[i].draw(&ri);
+
 			for (int i = 0; i < NUM_PILLARS; i++)
 				pillars[i].draw(&ri);
 

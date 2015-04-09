@@ -43,6 +43,11 @@ const float PILLAR_HEIGHT_START = 1.5;
 const float PILLAR_SPEED = -3;
 const float PILLAR_SIZE = 4;
 
+const int NUM_DIAMONDS = NUM_PILLARS / 5;
+const float DIAMOND_HEIGHT_START = 0.4;
+const float DIAMOND_SPEED = -3;
+const float DIAMOND_SIZE = 0.75;
+
 const int NUM_CLOUDS = 15;
 const float CLOUD_SPEED = -5;
 const float CLOUD_SIZE = 3;
