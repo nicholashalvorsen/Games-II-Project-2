@@ -100,6 +100,7 @@
     <ClInclude Include="Pyramid.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="RenderInfo.h" />
+    <ClInclude Include="Trampoline.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Waves.h" />
