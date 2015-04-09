@@ -16,7 +16,7 @@
 #include "AnimationState.h"
 #include "Light.h"
 #include "Trampoline.h"
-
+#include "wing.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <ctime>
@@ -32,6 +32,7 @@ public:
 	void onResize();
 	void updateScene(float dt);
 	void drawScene(); 
+	void setEasyMode();
 
 private:
 	void buildFX();
@@ -64,6 +65,7 @@ private:
 	Diamond diamond;
 	Triangle triangle;
 	Waves waves;
+	Wing wing;
 	Trampoline testTramp;
 	Object trampObject;
 
@@ -73,8 +75,10 @@ private:
 	ComplexGeometry cliffsGeometry;
 	Object scenery[NUM_SCENERY];
 	Object cliffs[NUM_CLIFFS];
-	Object leftCliffs[NUM_CLIFFS];
-	Object rightCliffs[NUM_CLIFFS];
+	Object simpleCliff;
+    Object simpleLeftCliff;
+    Object simpleRightCliff;
+
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
 
@@ -82,8 +86,12 @@ private:
 	Axis axis;
 	Player player;
 	Object wavesObject;
+<<<<<<< HEAD
 	
 	Object diamonds[NUM_PILLARS/5];
+=======
+	std::pair<Object, Object> pWings;
+>>>>>>> 70b6d68ef172071b364806e55a6e91901af1a016
 	Object beginningPlatform;
 	Object pillars[NUM_PILLARS];
 	Object clouds[NUM_CLOUDS];
@@ -96,8 +104,6 @@ private:
 	float cameraYBoost;
 	float cameraZBoost;
 
-	float audio_timer;
-
 	float mTheta;
 	float mPhi;
 	float mx, my, mz;
@@ -106,6 +112,7 @@ private:
 
 	Menu* mainMenu;
 	bool activeMenu;
+	bool easyMode;
 
 	std::uniform_real_distribution<float> randomScaleDistribution;
 	std::mt19937 generator;
@@ -117,6 +124,8 @@ private:
 	std::wstring fadeTextMessage;
 	float fadeTextOpacity;
 	float fadeTextCurrentDuration;
+
+	int points;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
@@ -141,6 +150,7 @@ App::App(HINSTANCE hInstance):D3DApp(hInstance), mFX(0), mVertexLayout(0), rando
 	mx = 0;
 	my = 0;
 	mz = 0;
+	points = 0;
 }
 
 App::~App() {
@@ -157,6 +167,8 @@ void App::initApp() {
 	buildFX();
 	buildVertexLayouts();
 
+	easyMode = false;
+
 	audio = new Audio();
 	audio->initialize();
 	
@@ -165,8 +177,14 @@ void App::initApp() {
 	trampObject.update(0.0f);
 
 	// temp, I don't feel like listening to this 100 times 
-	//audio->playCue("music");
-	audio_timer = 0;
+	audio->playCue("music");
+
+	testTramp.init(md3dDevice, RED);
+	trampObject.init(&testTramp, D3DXVECTOR3(0, 5, 0));
+	trampObject.update(0.0f);
+
+	audio->playCue("music");
+	//audio_timer = 0;
 	srand(time(0));
 	zoom = 1.0f;
 	thrust_timer = 0.0f;
@@ -177,6 +195,7 @@ void App::initApp() {
 	pyramid.init(md3dDevice, WHITE);
 	diamond.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
+	wing.init(md3dDevice, GREEN);
 	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
 
 	//Complex Geometry
@@ -231,7 +250,7 @@ void App::initApp() {
 	ship.addChild(&triangle, Vector3(SHIP_WIDTH - SHIP_WIDTH / 4, 1, SHIP_LENGTH), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 2, 1, SHIP_WIDTH / 4), shipAni, shipColor);
 	ship.addChild(&triangle, Vector3(SHIP_WIDTH - (2 * SHIP_WIDTH / 4), 1, SHIP_LENGTH + SHIP_FRONT_LENGTH / 2), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 4, 1, SHIP_WIDTH / 4), shipAni, shipColor);
 	// forward deck center
-	ship.addChild(&quad, Vector3(SHIP_WIDTH / 4, 1, SHIP_LENGTH), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 2, 1, SHIP_WIDTH / 2), shipAni, shipColor);
+	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2, 1, SHIP_LENGTH + SHIP_FRONT_LENGTH / 4), Vector3(0, ToRadian(-90), ToRadian(180)), Vector3(SHIP_FRONT_LENGTH / 2, 1, SHIP_WIDTH / 2), shipAni, shipColor);
 	// forward long thing
 	ship.addChild(&box, Vector3(SHIP_WIDTH / 2.0f, .745, SHIP_LENGTH + SHIP_FRONT_LENGTH / 1.5), Vector3(0, ToRadian(-90), 0), Vector3(SHIP_FRONT_LENGTH * 1.5, .5, .5), shipAni, shipColor2);
 	// rear
@@ -242,7 +261,6 @@ void App::initApp() {
 	sailAni->addAnimation(Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1), Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1));
 	sailAni->addAnimation(Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1));
 	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2, MAST_HEIGHT * .8 + 1, SHIP_LENGTH / 2 + .25), Vector3(ToRadian(90), 0, 0), Vector3(SAIL_WIDTH, 0, SAIL_HEIGHT), sailAni, Vector4(1, 1, 1, 1));
-
 	sceneryGeometry[0] = ship;
 	sceneryGeometry[1] = ship;
 
@@ -261,12 +279,14 @@ void App::initApp() {
 	//Objects
 	axis.init(&line);
 	player.init(&box, Vector3(0, 0, 0));
-	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
+	//player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
+	player.setColor(0, 0, 0, 1);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
+<<<<<<< HEAD
 
 	for (int i = 0; i < NUM_DIAMONDS; i++)
 	{
@@ -276,6 +296,14 @@ void App::initApp() {
 		diamonds[i].setColor(1,1,0, 0.5);
 	}
 
+=======
+	pWings.first.init(&wing, player.getPosition());
+	pWings.second.init(&wing, player.getPosition());
+	pWings.second.setRotation(Vector3(0, 0, PI));
+	pWings.first.setScale(Vector3(0.4, 0.4, 0.4));
+	pWings.second.setScale(Vector3(0.4, 0.4, 0.4));
+	
+>>>>>>> 70b6d68ef172071b364806e55a6e91901af1a016
 	for (int i = 0; i < NUM_PILLARS; i++)
 	{
 		pillars[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*i));
@@ -283,11 +311,18 @@ void App::initApp() {
 		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
+
+	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]+5, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
+    trampObject.setScale(Vector3(1,1,1));
+    trampObject.setVelocity(Vector3(0, 0, PILLAR_SPEED));
+    trampObject.setInActive();
+    trampObject.update(0.0f);
+
 		 
 	beginningPlatform.init(&box, Vector3(0, .5, GAME_DEPTH * .4));
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
 	beginningPlatform.setVelocity(Vector3(0, 0, PILLAR_SPEED));
-	beginningPlatform.setColor(1, 1, .9, 1);
+	beginningPlatform.setColor(191.0f / 255.0f, 162.0f / 255.0f, 118.0f / 255.0f, 1);
 
 	for (int i = 0; i < NUM_CLOUDS; i++)
 	{
@@ -311,9 +346,9 @@ void App::initApp() {
 		int xpos;
 
 		if (lr == 1)
-			xpos = -GAME_WIDTH / 2 - 10 - rand() % 5;
+			xpos = -GAME_WIDTH / 2 - 7 - rand() % 5;
 		else
-			xpos =  GAME_WIDTH / 2 + 10 + rand() % 5;
+			xpos =  GAME_WIDTH / 2 + 7 + rand() % 5;
 
 		scenery[i].init(&sceneryGeometry[i], Vector3(xpos, 1, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_SCENERY*i));
 		scenery[i].setVelocity(Vector3(0, 0, -1));
@@ -321,12 +356,21 @@ void App::initApp() {
 
 	for (int i = 0; i < NUM_CLIFFS; i++)
 	{
-		cliffs[i].init(&cliffsGeometry, Vector3(CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH / 4, CLIFF_HEIGHT / 2, 50));
-		leftCliffs[i].init(&cliffsGeometry, Vector3(-38, CLIFF_HEIGHT / 2, CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH * 3));
-		leftCliffs[i].setRotation(Vector3(0, ToRadian(-90), 0));
-		rightCliffs[i].init(&cliffsGeometry, Vector3(38, CLIFF_HEIGHT / 2, CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH * 3.5));
-		rightCliffs[i].setRotation(Vector3(0, ToRadian(90), 0));
+		cliffs[i].init(&cliffsGeometry, Vector3(CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2, CLIFF_HEIGHT / 2, 40));
 	}
+
+	simpleCliff.init(&box, Vector3(0, 5, 53));
+    simpleCliff.setScale(Vector3(70, 10, 2));
+    simpleCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+    
+    simpleLeftCliff.init(&box, Vector3(-36, 5, 20));
+    simpleLeftCliff.setScale(Vector3(2, 10, 68));
+    simpleLeftCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+
+    simpleRightCliff.init(&box, Vector3(36, 5, 20));
+    simpleRightCliff.setScale(Vector3(2, 10, 68));
+    simpleRightCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+
 
 	for (int i = 0; i < NUM_STARS; i++)
 	{
@@ -340,6 +384,7 @@ void App::initApp() {
 		float x= radius * cos(theta) * sin(phi);
 		float y = radius * sin(theta) * sin(phi);
 		float z = radius * cos(phi);
+		z = fabs(z);
 		stars[i].init(&box, Vector3(x, y, z));
 		stars[i].setColor(1, 1, 1, 1);
 		stars[i].setScale(Vector3(.1, .1, .1));
@@ -363,26 +408,26 @@ void App::initApp() {
 	
 	mainMenu->initialize(md3dDevice, NULL);
 
-	mainMenu->setMenuHeading("Bouncy Bouncy");
+	//mainMenu->setMenuHeading("Dunstan's Big Bad Bounce-Around");
+	mainMenu->setMenuHeading("");
 
 	std::vector<std::string> menuItems;
-	menuItems.push_back("New Game");	// Menu 1
-	menuItems.push_back("Toggle Sound FX");	// Menu 2
-	menuItems.push_back("Cheats");	// Menu 3
-	menuItems.push_back("I'm Feeling Lucky");
+	menuItems.push_back("Play");	// Menu 1
+	menuItems.push_back("Play (easy)");	// Menu 2
+	//menuItems.push_back("Music on/off");	// Menu 3
 	mainMenu->setMenuItems(menuItems);
 
 	//Light
-	mLight.ambient = D3DXCOLOR(0.1f, 0.1f, 0.1f, 0.1f);
-	mLight.diffuse = D3DXCOLOR(0.8f, 0.8f, 0.8f, 0.8f);
-	mLight.specular = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
+	mLight.ambient = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
+	mLight.diffuse = D3DXCOLOR(0.4f, 0.4f, 0.4f, 0.4f);
+	mLight.specular = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
 	mLight.att.x    = 1.0f;
 	mLight.att.y    = 0.0f;
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
-	mLight.pos = Vector3(0.0f, 15.0f, 0.0f);
-	mLight.dir = Vector3(0.0f, -1.0f, 2.0f);
+	mLight.pos = Vector3(0.0f, 15.0f, 1.0f);
+	mLight.dir = Vector3(0.0f, -1.0f, 3.0f);
 	
 	for(int i = 0; i < 8; i++){
 		pointlights[i].ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
@@ -413,11 +458,6 @@ void App::onResize() {
 
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
-	audio_timer += dt;
-	if(audio_timer> 9.7){
-		audio->playCue("gliding");
-		audio_timer = 0;
-	}
 	updateGameState(dt);
 	switch(gameState) {
 	case MENU:
@@ -426,6 +466,12 @@ void App::updateScene(float dt) {
 	case GAME_OVER:
 	case LEVEL1:
 		{
+		if (gameState != GAME_OVER) {
+			if (atLayer == 0) points += 100 * dt;
+			if (atLayer == 1) points += 200 * dt;
+			if (atLayer == 2) points += 400 * dt;
+		}
+
 		// Every quarter second, generate a random wave.
 		/*static float t_base = 0.0f;
 		if ((mTimer.getGameTime() - t_base) >= 0.25f)
@@ -455,8 +501,20 @@ void App::updateScene(float dt) {
        			  thrust_timer -= 0.5*dt;
 
 			}
-			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
-			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
+			if (GetAsyncKeyState(VK_LEFT)){ 
+				player.accelLeft(dt);
+				pWings.first.setRotation(Vector3(0 , 0, PI/6));
+				pWings.second.setRotation(Vector3(0 , 0, PI+PI/6));
+			}
+			else if (GetAsyncKeyState(VK_RIGHT)){ 
+				pWings.first.setRotation(Vector3(0 , 0, -PI/6));
+				pWings.second.setRotation(Vector3(0 , 0, PI-PI/6));
+				player.accelRight(dt);
+			}
+			else{
+				pWings.first.setRotation(Vector3(0 , 0, 0));
+				pWings.second.setRotation(Vector3(0 , 0, PI));
+			}
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
 			if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
 			else
@@ -484,6 +542,15 @@ void App::updateScene(float dt) {
 		if(gameState != GAME_OVER) {
 			player.update(dt);
 		}
+		pWings.first.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
+		pWings.second.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
+	
+
+
+		pWings.first.update(dt);
+		pWings.second.update(dt);
+
+
 		waves.update(dt);
 		wavesObject.update(dt);
 
@@ -579,6 +646,7 @@ void App::updateScene(float dt) {
 				planets[i].setPosition(Vector3(x, LAYER_HEIGHT[2], GAME_DEPTH));
 			}
 		}
+
 		for (int i = 0; i < NUM_SCENERY; i++)
 		{
 			scenery[i].update(dt);
@@ -588,25 +656,26 @@ void App::updateScene(float dt) {
 				int xpos;
 
 				if (lr == 1)
-					xpos = -GAME_WIDTH / 2 - 10 - rand() % 5;
+					xpos = -GAME_WIDTH / 2 - 7 - rand() % 5;
 				else
-					xpos =  GAME_WIDTH / 2 + 10 + rand() % 5;
+					xpos =  GAME_WIDTH / 2 + 7 + rand() % 5;
 
-				scenery[i].setPosition(Vector3(xpos, -10, GAME_DEPTH *1.2));
+				scenery[i].setPosition(Vector3(xpos, 1, GAME_DEPTH * 1.2));
 			}
 			if (scenery[i].getPosition().y < 0)
 				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 1, scenery[i].getVelocity().z));
 			else
 				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 0, scenery[i].getVelocity().z));
-
 		}
 
-		for (int i = 0; i < NUM_CLIFFS; i++)
-		{
-			cliffs[i].update(dt);
-			leftCliffs[i].update(dt);
-			rightCliffs[i].update(dt);
-		}
+		//for (int i = 0; i < NUM_CLIFFS; i++)
+			//cliffs[i].update(dt);
+
+		simpleCliff.update(dt);
+        simpleLeftCliff.update(dt);
+        simpleRightCliff.update(dt);
+
+
 
 		for (int i = 0; i < NUM_STARS; i++)
 		{
@@ -614,12 +683,12 @@ void App::updateScene(float dt) {
 		}
 
 		/* bottom collision, temp */ 
-		/*if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
+		if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
 		{
 			player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 
 			player.setPosition(oldPlayerPosition);
-		}*/
+		}
 
 		// collision
 		for (int i = 0; i < NUM_DIAMONDS; i++)
@@ -739,7 +808,6 @@ void App::updateScene(float dt) {
 		}
 	case LEVEL2:
 		{
-
 		break;
 		}
 	}
@@ -779,7 +847,8 @@ void App::drawScene() {
 		
 
 		//Draw objects
-			trampObject.draw(&ri);
+			pWings.first.draw(&ri);
+			pWings.second.draw(&ri);
 			player.draw(&ri);
 			wavesObject.draw(&ri);
 	
@@ -800,18 +869,25 @@ void App::drawScene() {
 			for (int i = 0; i < NUM_SCENERY; i++)
 				scenery[i].draw(&ri);
 		
-			for (int i = 0; i < NUM_CLIFFS; i++)
-			{
-				cliffs[i].draw(&ri);
-				leftCliffs[i].draw(&ri);
-				rightCliffs[i].draw(&ri);
-			}
+			//for (int i = 0; i < NUM_CLIFFS; i++)
+				//cliffs[i].draw(&ri);
+
+			simpleCliff.draw(&ri);
+            simpleLeftCliff.draw(&ri);
+            simpleRightCliff.draw(&ri);
+
 
 			if (atLayer >= 2)
 				for (int i = 0; i < NUM_STARS; i++)
 					stars[i].draw(&ri);
 
-
+			std::wostringstream po;
+		std::wstring pt;
+		po << "Points: " << points;
+		pt.clear();
+		pt.append(po.str());
+		RECT Rp = {600, 5, 0, 0};
+		mFont->DrawText(0, pt.c_str(), -1, &Rp, DT_NOCLIP, WHITE);
 			break;
 		}
 	}
@@ -827,9 +903,27 @@ void App::drawScene() {
 		  height = rect.bottom - rect.top;
 		}
 		RECT R2 = {0, 100, width, height / 4};
-		std::string gameOverString = "G A M E   O V E R";
+		std::string gameOverString = "Game Over";
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
-	} else if (fadeTextActive)
+	} else if (gameState == MENU) {
+		RECT rect;
+		int width;
+		int height;
+		if(GetWindowRect(mhMainWnd, &rect))
+		{
+		  width = rect.right - rect.left;
+		  height = rect.bottom - rect.top;
+		}
+		RECT R2 = {0, 100, width, height / 2};
+		std::string gameOverString = "D U N S T A N ' S   B I G   B A D \n B O U N C E   A R O U N D";
+		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+
+		
+		RECT R3 = {300, 200, width, height / 2};
+		gameOverString = "Controls:\nMove: Left/Right\nGlide: Up\nDive: Down";
+		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+	}
+	else if (fadeTextActive)
 	{
 		RECT rect;
 		int width;
@@ -840,10 +934,29 @@ void App::drawScene() {
 		  height = rect.bottom - rect.top;
 		}
 		RECT R2 = {0, 100, width, height / 4};
-
+		
 		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
 	}
+
+	if (easyMode)
+	{
+		RECT rect;
+		int width;
+		int height;
+		if(GetWindowRect(mhMainWnd, &rect))
+		{
+		  width = rect.right - rect.left;
+		  height = rect.bottom - rect.top;
+		}
+		
+		RECT rect2 = {height, 10, width, height/4};
+		std::wstring easyMessage = L"Easy mode";
+		mFont->DrawText(0, easyMessage.c_str(), -1, &rect2, DT_CENTER, D3DXCOLOR(1, 1, 1, .5));
+
+
+	}
 	
+	/*
 	RECT R1 = {200, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
 
@@ -864,7 +977,7 @@ void App::drawScene() {
 	
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT R = {5, 5, 0, 0};
-	mFont->DrawText(0, debugText.c_str(), -1, &R, DT_NOCLIP, WHITE);
+	mFont->DrawText(0, debugText.c_str(), -1, &R, DT_NOCLIP, WHITE);*/
 	mSwapChain->Present(0, 0);
 }
 
@@ -872,17 +985,25 @@ void App::updateGameState(float dt) {
 	elapsedTime += dt;
 	switch(gameState) {
 	case MENU:
-		if(mainMenu->getMenuState() == NEW_GAME) {
+		if(mainMenu->getMenuState() == PLAY) {
+			gameState = LEVEL1;
+			points = 0;
+			elapsedTime = 0;
+		}
+		if(mainMenu->getMenuState() == PLAY_EASY) {
 			gameState = LEVEL1;
 			elapsedTime = 0;
+			setEasyMode();
 		}
 
 		break;
 	case LEVEL1:
 	case LEVEL2:
 		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y) {
+			audio->playCue("splash");
 			gameState = GAME_OVER;
 			player.setPosition(Vector3(0, -1000, 0));
+			player.update(dt);
 		}
 		break;
 	}
@@ -940,4 +1061,32 @@ void App::fadeText(std::wstring msg)
 	fadeTextMessage = msg;
 	fadeTextCurrentDuration = 0;
 	fadeTextOpacity = 0;
+}
+
+
+void App::setEasyMode()
+{
+	easyMode = true;
+
+	beginningPlatform.setVelocity(beginningPlatform.getVelocity() + Vector3(0, 0, 2));
+
+	for (int i = 0; i < NUM_PILLARS; i++)
+	{
+		pillars[i].setScale(pillars[i].getScale() + Vector3(2, 0, 2));
+		pillars[i].setVelocity(pillars[i].getVelocity() + Vector3(0, 0, 2));
+	}
+
+	for (int i = 0; i < NUM_CLOUDS; i++)
+	{
+		clouds[i].setScale(clouds[i].getScale() + Vector3(2, 0, 2));
+		clouds[i].setVelocity(clouds[i].getVelocity() + Vector3(0, 0, 2));
+	}
+
+	for (int i = 0; i < NUM_PLANETS; i++)
+	{
+		planets[i].setScale(planets[i].getScale() + Vector3(2, 0, 2));
+		planets[i].setVelocity(planets[i].getVelocity() + Vector3(0, 0, 2));
+	}
+
+
 }

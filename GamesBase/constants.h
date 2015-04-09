@@ -23,7 +23,7 @@ const int GAME_DEPTH = 40;
 const int GAME_BEHIND_DEPTH = 10;
 const int NUM_SCENERY = 2;
 const int NUM_STARS = 100;
-const int NUM_CLIFFS = 20;
+const int NUM_CLIFFS = 30;
 const float CLIFF_HEIGHT = 10;
 const float CLIFF_WIDTH = 3.9;
 
@@ -52,9 +52,9 @@ const int NUM_CLOUDS = 15;
 const float CLOUD_SPEED = -5;
 const float CLOUD_SIZE = 3;
 
-const int NUM_PLANETS = 20;
-const float PLANET_SPEED = -5;
-const float PLANET_SIZE = 3;
+const int NUM_PLANETS = 15;
+const float PLANET_SPEED = -7;
+const float PLANET_SIZE = 2.5;
 
 const int SEA_SIZE = 150;
 const float WATER_RISE_SPEED = 0;
@@ -69,7 +69,7 @@ const int MENU_OFFSET = 125;
 const float FADE_TEXT_DURATION = 2;
 const float FADE_TEXT_FADE_SPEED = 1;
 
-enum menuStates { NEW_GAME = 1, SFX, CHEATS, FEELING_LUCKY,
+enum menuStates { PLAY = 1, PLAY_EASY, SOUNDS
 };
 
 enum gameStates {
