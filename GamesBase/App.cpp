@@ -47,15 +47,16 @@ private:
 	ID3D10EffectVariable* mfxEyePosVar;
 	ID3D10EffectVariable* mfxLightVar;
 	ID3D10EffectScalarVariable* mfxLightType;
+	ID3D10EffectVariable* mfxPlayerPos;
 	D3DXVECTOR3 mEyePos;
 
 	Light mLight;
 	Light pointlights[8];
 	//Geometry
 	Line line;
-	Box box;
+	ComplexGeometry box;
 	ComplexGeometry bouncerBox;
-	Box pillarBox;
+	ComplexGeometry pillarBox;
 	Quad quad;
 	Pyramid pyramid;
 	Triangle triangle;
@@ -157,8 +158,7 @@ void App::initApp() {
 	thrust_timer = 0.0f;
 	//Geometry
 	line.init(md3dDevice, WHITE);
-	box.init(md3dDevice, WHITE);
-	pillarBox.init(md3dDevice, WHITE);
+	//box.init(md3dDevice, WHITE);
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
@@ -166,11 +166,22 @@ void App::initApp() {
 
 	//Complex Geometry
 	// ---------------------------ANIMATION TEST
+	box.init(&quad);
+	box.addChild(&quad, Vector3(0, 0, -0.5f), Vector3(ToRadian(90), 0, 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, 0, +0.5f), Vector3(ToRadian(-90), 0, 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(-0.5f, 0, 0), Vector3(0, 0, ToRadian(-90)), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(+0.5f, 0, 0), Vector3(0, 0, ToRadian(90)), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, -0.5f, 0), Vector3(0, ToRadian(180), 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, 0.5f, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), 0);
+
 	bouncerBox.init(&box);
 	AnimationState* bbani = new AnimationState();
 	bbani->addAnimation(Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
 	bbani->addAnimation(Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
 	bouncerBox.addChild(&box, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), bbani, Vector4(1, 0, 0, 1));
+
+	pillarBox.init(&box);
+	pillarBox.addChild(&box, Vector3(0, 0.55f, 0), Vector3(0, 0, 0), Vector3(1.2f, 0.1f, 1.2f), 0);
 
 	ComplexGeometry ship;
 	ship.init(&line);
@@ -342,8 +353,8 @@ void App::initApp() {
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
-	mLight.pos = Vector3(15.0f, 15.0f, 0);
-	mLight.dir = Vector3(0.0f, -1.0f, 1.0f);
+	mLight.pos = Vector3(0.0f, 15.0f, 0.0f);
+	mLight.dir = Vector3(0.0f, -1.0f, 2.0f);
 	
 	for(int i = 0; i < 8; i++){
 		pointlights[i].ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
@@ -686,6 +697,7 @@ void App::drawScene() {
 		mfxEyePosVar->SetRawValue(&mEyePos, 0, sizeof(D3DXVECTOR3));
 		mfxLightVar->SetRawValue(&mLight, 0, sizeof(Light));
 		mfxLightType->SetInt(0);
+		mfxPlayerPos->SetRawValue(&player.getPosition(), 0, sizeof(D3DXVECTOR3));
 
 		//Draw Axis
 		//axis.draw(&ri);
@@ -804,6 +816,7 @@ void App::buildFX() {
 	mfxEyePosVar = mFX->GetVariableByName("gEyePosW");
 	mfxLightVar  = mFX->GetVariableByName("gLight");
 	mfxLightType = mFX->GetVariableByName("gLightType")->AsScalar();
+	mfxPlayerPos = mFX->GetVariableByName("playerPos");
 }
 
 void App::buildVertexLayouts()
