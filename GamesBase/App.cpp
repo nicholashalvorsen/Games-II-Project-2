@@ -379,6 +379,7 @@ void App::updateScene(float dt) {
 	case MENU:
 		mainMenu->update();
 		break;
+	case GAME_OVER:
 	case LEVEL1:
 		{
 		// Every quarter second, generate a random wave.
@@ -396,45 +397,48 @@ void App::updateScene(float dt) {
 		}*/
 
 		if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
-		if (GetAsyncKeyState('R')) player.resetPos();
-		//Thrust with a timer of a 1:2 thrust to cooldown ratio and a 2 second starting thrust bank.
-		if (GetAsyncKeyState(VK_SPACE)){ 
+		if(gameState != GAME_OVER) {
+			if (GetAsyncKeyState('R')) player.resetPos();
+			//Thrust with a timer of a 1:2 thrust to cooldown ratio and a 2 second starting thrust bank.
+			if (GetAsyncKeyState(VK_SPACE)){ 
 		
-			if(thrust_timer < 1.0f){
-				thrust_timer+=dt;
-				player.thrustUp(dt);
-			}
+				if(thrust_timer < 1.0f){
+					thrust_timer+=dt;
+					player.thrustUp(dt);
+				}
 	
-		}else if(thrust_timer > 0){
-       		  thrust_timer -= 0.5*dt;
-		}
-		if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
-		if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
-		if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
-		if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
-		else
-			player.setGliding(false);
-		if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
-		else
-			player.setDiving(false);
-		if (GetAsyncKeyState('B')) {
-			if (atLayer == 0)
-			{
-				fadeText(LAYER_NAMES[1]);
-				player.setVelocity(Vector3(0, 18, 0));
-				atLayer = 1;
+			}else if(thrust_timer > 0){
+       			  thrust_timer -= 0.5*dt;
 			}
-			if (atLayer == 1 && player.getPosition().y > LAYER_HEIGHT[1])
-			{
-				fadeText(LAYER_NAMES[2]);
-				player.setVelocity(Vector3(0, 27, 0));
-				atLayer = 2;
+			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
+			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
+			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
+			if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
+			else
+				player.setGliding(false);
+			if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
+			else
+				player.setDiving(false);
+			if (GetAsyncKeyState('B')) {
+				if (atLayer == 0)
+				{
+					fadeText(LAYER_NAMES[1]);
+					player.setVelocity(Vector3(0, 18, 0));
+					atLayer = 1;
+				}
+				if (atLayer == 1 && player.getPosition().y > LAYER_HEIGHT[1])
+				{
+					fadeText(LAYER_NAMES[2]);
+					player.setVelocity(Vector3(0, 27, 0));
+					atLayer = 2;
+				}
 			}
 		}
 
 		Vector3 oldPlayerPosition = player.getPosition();
-
-		player.update(dt);
+		if(gameState != GAME_OVER) {
+			player.update(dt);
+		}
 		waves.update(dt);
 		wavesObject.update(dt);
 
@@ -661,66 +665,76 @@ void App::drawScene() {
 	case MENU:
 		mainMenu->displayMenu(diff);
 		break;
+	case GAME_OVER:
 	case LEVEL1:
 	case LEVEL2:
 		{
-		D3DApp::drawScene();
-		mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
-		if (atLayer == 2)
-			mClearColor = D3DXCOLOR(0, 0, 0, 1);
+			D3DApp::drawScene();
+			mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
+			if (atLayer == 2)
+				mClearColor = D3DXCOLOR(0, 0, 0, 1);
 
-		// Restore default states, input layout and primitive topology 
-		// because mFont->DrawText changes them.  Note that we can 
-		// restore the default states by passing null.
-		md3dDevice->OMSetDepthStencilState(0, 0);
-		float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
-		md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
-		md3dDevice->IASetInputLayout(mVertexLayout);
+			// Restore default states, input layout and primitive topology 
+			// because mFont->DrawText changes them.  Note that we can 
+			// restore the default states by passing null.
+			md3dDevice->OMSetDepthStencilState(0, 0);
+			float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
+			md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
+			md3dDevice->IASetInputLayout(mVertexLayout);
 
-		//Set Lighting
-		mfxEyePosVar->SetRawValue(&mEyePos, 0, sizeof(D3DXVECTOR3));
-		mfxLightVar->SetRawValue(&mLight, 0, sizeof(Light));
-		mfxLightType->SetInt(0);
+			//Set Lighting
+			mfxEyePosVar->SetRawValue(&mEyePos, 0, sizeof(D3DXVECTOR3));
+			mfxLightVar->SetRawValue(&mLight, 0, sizeof(Light));
+			mfxLightType->SetInt(0);
 
-		//Draw Axis
-		//axis.draw(&ri);
+			//Draw Axis
+			//axis.draw(&ri);
 
-		//Draw objects
+			//Draw objects
 	
-		player.draw(&ri);
-		wavesObject.draw(&ri);
+			player.draw(&ri);
+			wavesObject.draw(&ri);
 	
-		for (int i = 0; i < NUM_PILLARS; i++)
-			pillars[i].draw(&ri);
+			for (int i = 0; i < NUM_PILLARS; i++)
+				pillars[i].draw(&ri);
 
-		for (int i = 0; i < NUM_CLOUDS; i++)
-			clouds[i].draw(&ri);
+			for (int i = 0; i < NUM_CLOUDS; i++)
+				clouds[i].draw(&ri);
 
-		for (int i = 0; i < NUM_PLANETS; i++)
-			planets[i].draw(&ri);
+			for (int i = 0; i < NUM_PLANETS; i++)
+				planets[i].draw(&ri);
 
-		beginningPlatform.draw(&ri);
+			beginningPlatform.draw(&ri);
 
-		for (int i = 0; i < NUM_SCENERY; i++)
-			scenery[i].draw(&ri);
+			for (int i = 0; i < NUM_SCENERY; i++)
+				scenery[i].draw(&ri);
 		
-		for (int i = 0; i < NUM_CLIFFS; i++)
-			cliffs[i].draw(&ri);
+			for (int i = 0; i < NUM_CLIFFS; i++)
+				cliffs[i].draw(&ri);
 
-		if (atLayer >= 2)
-			for (int i = 0; i < NUM_STARS; i++)
-				stars[i].draw(&ri);
+			if (atLayer >= 2)
+				for (int i = 0; i < NUM_STARS; i++)
+					stars[i].draw(&ri);
 
 
-		break;
+			break;
 		}
-	case GAME_OVER:
-
-		break;
 	}
 
 	//Draw text to screen
-	if (fadeTextActive)
+	if (gameState == GAME_OVER) {
+		RECT rect;
+		int width;
+		int height;
+		if(GetWindowRect(mhMainWnd, &rect))
+		{
+		  width = rect.right - rect.left;
+		  height = rect.bottom - rect.top;
+		}
+		RECT R2 = {0, 100, width, height / 4};
+		std::string gameOverString = "Game Over";
+		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+	} else if (fadeTextActive)
 	{
 		RECT rect;
 		int width;
@@ -768,6 +782,12 @@ void App::updateGameState(float dt) {
 			elapsedTime = 0;
 		}
 
+		break;
+	case LEVEL1:
+	case LEVEL2:
+		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y) {
+			gameState = GAME_OVER;
+		}
 		break;
 	}
 }
