@@ -458,7 +458,7 @@ void App::onResize() {
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
 	updateGameState(dt);
-	if(elapsedTime >= 30.0f) {
+	if(elapsedTime >= 00.0f) {
         trampObject.setActive();
     } else {
         trampObject.setInActive();
@@ -806,7 +806,7 @@ void App::updateScene(float dt) {
 
 		/* don't let the player go too fast */
 
-		if (player.getVelocity().y < Y_VELOCITY_LIMIT)
+		if (player.getVelocity().y < Y_VELOCITY_LIMIT && !player.diving)
 			player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y * .99, player.getVelocity().z));
 			
 
