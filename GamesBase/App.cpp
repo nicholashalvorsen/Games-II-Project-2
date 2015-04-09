@@ -14,6 +14,7 @@
 #include "menu.h"
 #include "AnimationState.h"
 #include "Light.h"
+#include "Trampoline.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -62,6 +63,8 @@ private:
 	Pyramid pyramid;
 	Triangle triangle;
 	Waves waves;
+	Trampoline testTramp;
+	Object trampObject;
 
 	//Models
 	//ComplexGeometry wing;
@@ -157,6 +160,10 @@ void App::initApp() {
 	audio = new Audio();
 	audio->initialize();
 	
+	testTramp.init(md3dDevice, RED);
+	trampObject.init(&testTramp, D3DXVECTOR3(0, 5, 0));
+	trampObject.update(0.0f);
+
 	// temp, I don't feel like listening to this 100 times 
 	audio->playCue("music");
 
@@ -165,7 +172,7 @@ void App::initApp() {
 	trampObject.update(0.0f);
 
 	audio->playCue("music");
-	audio_timer = 0;
+	//audio_timer = 0;
 	srand(time(0));
 	zoom = 1.0f;
 	thrust_timer = 0.0f;
@@ -698,7 +705,6 @@ void App::drawScene() {
 	case LEVEL1:
 	case LEVEL2:
 		{
-
 		D3DApp::drawScene();
 		mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 		if (atLayer == 2)
@@ -722,7 +728,7 @@ void App::drawScene() {
 		//axis.draw(&ri);
 
 		//Draw objects
-	
+			trampObject.draw(&ri);
 			player.draw(&ri);
 			wavesObject.draw(&ri);
 	

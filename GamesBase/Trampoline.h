@@ -18,6 +18,7 @@ public:
 		mNumVertices = 20;
 		mNumFaces    = 20;
 
+
 		Vertex vertices[] = {
 			{D3DXVECTOR3(-3.0f, 0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
 			{D3DXVECTOR3(-0.75f, 0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
@@ -28,17 +29,8 @@ public:
 			{D3DXVECTOR3(2.0f, 0.5f, -3.0f), D3DXVECTOR3(0, 1, 0), c},
 			{D3DXVECTOR3(0.0f, 0.5f, -1.5f), D3DXVECTOR3(0, 1, 0), c},
 			{D3DXVECTOR3(-2.0f, 0.5f, -3.0f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(-3.0f, -0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(-0.75f, -0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(0.0f, -0.5f, 3.0f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(0.75f, -0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(3.0f, -0.5f, 0.75f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(1.5f, -0.5f, -0.25f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(2.0f, -0.5f, -3.0f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(0.0f, -0.5f, -1.5f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(-2.0f, -0.5f, -3.0f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(-1.5f, -0.5f, -0.25f), D3DXVECTOR3(0, 1, 0), c}};
+
+			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f), D3DXVECTOR3(0, 1, 0), c}};
 
 		D3D10_BUFFER_DESC vbd;
 		vbd.Usage = D3D10_USAGE_IMMUTABLE;
@@ -91,6 +83,7 @@ public:
 			// back face
 			0, 9, 19,
 			19, 10, 0,
+
 		};
 
 		D3D10_BUFFER_DESC ibd;
