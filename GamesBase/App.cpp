@@ -461,6 +461,7 @@ void App::updateScene(float dt) {
 			else
 				player.setDiving(false);
 			if (GetAsyncKeyState('B') || player.collided(&trampObject)) {
+				audio->playCue("boing");
 				elapsedTime = 0;
 				if (atLayer == 0)
 				{
