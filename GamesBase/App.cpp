@@ -747,9 +747,10 @@ void App::updateScene(float dt) {
 		{
 			for (int i = 0; i < NUM_CLOUDS; i++)
 			{
-				if(player.getPosition().z - clouds[i].getPosition().z > 0.5)
+				if( clouds[i].getActiveState())
 				{
-					clouds[i].setInActive();
+					if ((rand() % 10000) == 1)
+						clouds[i].setInActive();
 				}
 				
 				if (player.collided(&clouds[i]))
