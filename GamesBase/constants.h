@@ -35,7 +35,7 @@ const float PLAYER_THRUST = 20;
 const float PLAYER_BOUNCE_FORCE = 8;
 const float PLAYER_X_SPEED = 5;
 const float PLAYER_X_ACCEL = 150;
-const float PLAYER_GLIDE_DROP = -1.3;
+const float PLAYER_GLIDE_DROP = -1.2;
 const float PLAYER_DIVE_SPEED = -10;
 
 const int NUM_PILLARS = 15;
@@ -64,7 +64,7 @@ const int MENU_OFFSET = 125;
 const float FADE_TEXT_DURATION = 2;
 const float FADE_TEXT_FADE_SPEED = 1;
 
-enum menuStates { NEW_GAME = 1, SFX, CHEATS, FEELING_LUCKY,
+enum menuStates { PLAY = 1, PLAY_EASY, SOUNDS
 };
 
 enum gameStates {

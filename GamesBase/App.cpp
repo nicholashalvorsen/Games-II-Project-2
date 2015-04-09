@@ -31,6 +31,7 @@ public:
 	void onResize();
 	void updateScene(float dt);
 	void drawScene(); 
+	void setEasyMode();
 
 private:
 	void buildFX();
@@ -106,6 +107,7 @@ private:
 
 	Menu* mainMenu;
 	bool activeMenu;
+	bool easyMode;
 
 	std::uniform_real_distribution<float> randomScaleDistribution;
 	std::mt19937 generator;
@@ -157,6 +159,8 @@ void App::initApp() {
 	buildFX();
 	buildVertexLayouts();
 
+	easyMode = false;
+
 	audio = new Audio();
 	audio->initialize();
 	
@@ -164,8 +168,7 @@ void App::initApp() {
 	trampObject.init(&testTramp, D3DXVECTOR3(0, 5, 0));
 	trampObject.update(0.0f);
 
-	// temp, I don't feel like listening to this 100 times 
-	//audio->playCue("music");
+	audio->playCue("music");
 	audio_timer = 0;
 	srand(time(0));
 	zoom = 1.0f;
@@ -366,13 +369,14 @@ void App::initApp() {
 	
 	mainMenu->initialize(md3dDevice, NULL);
 
-	mainMenu->setMenuHeading("Bouncy Bouncy");
+	//mainMenu->setMenuHeading("Dunstan's Big Bad Bounce-Around");
+	mainMenu->setMenuHeading("");
 
 	std::vector<std::string> menuItems;
-	menuItems.push_back("New Game");	// Menu 1
-	menuItems.push_back("Toggle Sound FX");	// Menu 2
-	menuItems.push_back("Cheats");	// Menu 3
-	menuItems.push_back("I'm Feeling Lucky");
+	menuItems.push_back("Play");	// Menu 1
+	menuItems.push_back("Play (easy)");	// Menu 2
+	//menuItems.push_back("Music on/off");	// Menu 3
+	//menuItems.push_back("I'm Feeling Lucky");
 	mainMenu->setMenuItems(menuItems);
 
 	//Light
@@ -809,7 +813,25 @@ void App::drawScene() {
 		RECT R2 = {0, 100, width, height / 4};
 		std::string gameOverString = "G A M E   O V E R";
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
-	} else if (fadeTextActive)
+	} else if (gameState == MENU) {
+		RECT rect;
+		int width;
+		int height;
+		if(GetWindowRect(mhMainWnd, &rect))
+		{
+		  width = rect.right - rect.left;
+		  height = rect.bottom - rect.top;
+		}
+		RECT R2 = {0, 100, width, height / 2};
+		std::string gameOverString = "D U N S T A N ' S   B I G   B A D \n B O U N C E   A R O U N D";
+		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+
+		
+		RECT R3 = {300, 200, width, height / 2};
+		gameOverString = "Controls:\nMove: Left/Right\nGlide: Up\nDive: Down";
+		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+	}
+	else if (fadeTextActive)
 	{
 		RECT rect;
 		int width;
@@ -820,10 +842,29 @@ void App::drawScene() {
 		  height = rect.bottom - rect.top;
 		}
 		RECT R2 = {0, 100, width, height / 4};
-
+		
 		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
 	}
+
+	if (easyMode)
+	{
+		RECT rect;
+		int width;
+		int height;
+		if(GetWindowRect(mhMainWnd, &rect))
+		{
+		  width = rect.right - rect.left;
+		  height = rect.bottom - rect.top;
+		}
+		
+		RECT rect2 = {height, 10, width, height/4};
+		std::wstring easyMessage = L"Easy mode";
+		mFont->DrawText(0, easyMessage.c_str(), -1, &rect2, DT_CENTER, D3DXCOLOR(1, 1, 1, .5));
+
+
+	}
 	
+	/*
 	RECT R1 = {200, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
 
@@ -844,7 +885,7 @@ void App::drawScene() {
 	
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT R = {5, 5, 0, 0};
-	mFont->DrawText(0, debugText.c_str(), -1, &R, DT_NOCLIP, WHITE);
+	mFont->DrawText(0, debugText.c_str(), -1, &R, DT_NOCLIP, WHITE);*/
 	mSwapChain->Present(0, 0);
 }
 
@@ -852,9 +893,14 @@ void App::updateGameState(float dt) {
 	elapsedTime += dt;
 	switch(gameState) {
 	case MENU:
-		if(mainMenu->getMenuState() == NEW_GAME) {
+		if(mainMenu->getMenuState() == PLAY) {
 			gameState = LEVEL1;
 			elapsedTime = 0;
+		}
+		if(mainMenu->getMenuState() == PLAY_EASY) {
+			gameState = LEVEL1;
+			elapsedTime = 0;
+			setEasyMode();
 		}
 
 		break;
@@ -863,6 +909,7 @@ void App::updateGameState(float dt) {
 		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y) {
 			gameState = GAME_OVER;
 			player.setPosition(Vector3(0, -1000, 0));
+			player.update(dt);
 		}
 		break;
 	}
@@ -920,4 +967,32 @@ void App::fadeText(std::wstring msg)
 	fadeTextMessage = msg;
 	fadeTextCurrentDuration = 0;
 	fadeTextOpacity = 0;
+}
+
+
+void App::setEasyMode()
+{
+	easyMode = true;
+
+	beginningPlatform.setVelocity(beginningPlatform.getVelocity() + Vector3(0, 0, 2));
+
+	for (int i = 0; i < NUM_PILLARS; i++)
+	{
+		pillars[i].setScale(pillars[i].getScale() + Vector3(2, 0, 2));
+		pillars[i].setVelocity(pillars[i].getVelocity() + Vector3(0, 0, 2));
+	}
+
+	for (int i = 0; i < NUM_CLOUDS; i++)
+	{
+		clouds[i].setScale(clouds[i].getScale() + Vector3(2, 0, 2));
+		clouds[i].setVelocity(clouds[i].getVelocity() + Vector3(0, 0, 2));
+	}
+
+	for (int i = 0; i < NUM_PLANETS; i++)
+	{
+		planets[i].setScale(planets[i].getScale() + Vector3(2, 0, 2));
+		planets[i].setVelocity(planets[i].getVelocity() + Vector3(0, 0, 2));
+	}
+
+
 }
