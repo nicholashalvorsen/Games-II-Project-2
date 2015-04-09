@@ -171,7 +171,7 @@ void App::initApp() {
 	audio->initialize();
 	
 	testTramp.init(md3dDevice, RED);
-	trampObject.init(&testTramp, D3DXVECTOR3(0, 5, 0));
+	trampObject.init(&testTramp, D3DXVECTOR3(0, -100, 0));
 	trampObject.update(0.0f);
 
 	// temp, I don't feel like listening to this 100 times 
@@ -469,11 +469,11 @@ void App::updateScene(float dt) {
 	case GAME_OVER:
 	case LEVEL1:
 		{
-		if (gameState != GAME_OVER) {
-			if (atLayer == 0) points += 100 * dt;
-			if (atLayer == 1) points += 200 * dt;
-			if (atLayer == 2) points += 400 * dt;
-		}
+		//if (gameState != GAME_OVER) {
+		//	if (atLayer == 0) points += 100 * dt;
+		//	if (atLayer == 1) points += 200 * dt;
+		//	if (atLayer == 2) points += 400 * dt;
+		//}
 
 		// Every quarter second, generate a random wave.
 		/*static float t_base = 0.0f;
@@ -563,18 +563,14 @@ void App::updateScene(float dt) {
 		pWings.first.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
 		pWings.second.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
 	
-
-
 		pWings.first.update(dt);
 		pWings.second.update(dt);
-
 
 		waves.update(dt);
 		wavesObject.update(dt);
 		if(trampObject.getActiveState()) {
             trampObject.update(dt);
         }
-
 
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
@@ -739,6 +735,7 @@ void App::updateScene(float dt) {
 					{
 						player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 						player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+						points += 10;
 					}
 				}
 			}
@@ -757,6 +754,7 @@ void App::updateScene(float dt) {
 				{
 					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+					points += 20;
 				}
 			}
 		}
@@ -768,6 +766,7 @@ void App::updateScene(float dt) {
 				{
 					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+					points += 40;
 				}
 			}
 		}
