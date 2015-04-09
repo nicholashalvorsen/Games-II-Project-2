@@ -80,6 +80,8 @@ public:
 		for (int i = 0; i < children.size(); i++) {
 			Child c = children[i];
 
+			if (c.animation == 0) continue;
+
 			Animation ani = c.animation->getAnimation(animation);
 			c.rotate.x += (ani.Erotate.x - ani.Srotate.x) / time * dt;
 			c.rotate.y += (ani.Erotate.y - ani.Srotate.y) / time * dt;
