@@ -48,6 +48,7 @@ const float CLOUD_SPEED = -5;
 const float CLOUD_SIZE = 3;
 
 const int NUM_PLANETS = 15;
+const float PLANET_SPEED = -7;
 const float PLANET_SIZE = 2.5;
 
 const int SEA_SIZE = 150;
