@@ -78,10 +78,10 @@
     <ClInclude Include="menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Jetpack.h">
+    <ClInclude Include="Trampoline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Trampoline.h">
+    <ClInclude Include="wing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

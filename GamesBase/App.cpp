@@ -15,7 +15,7 @@
 #include "AnimationState.h"
 #include "Light.h"
 #include "Trampoline.h"
-
+#include "wing.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <ctime>
@@ -63,6 +63,7 @@ private:
 	Pyramid pyramid;
 	Triangle triangle;
 	Waves waves;
+	Wing wing;
 	Trampoline testTramp;
 	Object trampObject;
 
@@ -72,6 +73,10 @@ private:
 	ComplexGeometry cliffsGeometry;
 	Object scenery[NUM_SCENERY];
 	Object cliffs[NUM_CLIFFS];
+	Object simpleCliff;
+    Object simpleLeftCliff;
+    Object simpleRightCliff;
+
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
 
@@ -79,7 +84,7 @@ private:
 	Axis axis;
 	Player player;
 	Object wavesObject;
-
+	std::pair<Object, Object> pWings;
 	Object beginningPlatform;
 	Object pillars[NUM_PILLARS];
 	Object clouds[NUM_CLOUDS];
@@ -182,6 +187,7 @@ void App::initApp() {
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
+	wing.init(md3dDevice, GREEN);
 	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
 
 	//Complex Geometry
@@ -268,11 +274,17 @@ void App::initApp() {
 	player.init(&box, Vector3(0, 0, 0));
 	player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
-	player.setScale(Vector3(0.5, 0.5, 0.5));
+	player.setScale(Vector3(2.5, 0.5, 0.5));
+	player.setPosition(player.getPosition() - Vector3(0.0f, 0.0f, 2.0f));
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
-
+	pWings.first.init(&wing, player.getPosition());
+	pWings.second.init(&wing, player.getPosition());
+	pWings.second.setRotation(Vector3(0, 0, PI));
+	pWings.first.setScale(Vector3(0.75, 0.75, 0.75));
+	pWings.second.setScale(Vector3(0.75, 0.75, 0.75));
+	
 	for (int i = 0; i < NUM_PILLARS; i++)
 	{
 		pillars[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*i));
@@ -280,6 +292,13 @@ void App::initApp() {
 		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
+
+	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]+5, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
+    trampObject.setScale(Vector3(1,1,1));
+    trampObject.setVelocity(Vector3(0, 0, PILLAR_SPEED));
+    trampObject.setInActive();
+    trampObject.update(0.0f);
+
 		 
 	beginningPlatform.init(&box, Vector3(0, .5, GAME_DEPTH * .4));
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
@@ -320,6 +339,19 @@ void App::initApp() {
 	{
 		cliffs[i].init(&cliffsGeometry, Vector3(CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2, CLIFF_HEIGHT / 2, 40));
 	}
+
+	simpleCliff.init(&box, Vector3(0, 5, 53));
+    simpleCliff.setScale(Vector3(70, 10, 2));
+    simpleCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+    
+    simpleLeftCliff.init(&box, Vector3(-36, 5, 20));
+    simpleLeftCliff.setScale(Vector3(2, 10, 68));
+    simpleLeftCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+
+    simpleRightCliff.init(&box, Vector3(36, 5, 20));
+    simpleRightCliff.setScale(Vector3(2, 10, 68));
+    simpleRightCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+
 
 	for (int i = 0; i < NUM_STARS; i++)
 	{
@@ -450,8 +482,20 @@ void App::updateScene(float dt) {
        			  thrust_timer -= 0.5*dt;
 
 			}
-			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
-			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
+			if (GetAsyncKeyState(VK_LEFT)){ 
+				player.accelLeft(dt);
+				pWings.first.setRotation(Vector3(0 , 0, PI/6));
+				pWings.second.setRotation(Vector3(0 , 0, PI+PI/6));
+			}
+			else if (GetAsyncKeyState(VK_RIGHT)){ 
+				pWings.first.setRotation(Vector3(0 , 0, -PI/6));
+				pWings.second.setRotation(Vector3(0 , 0, PI-PI/6));
+				player.accelRight(dt);
+			}
+			else{
+				pWings.first.setRotation(Vector3(0 , 0, 0));
+				pWings.second.setRotation(Vector3(0 , 0, PI));
+			}
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
 			if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
 			else
@@ -479,6 +523,15 @@ void App::updateScene(float dt) {
 		if(gameState != GAME_OVER) {
 			player.update(dt);
 		}
+		pWings.first.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
+		pWings.second.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
+	
+
+
+		pWings.first.update(dt);
+		pWings.second.update(dt);
+
+
 		waves.update(dt);
 		wavesObject.update(dt);
 
@@ -568,8 +621,14 @@ void App::updateScene(float dt) {
 			}
 		}
 
-		for (int i = 0; i < NUM_CLIFFS; i++)
-			cliffs[i].update(dt);
+		//for (int i = 0; i < NUM_CLIFFS; i++)
+			//cliffs[i].update(dt);
+
+		simpleCliff.update(dt);
+        simpleLeftCliff.update(dt);
+        simpleRightCliff.update(dt);
+
+
 
 		for (int i = 0; i < NUM_STARS; i++)
 		{
@@ -729,7 +788,8 @@ void App::drawScene() {
 		//axis.draw(&ri);
 
 		//Draw objects
-			trampObject.draw(&ri);
+			pWings.first.draw(&ri);
+			pWings.second.draw(&ri);
 			player.draw(&ri);
 			wavesObject.draw(&ri);
 	
@@ -747,8 +807,13 @@ void App::drawScene() {
 			for (int i = 0; i < NUM_SCENERY; i++)
 				scenery[i].draw(&ri);
 		
-			for (int i = 0; i < NUM_CLIFFS; i++)
-				cliffs[i].draw(&ri);
+			//for (int i = 0; i < NUM_CLIFFS; i++)
+				//cliffs[i].draw(&ri);
+
+			simpleCliff.draw(&ri);
+            simpleLeftCliff.draw(&ri);
+            simpleRightCliff.draw(&ri);
+
 
 			if (atLayer >= 2)
 				for (int i = 0; i < NUM_STARS; i++)
