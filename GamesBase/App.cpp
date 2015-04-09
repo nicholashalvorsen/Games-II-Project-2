@@ -281,7 +281,7 @@ void App::initApp() {
 	beginningPlatform.init(&box, Vector3(0, .5, GAME_DEPTH * .4));
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
 	beginningPlatform.setVelocity(Vector3(0, 0, PILLAR_SPEED));
-	beginningPlatform.setColor(1, 1, .9, 1);
+	beginningPlatform.setColor(191.0f / 255.0f, 162.0f / 255.0f, 118.0f / 255.0f, 1);
 
 	for (int i = 0; i < NUM_CLOUDS; i++)
 	{
@@ -388,7 +388,7 @@ void App::initApp() {
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
-	mLight.pos = Vector3(0.0f, 15.0f, 0.0f);
+	mLight.pos = Vector3(0.0f, 15.0f, -1.0f);
 	mLight.dir = Vector3(0.0f, -1.0f, 2.0f);
 	
 	for(int i = 0; i < 8; i++){
