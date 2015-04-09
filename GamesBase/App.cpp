@@ -179,6 +179,7 @@ void App::initApp() {
 	bbani->addAnimation(Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
 	bbani->addAnimation(Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
 	bouncerBox.addChild(&box, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), bbani, Vector4(1, 0, 0, 1));
+	bouncerBox.setRadius(1.1);
 
 	pillarBox.init(&box);
 	pillarBox.addChild(&box, Vector3(0, 0.55f, 0), Vector3(0, 0, 0), Vector3(1.2f, 0.1f, 1.2f), 0);
@@ -260,7 +261,7 @@ void App::initApp() {
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
 		 
-	beginningPlatform.init(&pillarBox, Vector3(0, .5, GAME_DEPTH * .4));
+	beginningPlatform.init(&box, Vector3(0, .5, GAME_DEPTH * .4));
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
 	beginningPlatform.setVelocity(Vector3(0, 0, PILLAR_SPEED));
 	beginningPlatform.setColor(1, 1, .9, 1);

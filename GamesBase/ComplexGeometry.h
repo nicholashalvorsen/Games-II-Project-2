@@ -17,11 +17,13 @@ struct Child {
 
 class ComplexGeometry: public Geometry {
 public:
-	ComplexGeometry(): base(0) {}
+	ComplexGeometry(): base(0), radius(1) {}
 
 	void init(Geometry* base) {
 		this->base = base;
 	}
+
+	void setRadius(float r) { radius = r; }
 
 	void addChild(Geometry* g, Vector3 translate, Vector3 rotate, Vector3 scale, AnimationState* ani, Vector4 color) {
 		Child c;
@@ -73,7 +75,7 @@ public:
 		}
 	}
 
-	float getRadius() { return 1; }
+	float getRadius() { return radius; }
 
 	void update(int animation, float time, float dt) {
 		if (time == 0) return;
@@ -131,5 +133,6 @@ public:
 private:
 	Geometry* base;
 	std::vector<Child> children;
+	float radius;
 };
 #endif
