@@ -123,7 +123,7 @@ public:
 		}
 	}
 
-	float getRadius() { return 1; }
+	float getRadius() { return 3; }
 
 private:
 	DWORD mNumVertices;
