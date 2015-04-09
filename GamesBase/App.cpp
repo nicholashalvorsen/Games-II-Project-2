@@ -458,7 +458,7 @@ void App::onResize() {
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
 	updateGameState(dt);
-	if(elapsedTime >= 30.0f) {
+	if(elapsedTime >= 00.0f) {
         trampObject.setActive();
     } else {
         trampObject.setInActive();
@@ -526,7 +526,23 @@ void App::updateScene(float dt) {
 				player.setGliding(false);
 			if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
 			else player.setDiving(false);
-			if (GetAsyncKeyState('B') || player.collided(&trampObject)) {
+
+			bool hitTramp = false;
+
+			Vector3 pos1 = player.getPosition();
+			Vector3 scale1 = player.getScale();
+			Vector3 pos2 = trampObject.getPosition();
+			Vector3 scale2 = trampObject.getScale();
+			if (pos1.x + scale1.x / 2 > pos2.x - scale2.x &&
+				pos1.x - scale1.x / 2 < pos2.x + scale2.x &&
+				pos1.y + scale1.y / 2 > pos2.y - scale2.y / 2 &&
+				pos1.y - scale1.y / 2 < pos2.y + scale2.y / 2 &&
+				pos1.z - scale1.z / 2 > pos2.z - scale2.z&&
+				pos1.z + scale1.z / 2 < pos2.z + scale2.z)
+				hitTramp = true;
+
+
+			if (GetAsyncKeyState('B') || player.collided(&trampObject) || hitTramp) {
 				char tmp[] = "boing";
 				audio->playCue(tmp);
 				elapsedTime = 0;
@@ -541,7 +557,7 @@ void App::updateScene(float dt) {
 					player.setVelocity(Vector3(0, 18, 0));
 					atLayer = 1;
 				} else
-				if (atLayer == 1 && player.getPosition().y > LAYER_HEIGHT[1])
+				if (atLayer == 1 /*&& player.getPosition().y > LAYER_HEIGHT[1]*/)
 				{
 					fadeText(LAYER_NAMES[2]);
 					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
@@ -551,7 +567,7 @@ void App::updateScene(float dt) {
 					player.setVelocity(Vector3(0, 27, 0));
 					atLayer = 2;
 				} else
-                if (atLayer == 2) {
+					if (atLayer == 2 && player.collided(&trampObject)) {
                     //fadeText(L"YOU WIN!");
 					gameWon = true;
                 }
@@ -729,7 +745,7 @@ void App::updateScene(float dt) {
 				if (player.collided(&diamonds[i]))
 				{
 					diamonds[i].setInActive();
-					points += 1000;
+					points += 100;
 					audio->playCue("splash");
 				}
 			}
