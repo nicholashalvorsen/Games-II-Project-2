@@ -49,7 +49,7 @@ private:
 	D3DXVECTOR3 mEyePos;
 
 	Light mLight;
-
+	Light pointlights[8];
 	//Geometry
 	Line line;
 	Box box;
@@ -310,8 +310,21 @@ void App::initApp() {
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
-	mLight.pos = Vector3(0, 15.0f, 0);
-	mLight.dir = Vector3(0.0f, -1.0f, 0.0f);
+	mLight.pos = Vector3(15.0f, 15.0f, 0);
+	mLight.dir = Vector3(0.0f, -1.0f, 1.0f);
+	
+	for(int i = 0; i < 8; i++){
+		pointlights[i].ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
+		pointlights[i].diffuse = D3DXCOLOR(0.1f, 0.1f, 0.1f, 0.1f);
+		pointlights[i].specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 0.7f);
+		pointlights[i].att.x    = 1.0f;
+		pointlights[i].att.y    = 0.0f;
+		pointlights[i].att.z    = 0.0f;
+		pointlights[i].spotPow  = 64.0f;
+		pointlights[i].range    = 10000.0f;
+		pointlights[i].pos = Vector3(15.0f * i, 0, 0);
+		pointlights[i].dir = Vector3(0.0f, 1.0f, 0.0f);
+	}
 
 	atCloudHeight = false;
 	cameraYBoost = 0;
