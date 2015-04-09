@@ -22,8 +22,8 @@ const int GAME_WIDTH = 20;
 const int GAME_DEPTH = 40;
 const int GAME_BEHIND_DEPTH = 10;
 const int NUM_SCENERY = 2;
-const int NUM_STARS = 100;
-const int NUM_CLIFFS = 20;
+const int NUM_STARS = 1000;
+const int NUM_CLIFFS = 30;
 const float CLIFF_HEIGHT = 10;
 const float CLIFF_WIDTH = 3.9;
 
@@ -64,7 +64,7 @@ const int MENU_OFFSET = 125;
 const float FADE_TEXT_DURATION = 2;
 const float FADE_TEXT_FADE_SPEED = 1;
 
-enum menuStates { PLAY = 1, PLAY_EASY, SOUNDS
+enum menuStates { NEW_GAME = 1, SFX, CHEATS, FEELING_LUCKY,
 };
 
 enum gameStates {

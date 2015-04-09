@@ -59,14 +59,13 @@ public:
 			return true;
 		return false;
 		*/
-		
 
 		// box collision
 
 		Vector3 pos1 = getPosition();
-		Vector3 scale1 = getScale() * geometry->getRadius();
+		Vector3 scale1 = getScale();
 		Vector3 pos2 = object->getPosition();
-		Vector3 scale2 = object->getScale() * object->geometry->getRadius();
+		Vector3 scale2 = object->getScale();
 		if (pos1.x + scale1.x / 2 > pos2.x - scale2.x / 2 &&
 			pos1.x - scale1.x / 2 < pos2.x + scale2.x / 2 &&
 			pos1.y + scale1.y / 2 > pos2.y - scale2.y / 2 &&
