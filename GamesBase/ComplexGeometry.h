@@ -41,7 +41,6 @@ public:
 		c.m = scaleM * rotXM * rotYM * rotZM * transM;
 		c.c = color;
 		c.hasColor = true;
-
 		children.push_back(c);
 	}
 
