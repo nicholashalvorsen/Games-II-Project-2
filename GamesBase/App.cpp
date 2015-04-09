@@ -36,7 +36,7 @@ private:
 	void buildVertexLayouts();
 	void updateGameState(float dt);
 	void fadeText(std::wstring msg);
-
+	float audio_timer;
 	Audio *audio;
 	//to zoom the camera in/out
 	float zoom;
@@ -149,8 +149,9 @@ void App::initApp() {
 	audio = new Audio();
 	audio->initialize();
 	
+	audio_timer = 0;
 	// temp, I don't feel like listening to this 100 times 
-	//audio->playCue("music");
+	audio->playCue("music");
 
 	srand(time(0));
 	zoom = 1.0f;
@@ -374,6 +375,12 @@ void App::onResize() {
 
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
+	
+	audio_timer += dt;
+	if (audio_timer > 9.5){
+		audio->playCue("gliding");
+		audio_timer = 0;
+	}
 	updateGameState(dt);
 	switch(gameState) {
 	case MENU:
@@ -425,6 +432,7 @@ void App::updateScene(float dt) {
 		if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
 		else
 			player.setDiving(false);
+
 		if (GetAsyncKeyState('B')) {
 			if (atLayer == 0)
 			{
