@@ -14,6 +14,7 @@
 #include "menu.h"
 #include "AnimationState.h"
 #include "Light.h"
+#include "Trampoline.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -30,6 +31,7 @@ public:
 	void onResize();
 	void updateScene(float dt);
 	void drawScene(); 
+	void setEasyMode();
 
 private:
 	void buildFX();
@@ -61,6 +63,8 @@ private:
 	Pyramid pyramid;
 	Triangle triangle;
 	Waves waves;
+	Trampoline testTramp;
+	Object trampObject;
 
 	//Models
 	//ComplexGeometry wing;
@@ -68,6 +72,11 @@ private:
 	ComplexGeometry cliffsGeometry;
 	Object scenery[NUM_SCENERY];
 	Object cliffs[NUM_CLIFFS];
+	Object leftCliffs[NUM_CLIFFS];
+	Object rightCliffs[NUM_CLIFFS];
+	Object simpleCliff;
+	Object simpleLeftCliff;
+	Object simpleRightCliff;
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
 
@@ -88,6 +97,8 @@ private:
 	float cameraYBoost;
 	float cameraZBoost;
 
+	float audio_timer;
+
 	float mTheta;
 	float mPhi;
 	float mx, my, mz;
@@ -96,6 +107,7 @@ private:
 
 	Menu* mainMenu;
 	bool activeMenu;
+	bool easyMode;
 
 	std::uniform_real_distribution<float> randomScaleDistribution;
 	std::mt19937 generator;
@@ -150,12 +162,18 @@ void App::initApp() {
 	buildFX();
 	buildVertexLayouts();
 
+	easyMode = false;
+
 	audio = new Audio();
 	audio->initialize();
 	
 	// temp, I don't feel like listening to this 100 times 
 	audio->playCue("music");
+	testTramp.init(md3dDevice, RED);
+	trampObject.init(&testTramp, D3DXVECTOR3(0, 5, 0));
+	trampObject.update(0.0f);
 
+	audio_timer = 0;
 	srand(time(0));
 	zoom = 1.0f;
 	thrust_timer = 0.0f;
@@ -201,7 +219,7 @@ void App::initApp() {
 	const float SAIL_WIDTH = SHIP_WIDTH * 1.8;
 	const float SAIL_HEIGHT = SHIP_WIDTH * 1.2;
 	// deck
-	ship.addChild(&quad, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(SHIP_WIDTH, 1, SHIP_LENGTH), shipAni, shipColor);
+	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2, 1, SHIP_LENGTH / 2), Vector3(0, 0, 0), Vector3(SHIP_WIDTH, 1, SHIP_LENGTH), shipAni, shipColor);
 	// bottom left
 	ship.addChild(&box, Vector3(0, .8, SHIP_LENGTH / 2), Vector3(ToRadian(90+20), ToRadian(-90), 0), Vector3(SHIP_LENGTH, 1, 2), shipAni, shipColor2);
 	ship.addChild(&box, Vector3(.55, -.25, SHIP_LENGTH / 2), Vector3(ToRadian(90+40), ToRadian(-90), 0), Vector3(SHIP_LENGTH, 1, 1), shipAni, shipColor2);
@@ -229,7 +247,7 @@ void App::initApp() {
 	// sail
 	sailAni->addAnimation(Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1), Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1));
 	sailAni->addAnimation(Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1));
-	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2 - SAIL_WIDTH / 2, MAST_HEIGHT * .8 + 1, SHIP_LENGTH / 2 + .25), Vector3(ToRadian(90), 0, 0), Vector3(SAIL_WIDTH, 0, SAIL_HEIGHT), sailAni, Vector4(1, 1, 1, 1));
+	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2, MAST_HEIGHT * .8 + 1, SHIP_LENGTH / 2 + .25), Vector3(ToRadian(90), 0, 0), Vector3(SAIL_WIDTH, 0, SAIL_HEIGHT), sailAni, Vector4(1, 1, 1, 1));
 
 	sceneryGeometry[0] = ship;
 	sceneryGeometry[1] = ship;
@@ -291,9 +309,9 @@ void App::initApp() {
 		int xpos;
 
 		if (lr == 1)
-			xpos = -GAME_WIDTH / 2 - 7 - rand() % 5;
+			xpos = -GAME_WIDTH / 2 - 10 - rand() % 5;
 		else
-			xpos =  GAME_WIDTH / 2 + 7 + rand() % 5;
+			xpos =  GAME_WIDTH / 2 + 10 + rand() % 5;
 
 		scenery[i].init(&sceneryGeometry[i], Vector3(xpos, 1, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_SCENERY*i));
 		scenery[i].setVelocity(Vector3(0, 0, -1));
@@ -301,8 +319,24 @@ void App::initApp() {
 
 	for (int i = 0; i < NUM_CLIFFS; i++)
 	{
-		cliffs[i].init(&cliffsGeometry, Vector3(CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2, CLIFF_HEIGHT / 2, 40));
+		cliffs[i].init(&cliffsGeometry, Vector3(CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH / 4, CLIFF_HEIGHT / 2, 50));
+		leftCliffs[i].init(&cliffsGeometry, Vector3(-38, CLIFF_HEIGHT / 2, CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH * 3));
+		leftCliffs[i].setRotation(Vector3(0, ToRadian(-90), 0));
+		rightCliffs[i].init(&cliffsGeometry, Vector3(38, CLIFF_HEIGHT / 2, CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH * 3.5));
+		rightCliffs[i].setRotation(Vector3(0, ToRadian(90), 0));
 	}
+
+	simpleCliff.init(&box, Vector3(0, 5, 53));
+	simpleCliff.setScale(Vector3(70, 10, 2));
+	simpleCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+	
+	simpleLeftCliff.init(&box, Vector3(-36, 5, 20));
+	simpleLeftCliff.setScale(Vector3(2, 10, 68));
+	simpleLeftCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
+
+	simpleRightCliff.init(&box, Vector3(36, 5, 20));
+	simpleRightCliff.setScale(Vector3(2, 10, 68));
+	simpleRightCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
 
 	for (int i = 0; i < NUM_STARS; i++)
 	{
@@ -339,19 +373,20 @@ void App::initApp() {
 	
 	mainMenu->initialize(md3dDevice, NULL);
 
-	mainMenu->setMenuHeading("Bouncy Bouncy");
+	//mainMenu->setMenuHeading("Dunstan's Big Bad Bounce-Around");
+	mainMenu->setMenuHeading("");
 
 	std::vector<std::string> menuItems;
-	menuItems.push_back("New Game");	// Menu 1
-	menuItems.push_back("Toggle Sound FX");	// Menu 2
-	menuItems.push_back("Cheats");	// Menu 3
-	menuItems.push_back("I'm Feeling Lucky");
+	menuItems.push_back("Play");	// Menu 1
+	menuItems.push_back("Play (easy)");	// Menu 2
+	//menuItems.push_back("Music on/off");	// Menu 3
+	//menuItems.push_back("I'm Feeling Lucky");
 	mainMenu->setMenuItems(menuItems);
 
 	//Light
-	mLight.ambient = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
-	mLight.diffuse = D3DXCOLOR(0.4f, 0.4f, 0.4f, 0.4f);
-	mLight.specular = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
+	mLight.ambient = D3DXCOLOR(0.1f, 0.1f, 0.1f, 0.1f);
+	mLight.diffuse = D3DXCOLOR(0.8f, 0.8f, 0.8f, 0.8f);
+	mLight.specular = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
 	mLight.att.x    = 1.0f;
 	mLight.att.y    = 0.0f;
 	mLight.att.z    = 0.0f;
@@ -389,6 +424,11 @@ void App::onResize() {
 
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
+	audio_timer += dt;
+	if(audio_timer> 9.7){
+		audio->playCue("gliding");
+		audio_timer = 0;
+	}
 	updateGameState(dt);
 	switch(gameState) {
 	case MENU:
@@ -435,9 +475,18 @@ void App::updateScene(float dt) {
 			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
 			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
-			if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
+			if (GetAsyncKeyState(VK_UP))
+			{
+				player.setGliding(false);
+
+				if (atLayer < 2 && !(1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * player.getPosition().y < .2 * (1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * LAYER_HEIGHT[atLayer]))) // can't glide when you just fell from a layer to prevent from staying off screen
+					player.setGliding(true);
+				else if (atLayer == 2) // max layer
+					player.setGliding(true);
+			}
 			else
 				player.setGliding(false);
+
 			if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
 			else
 				player.setDiving(false);
@@ -464,19 +513,20 @@ void App::updateScene(float dt) {
 		waves.update(dt);
 		wavesObject.update(dt);
 
-		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0)
+		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
 			atLayer--;
+			player.setVelocity(Vector3(player.getVelocity().x, 0, player.getVelocity().z));
 			fadeText(LAYER_NAMES[atLayer]);
 		}
 
-		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4 * atLayer + 2)
+		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 3 * atLayer + 2)
 			cameraYBoost += CAMERA_MOVE_SPEED * dt;	
 
 		if (cameraZBoost < 10 && atLayer >= 1)
 			cameraZBoost += CAMERA_MOVE_SPEED * dt;
 
-		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 4 * atLayer - 2)
+		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 3 * atLayer - 2)
 			cameraYBoost -= CAMERA_MOVE_SPEED * dt;
 
 		if (cameraZBoost > 0 && atLayer < 1)
@@ -530,7 +580,6 @@ void App::updateScene(float dt) {
 				planets[i].setPosition(Vector3(x, LAYER_HEIGHT[2], GAME_DEPTH));
 			}
 		}
-
 		for (int i = 0; i < NUM_SCENERY; i++)
 		{
 			scenery[i].update(dt);
@@ -539,19 +588,30 @@ void App::updateScene(float dt) {
 				int lr = rand() % 2;
 				int xpos;
 
-				if (lr = 1)
-					xpos = -10 - rand() % 3;
+				if (lr == 1)
+					xpos = -GAME_WIDTH / 2 - 10 - rand() % 5;
 				else
-					xpos = 10 + rand() % 3;
+					xpos =  GAME_WIDTH / 2 + 10 + rand() % 5;
 
-				scenery[i].setPosition(Vector3(xpos, 1, GAME_DEPTH * 2));
-				//Scale boxes to get smaller every time they are re-positioned.
-			
+				scenery[i].setPosition(Vector3(xpos, -10, GAME_DEPTH *1.2));
 			}
+			if (scenery[i].getPosition().y < 0)
+				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 1, scenery[i].getVelocity().z));
+			else
+				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 0, scenery[i].getVelocity().z));
+
 		}
 
 		for (int i = 0; i < NUM_CLIFFS; i++)
-			cliffs[i].update(dt);
+		{
+			//cliffs[i].update(dt);
+			//leftCliffs[i].update(dt);
+			//rightCliffs[i].update(dt);
+		}
+
+		simpleCliff.update(dt);
+		simpleLeftCliff.update(dt);
+		simpleRightCliff.update(dt);
 
 		for (int i = 0; i < NUM_STARS; i++)
 		{
@@ -559,14 +619,15 @@ void App::updateScene(float dt) {
 		}
 
 		/* bottom collision, temp */ 
-		if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
+		/*if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
 		{
 			player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 
 			player.setPosition(oldPlayerPosition);
-		}
+		}*/
 
 		// collision
+
 		if (atLayer == 0)
 		{
 			for (int i = 0; i < NUM_PILLARS; i++)
@@ -687,7 +748,6 @@ void App::drawScene() {
 	case LEVEL1:
 	case LEVEL2:
 		{
-
 		D3DApp::drawScene();
 		mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 		if (atLayer == 2)
@@ -711,7 +771,8 @@ void App::drawScene() {
 		//axis.draw(&ri);
 
 		//Draw objects
-	
+		
+			trampObject.draw(&ri);
 			player.draw(&ri);
 			wavesObject.draw(&ri);
 	
@@ -729,8 +790,15 @@ void App::drawScene() {
 			for (int i = 0; i < NUM_SCENERY; i++)
 				scenery[i].draw(&ri);
 		
-			for (int i = 0; i < NUM_CLIFFS; i++)
-				cliffs[i].draw(&ri);
+			//for (int i = 0; i < NUM_CLIFFS; i++)
+			//{
+			//	cliffs[i].draw(&ri);
+			//	leftCliffs[i].draw(&ri);
+			//	rightCliffs[i].draw(&ri);
+			//}
+			simpleCliff.draw(&ri);
+			simpleLeftCliff.draw(&ri);
+			simpleRightCliff.draw(&ri);
 
 			if (atLayer >= 2)
 				for (int i = 0; i < NUM_STARS; i++)
@@ -758,9 +826,27 @@ void App::drawScene() {
 		  height = rect.bottom - rect.top;
 		}
 		RECT R2 = {0, 100, width, height / 4};
-		std::string gameOverString = "Game Over";
+		std::string gameOverString = "G A M E   O V E R";
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
-	} else if (fadeTextActive)
+	} else if (gameState == MENU) {
+		RECT rect;
+		int width;
+		int height;
+		if(GetWindowRect(mhMainWnd, &rect))
+		{
+		  width = rect.right - rect.left;
+		  height = rect.bottom - rect.top;
+		}
+		RECT R2 = {0, 100, width, height / 2};
+		std::string gameOverString = "D U N S T A N ' S   B I G   B A D \n B O U N C E   A R O U N D";
+		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+
+		
+		RECT R3 = {300, 200, width, height / 2};
+		gameOverString = "Controls:\nMove: Left/Right\nGlide: Up\nDive: Down";
+		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+	}
+	else if (fadeTextActive)
 	{
 		RECT rect;
 		int width;
@@ -771,11 +857,29 @@ void App::drawScene() {
 		  height = rect.bottom - rect.top;
 		}
 		RECT R2 = {0, 100, width, height / 4};
-
+		
 		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
 	}
+
+	if (easyMode)
+	{
+		RECT rect;
+		int width;
+		int height;
+		if(GetWindowRect(mhMainWnd, &rect))
+		{
+		  width = rect.right - rect.left;
+		  height = rect.bottom - rect.top;
+		}
+		
+		RECT rect2 = {height, 10, width, height/4};
+		std::wstring easyMessage = L"Easy mode";
+		mFont->DrawText(0, easyMessage.c_str(), -1, &rect2, DT_CENTER, D3DXCOLOR(1, 1, 1, .5));
+
+
+	}
 	
-	
+	/*
 	RECT R1 = {200, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
 
@@ -796,7 +900,7 @@ void App::drawScene() {
 	
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT R = {5, 5, 0, 0};
-	mFont->DrawText(0, debugText.c_str(), -1, &R, DT_NOCLIP, WHITE);
+	mFont->DrawText(0, debugText.c_str(), -1, &R, DT_NOCLIP, WHITE);*/
 	mSwapChain->Present(0, 0);
 }
 
@@ -804,10 +908,15 @@ void App::updateGameState(float dt) {
 	elapsedTime += dt;
 	switch(gameState) {
 	case MENU:
-		if(mainMenu->getMenuState() == NEW_GAME) {
+		if(mainMenu->getMenuState() == PLAY) {
 			gameState = LEVEL1;
 			points = 0;
 			elapsedTime = 0;
+		}
+		if(mainMenu->getMenuState() == PLAY_EASY) {
+			gameState = LEVEL1;
+			elapsedTime = 0;
+			setEasyMode();
 		}
 
 		break;
@@ -816,6 +925,8 @@ void App::updateGameState(float dt) {
 		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y) {
 			audio->playCue("splash");
 			gameState = GAME_OVER;
+			player.setPosition(Vector3(0, -1000, 0));
+			player.update(dt);
 		}
 		break;
 	}
@@ -873,4 +984,32 @@ void App::fadeText(std::wstring msg)
 	fadeTextMessage = msg;
 	fadeTextCurrentDuration = 0;
 	fadeTextOpacity = 0;
+}
+
+
+void App::setEasyMode()
+{
+	easyMode = true;
+
+	beginningPlatform.setVelocity(beginningPlatform.getVelocity() + Vector3(0, 0, 2));
+
+	for (int i = 0; i < NUM_PILLARS; i++)
+	{
+		pillars[i].setScale(pillars[i].getScale() + Vector3(2, 0, 2));
+		pillars[i].setVelocity(pillars[i].getVelocity() + Vector3(0, 0, 2));
+	}
+
+	for (int i = 0; i < NUM_CLOUDS; i++)
+	{
+		clouds[i].setScale(clouds[i].getScale() + Vector3(2, 0, 2));
+		clouds[i].setVelocity(clouds[i].getVelocity() + Vector3(0, 0, 2));
+	}
+
+	for (int i = 0; i < NUM_PLANETS; i++)
+	{
+		planets[i].setScale(planets[i].getScale() + Vector3(2, 0, 2));
+		planets[i].setVelocity(planets[i].getVelocity() + Vector3(0, 0, 2));
+	}
+
+
 }

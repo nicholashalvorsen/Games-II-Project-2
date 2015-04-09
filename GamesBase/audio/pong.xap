@@ -13,11 +13,11 @@ Global Settings
 {
     Xbox File = Xbox\pong.xgs;
     Windows File = Win\pong.xgs;
-    Header File = C:\Users\snyderna1\Documents\GitHub\pong\audio\pong.h;
+    Header File = pong.h;
     Exclude Category Names = 0;
     Exclude Variable Names = 0;
-    Last Modified Low = 1074788364;
-    Last Modified High = 30437712;
+    Last Modified Low = 30438022;
+    Last Modified High = 2879102060;
 
     Category
     {
@@ -225,44 +225,15 @@ Wave Bank
     Windows Bank Path Edited = 0;
     Seek Tables = 1;
     Compression Preset Name = <none>;
-    Xbox Bank Last Modified Low = 0;
-    Xbox Bank Last Modified High = 0;
-    PC Bank Last Modified Low = 0;
-    PC Bank Last Modified High = 0;
-    Header Last Modified Low = 0;
-    Header Last Modified High = 0;
-    Bank Last Revised Low = 4109815728;
-    Bank Last Revised High = 30438020;
-
-    Wave
-    {
-        Name = music;
-        File = music.wav;
-        Build Settings Last Modified Low = 1003164267;
-        Build Settings Last Modified High = 30437712;
-
-        Cache
-        {
-            Format Tag = 0;
-            Channels = 2;
-            Sampling Rate = 44100;
-            Bits Per Sample = 1;
-            Play Region Offset = 44;
-            Play Region Length = 10746832;
-            Loop Region Offset = 0;
-            Loop Region Length = 0;
-            File Type = 1;
-            Last Modified Low = 467483628;
-            Last Modified High = 30437712;
-        }
-    }
+    Bank Last Revised Low = 3149187508;
+    Bank Last Revised High = 30438022;
 
     Wave
     {
         Name = Water Splash-SoundBible.com-800223477;
         File = Water Splash-SoundBible.com-800223477.wav;
-        Build Settings Last Modified Low = 4057282723;
-        Build Settings Last Modified High = 30438020;
+        Build Settings Last Modified Low = 2634658078;
+        Build Settings Last Modified High = 30438022;
 
         Cache
         {
@@ -275,8 +246,54 @@ Wave Bank
             Loop Region Offset = 0;
             Loop Region Length = 0;
             File Type = 1;
-            Last Modified Low = 2045006080;
-            Last Modified High = 30438020;
+            Last Modified Low = 2721804701;
+            Last Modified High = 30438021;
+        }
+    }
+
+    Wave
+    {
+        Name = gliding;
+        File = gliding.wav;
+        Build Settings Last Modified Low = 2634668079;
+        Build Settings Last Modified High = 30438022;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 2;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 1765376;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 2741035801;
+            Last Modified High = 30438021;
+        }
+    }
+
+    Wave
+    {
+        Name = music;
+        File = music.wav;
+        Build Settings Last Modified Low = 2634678079;
+        Build Settings Last Modified High = 30438022;
+
+        Cache
+        {
+            Format Tag = 0;
+            Channels = 2;
+            Sampling Rate = 44100;
+            Bits Per Sample = 1;
+            Play Region Offset = 44;
+            Play Region Length = 10421172;
+            Loop Region Offset = 0;
+            Loop Region Length = 0;
+            File Type = 1;
+            Last Modified Low = 3127137351;
+            Last Modified High = 30437807;
         }
     }
 }
@@ -288,8 +305,53 @@ Sound Bank
     Windows File = Win\MySBank.xsb;
     Xbox Bank Path Edited = 0;
     Windows Bank Path Edited = 0;
-    Header Last Modified High = 0;
-    Header Last Modified Low = 0;
+
+    Sound
+    {
+        Name = gliding;
+        Volume = -1200;
+        Pitch = 0;
+        Priority = 0;
+
+        Category Entry
+        {
+            Name = Default;
+        }
+
+        Track
+        {
+            Volume = 0;
+            Use Filter = 0;
+
+            Play Wave Event
+            {
+                Break Loop = 0;
+                Use Speaker Position = 0;
+                Use Center Speaker = 1;
+                New Speaker Position On Loop = 1;
+                Speaker Position Angle = 0.000000;
+                Speaker Position Arc = 0.000000;
+
+                Event Header
+                {
+                    Timestamp = 0;
+                    Relative = 0;
+                    Random Recurrence = 0;
+                    Random Offset = 0;
+                }
+
+                Wave Entry
+                {
+                    Bank Name = MyWBank;
+                    Bank Index = 0;
+                    Entry Name = gliding;
+                    Entry Index = 1;
+                    Weight = 255;
+                    Weight Min = 0;
+                }
+            }
+        }
+    }
 
     Sound
     {
@@ -331,7 +393,7 @@ Sound Bank
                     Bank Name = MyWBank;
                     Bank Index = 0;
                     Entry Name = music;
-                    Entry Index = 0;
+                    Entry Index = 2;
                     Weight = 255;
                     Weight Min = 0;
                 }
@@ -378,7 +440,7 @@ Sound Bank
                     Bank Name = MyWBank;
                     Bank Index = 0;
                     Entry Name = Water Splash-SoundBible.com-800223477;
-                    Entry Index = 1;
+                    Entry Index = 0;
                     Weight = 255;
                     Weight Min = 0;
                 }
@@ -400,7 +462,7 @@ Sound Bank
         Sound Entry
         {
             Name = music;
-            Index = 0;
+            Index = 1;
             Weight Min = 0;
             Weight Max = 255;
         }
@@ -420,7 +482,27 @@ Sound Bank
         Sound Entry
         {
             Name = splash;
-            Index = 1;
+            Index = 2;
+            Weight Min = 0;
+            Weight Max = 255;
+        }
+    }
+
+    Cue
+    {
+        Name = gliding;
+
+        Variation
+        {
+            Variation Type = 3;
+            Variation Table Type = 1;
+            New Variation on Loop = 0;
+        }
+
+        Sound Entry
+        {
+            Name = gliding;
+            Index = 0;
             Weight Min = 0;
             Weight Max = 255;
         }
