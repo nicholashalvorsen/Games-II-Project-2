@@ -28,14 +28,14 @@ const float CLIFF_HEIGHT = 10;
 const float CLIFF_WIDTH = 3.9;
 
 const float GRAVITY = - 8;
-const float VELOCITY_LIMIT = 10;
+const float Y_VELOCITY_LIMIT = -3;
 // not used currently
 const float PLAYER_ROTATE_SPEED = 3;
 const float PLAYER_THRUST = 20;
 const float PLAYER_BOUNCE_FORCE = 8;
 const float PLAYER_X_SPEED = 5;
 const float PLAYER_X_ACCEL = 150;
-const float PLAYER_GLIDE_DROP = -1;
+const float PLAYER_GLIDE_DROP = -1.2;
 const float PLAYER_DIVE_SPEED = -10;
 
 const int NUM_PILLARS = 15;
@@ -49,7 +49,7 @@ const float CLOUD_SIZE = 3;
 
 const int NUM_PLANETS = 20;
 const float PLANET_SPEED = -5;
-const float PLANET_SIZE = 2;
+const float PLANET_SIZE = 3;
 
 const int SEA_SIZE = 150;
 const float WATER_RISE_SPEED = 0;

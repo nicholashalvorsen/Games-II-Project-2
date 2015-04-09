@@ -249,7 +249,7 @@ void App::initApp() {
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
 		 
-	beginningPlatform.init(&pillarBox, Vector3(0, .5, GAME_DEPTH * .75));
+	beginningPlatform.init(&pillarBox, Vector3(0, .5, GAME_DEPTH * .4));
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
 	beginningPlatform.setVelocity(Vector3(0, 0, PILLAR_SPEED));
 	beginningPlatform.setColor(1, 1, .9, 1);
@@ -411,7 +411,15 @@ void App::updateScene(float dt) {
 		if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
 		if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
 		if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
-		if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
+		if (GetAsyncKeyState(VK_UP))
+		{
+			if (atLayer < 2 && !(1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * player.getPosition().y < .4 * (1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * LAYER_HEIGHT[atLayer]))) // can't glide when you just fell from a layer to prevent from staying off screen
+				player.setGliding(true);
+			else if (atLayer == 2) // max layer
+				player.setGliding(true);
+			else
+				player.setGliding(false);
+		}
 		else
 			player.setGliding(false);
 		if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
@@ -440,7 +448,6 @@ void App::updateScene(float dt) {
 
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0)
 		{
-			player.setVelocity(Vector3(player.getVelocity().x, 0, player.getVelocity().z));
 			atLayer--;
 			fadeText(LAYER_NAMES[atLayer]);
 		}
@@ -546,10 +553,13 @@ void App::updateScene(float dt) {
 		{
 			for (int i = 0; i < NUM_PILLARS; i++)
 			{
-				if (player.collided(&pillars[i]) && abs((oldPlayerPosition.y - player.getScale().y / 2) > pillars[i].getPosition().y + pillars[i].getScale().y / 2))
+				if (player.collided(&pillars[i]))
 				{
-					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
-					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+					if (abs((oldPlayerPosition.y - player.getScale().y / 2) + .1 > pillars[i].getPosition().y + pillars[i].getScale().y / 2))
+					{
+						player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
+						player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+					}
 				}
 			}
 		}
@@ -584,15 +594,10 @@ void App::updateScene(float dt) {
 		}
 
 		/* don't let the player go too fast */
-		/*if (abs(player.getVelocity().x) > VELOCITY_LIMIT)
-			player.setVelocity(Vector3(player.getVelocity().x * .99, player.getVelocity().y, player.getVelocity().z));
 
-		if (abs(player.getVelocity().y) > VELOCITY_LIMIT)
+		if (player.getVelocity().y < Y_VELOCITY_LIMIT)
 			player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y * .99, player.getVelocity().z));
-
-		if (abs(player.getVelocity().y) > VELOCITY_LIMIT)
-			player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y, player.getVelocity().z * .99));
-			*/
+			
 
 		// Update angles based on input to orbit camera around box.
 		if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
@@ -734,6 +739,7 @@ void App::drawScene() {
 
 		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
 	}
+	
 	
 	RECT R1 = {200, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
