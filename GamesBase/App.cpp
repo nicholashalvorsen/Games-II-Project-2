@@ -176,12 +176,6 @@ void App::initApp() {
 
 	// temp, I don't feel like listening to this 100 times 
 	audio->playCue("music");
-
-	testTramp.init(md3dDevice, RED);
-	trampObject.init(&testTramp, D3DXVECTOR3(0, 5, 0));
-	trampObject.update(0.0f);
-
-	audio->playCue("music");
 	//audio_timer = 0;
 	srand(time(0));
 	zoom = 1.0f;
@@ -308,6 +302,12 @@ void App::initApp() {
 		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
+	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]+5, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
+    trampObject.setScale(Vector3(1,1,1));
+    trampObject.setVelocity(Vector3(0, 0, PILLAR_SPEED));
+    trampObject.setInActive();
+    trampObject.update(0.0f);
+
 
 	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]+5, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
     trampObject.setScale(Vector3(1,1,1));
@@ -456,6 +456,12 @@ void App::onResize() {
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
 	updateGameState(dt);
+	if(elapsedTime >= 30.0f) {
+        trampObject.setActive();
+    } else {
+        trampObject.setInActive();
+    }
+
 	switch(gameState) {
 	case MENU:
 		mainMenu->update();
@@ -517,21 +523,36 @@ void App::updateScene(float dt) {
 			else
 				player.setGliding(false);
 			if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
-			else
-				player.setDiving(false);
-			if (GetAsyncKeyState('B')) {
+			else player.setDiving(false);
+			if (GetAsyncKeyState('B') || player.collided(&trampObject)) {
+				char tmp[] = "boing";
+				audio->playCue(tmp);
+				elapsedTime = 0;
+
 				if (atLayer == 0)
 				{
 					fadeText(LAYER_NAMES[1]);
+					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+                    trampObject.setInActive();
+                    trampObject.setPosition(Vector3(x, LAYER_HEIGHT[1], GAME_DEPTH));
+
 					player.setVelocity(Vector3(0, 18, 0));
 					atLayer = 1;
-				}
+				} else
 				if (atLayer == 1 && player.getPosition().y > LAYER_HEIGHT[1])
 				{
 					fadeText(LAYER_NAMES[2]);
+					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+                    trampObject.setInActive();
+                    trampObject.setPosition(Vector3(x, LAYER_HEIGHT[2], GAME_DEPTH));
+
 					player.setVelocity(Vector3(0, 27, 0));
 					atLayer = 2;
-				}
+				} else
+                if (atLayer == 2) {
+                    fadeText(L"YOU WIN!");
+                }
+
 			}
 		}
 
@@ -550,6 +571,10 @@ void App::updateScene(float dt) {
 
 		waves.update(dt);
 		wavesObject.update(dt);
+		if(trampObject.getActiveState()) {
+            trampObject.update(dt);
+        }
+
 
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
@@ -620,6 +645,11 @@ void App::updateScene(float dt) {
 				pillars[i].setPosition(Vector3(x, 0 - PILLAR_HEIGHT_START, GAME_DEPTH));
 				//pillars[i].setScale(Vector3(pillars[i].getScale().x * 0.9f, pillars[i].getScale().y *1.15f, pillars[i].getScale().z *.9f));
 			}
+			if(trampObject.getPosition().z < -GAME_BEHIND_DEPTH) {
+                int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+                trampObject.setPosition(Vector3(x, LAYER_HEIGHT[atLayer], GAME_DEPTH));
+            }
+
 		}
 
 		for (int i = 0; i < NUM_CLOUDS; i++)
@@ -877,6 +907,9 @@ void App::drawScene() {
 			simpleCliff.draw(&ri);
             simpleLeftCliff.draw(&ri);
             simpleRightCliff.draw(&ri);
+			if(trampObject.getActiveState()) {
+				trampObject.draw(&ri);
+			}
 
 
 			if (atLayer >= 2)
