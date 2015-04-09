@@ -604,7 +604,7 @@ void App::updateScene(float dt) {
 		for (int i = 0; i < NUM_DIAMONDS; i++)
 		{
 			diamond.increaseRotation(1);
-			diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180, 0));//Spinning effect diamond.getRotation() * M_PI / 180
+			diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180*dt, 0));//Spinning effect diamond.getRotation() * M_PI / 180
 			
 			if ((atLayer == 0 && diamonds[i].getPosition().y < LAYER_HEIGHT[0] + 2) || 
 				(atLayer == 1 && diamonds[i].getPosition().y < LAYER_HEIGHT[1] + 2) ||
@@ -749,8 +749,8 @@ void App::updateScene(float dt) {
 			{
 				if( clouds[i].getActiveState())
 				{
-					if ((rand() % 10000) == 1)
-						clouds[i].setInActive();
+					//if ((rand() % 10000) == 1)
+					//	clouds[i].setInActive();
 				}
 				
 				if (player.collided(&clouds[i]))
@@ -786,10 +786,10 @@ void App::updateScene(float dt) {
 			
 
 		// Update angles based on input to orbit camera around box.
-		if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
-		if(GetAsyncKeyState('D') & 0x8000)	mTheta += 2.0f*dt;
-		if(GetAsyncKeyState('W') & 0x8000)	mPhi -= 2.0f*dt;
-		if(GetAsyncKeyState('S') & 0x8000)	mPhi += 2.0f*dt;
+		//if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
+		//if(GetAsyncKeyState('D') & 0x8000)	mTheta += 2.0f*dt;
+		//if(GetAsyncKeyState('W') & 0x8000)	mPhi -= 2.0f*dt;
+		//if(GetAsyncKeyState('S') & 0x8000)	mPhi += 2.0f*dt;
 
 		// Restrict the angle mPhi.
 		if( mPhi < 0.1f )	mPhi = 0.1f;
