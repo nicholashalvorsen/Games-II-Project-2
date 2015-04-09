@@ -73,9 +73,6 @@ private:
 	Object cliffs[NUM_CLIFFS];
 	Object leftCliffs[NUM_CLIFFS];
 	Object rightCliffs[NUM_CLIFFS];
-	Object simpleCliff;
-	Object simpleLeftCliff;
-	Object simpleRightCliff;
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
 
@@ -161,8 +158,6 @@ void App::initApp() {
 	audio->initialize();
 	
 	testTramp.init(md3dDevice, RED);
-	trampObject.init(&testTramp, D3DXVECTOR3(0, 5, 0));
-	trampObject.update(0.0f);
 
 	// temp, I don't feel like listening to this 100 times 
 	//audio->playCue("music");
@@ -274,6 +269,11 @@ void App::initApp() {
 		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
+	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]+5, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
+	trampObject.setScale(Vector3(1,1,1));
+	trampObject.setVelocity(Vector3(0, 0, PILLAR_SPEED));
+	trampObject.setInActive();
+	trampObject.update(0.0f);
 		 
 	beginningPlatform.init(&box, Vector3(0, .5, GAME_DEPTH * .4));
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
@@ -318,18 +318,6 @@ void App::initApp() {
 		rightCliffs[i].init(&cliffsGeometry, Vector3(38, CLIFF_HEIGHT / 2, CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH * 3.5));
 		rightCliffs[i].setRotation(Vector3(0, ToRadian(90), 0));
 	}
-
-	simpleCliff.init(&box, Vector3(0, 5, 53));
-	simpleCliff.setScale(Vector3(70, 10, 2));
-	simpleCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
-	
-	simpleLeftCliff.init(&box, Vector3(-36, 5, 20));
-	simpleLeftCliff.setScale(Vector3(2, 10, 68));
-	simpleLeftCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
-
-	simpleRightCliff.init(&box, Vector3(36, 5, 20));
-	simpleRightCliff.setScale(Vector3(2, 10, 68));
-	simpleRightCliff.setColor(cliffsColor.x, cliffsColor.y, cliffsColor.z, 1);
 
 	for (int i = 0; i < NUM_STARS; i++)
 	{
@@ -385,7 +373,7 @@ void App::initApp() {
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
 	mLight.pos = Vector3(0.0f, 15.0f, 0.0f);
-	mLight.dir = Vector3(0.0f, -1.0f, 2.0f);
+	mLight.dir = Vector3(0.0f, -1.0f, 3.0f);
 	
 	for(int i = 0; i < 8; i++){
 		pointlights[i].ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
@@ -422,6 +410,11 @@ void App::updateScene(float dt) {
 		audio_timer = 0;
 	}
 	updateGameState(dt);
+	if(elapsedTime >= 30.0f) {
+		trampObject.setActive();
+	} else {
+		trampObject.setInActive();
+	}
 	switch(gameState) {
 	case MENU:
 		mainMenu->update();
@@ -461,33 +454,34 @@ void App::updateScene(float dt) {
 			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
 			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
-			if (GetAsyncKeyState(VK_UP))
-			{
-				player.setGliding(false);
-
-				if (atLayer < 2 && !(1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * player.getPosition().y < .2 * (1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * LAYER_HEIGHT[atLayer]))) // can't glide when you just fell from a layer to prevent from staying off screen
-					player.setGliding(true);
-				else if (atLayer == 2) // max layer
-					player.setGliding(true);
-			}
+			if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
 			else
 				player.setGliding(false);
-
 			if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
 			else
 				player.setDiving(false);
-			if (GetAsyncKeyState('B')) {
+			if (GetAsyncKeyState('B') || player.collided(&trampObject)) {
+				elapsedTime = 0;
 				if (atLayer == 0)
 				{
 					fadeText(LAYER_NAMES[1]);
+					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+					trampObject.setInActive();
+					trampObject.setPosition(Vector3(x, LAYER_HEIGHT[1], GAME_DEPTH));
 					player.setVelocity(Vector3(0, 18, 0));
 					atLayer = 1;
-				}
+				} else
 				if (atLayer == 1 && player.getPosition().y > LAYER_HEIGHT[1])
 				{
 					fadeText(LAYER_NAMES[2]);
+					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+					trampObject.setInActive();
+					trampObject.setPosition(Vector3(x, LAYER_HEIGHT[2], GAME_DEPTH));
 					player.setVelocity(Vector3(0, 27, 0));
 					atLayer = 2;
+				} else
+				if (atLayer == 2) {
+					fadeText(L"YOU WIN!");
 				}
 			}
 		}
@@ -498,21 +492,23 @@ void App::updateScene(float dt) {
 		}
 		waves.update(dt);
 		wavesObject.update(dt);
+		if(trampObject.getActiveState()) {
+			trampObject.update(dt);
+		}
 
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
 			atLayer--;
-			player.setVelocity(Vector3(player.getVelocity().x, 0, player.getVelocity().z));
 			fadeText(LAYER_NAMES[atLayer]);
 		}
 
-		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 3 * atLayer + 2)
+		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4 * atLayer + 2)
 			cameraYBoost += CAMERA_MOVE_SPEED * dt;	
 
 		if (cameraZBoost < 10 && atLayer >= 1)
 			cameraZBoost += CAMERA_MOVE_SPEED * dt;
 
-		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 3 * atLayer - 2)
+		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 4 * atLayer - 2)
 			cameraYBoost -= CAMERA_MOVE_SPEED * dt;
 
 		if (cameraZBoost > 0 && atLayer < 1)
@@ -542,6 +538,10 @@ void App::updateScene(float dt) {
 				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 				pillars[i].setPosition(Vector3(x, 0 - PILLAR_HEIGHT_START, GAME_DEPTH));
 				//pillars[i].setScale(Vector3(pillars[i].getScale().x * 0.9f, pillars[i].getScale().y *1.15f, pillars[i].getScale().z *.9f));
+			}
+			if(trampObject.getPosition().z < -GAME_BEHIND_DEPTH) {
+				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+				trampObject.setPosition(Vector3(x, PILLAR_HEIGHT_START, GAME_DEPTH));
 			}
 		}
 
@@ -590,14 +590,10 @@ void App::updateScene(float dt) {
 
 		for (int i = 0; i < NUM_CLIFFS; i++)
 		{
-			//cliffs[i].update(dt);
-			//leftCliffs[i].update(dt);
-			//rightCliffs[i].update(dt);
+			cliffs[i].update(dt);
+			leftCliffs[i].update(dt);
+			rightCliffs[i].update(dt);
 		}
-
-		simpleCliff.update(dt);
-		simpleLeftCliff.update(dt);
-		simpleRightCliff.update(dt);
 
 		for (int i = 0; i < NUM_STARS; i++)
 		{
@@ -758,7 +754,6 @@ void App::drawScene() {
 		//axis.draw(&ri);
 
 		//Draw objects
-		
 			trampObject.draw(&ri);
 			player.draw(&ri);
 			wavesObject.draw(&ri);
@@ -777,15 +772,12 @@ void App::drawScene() {
 			for (int i = 0; i < NUM_SCENERY; i++)
 				scenery[i].draw(&ri);
 		
-			//for (int i = 0; i < NUM_CLIFFS; i++)
-			//{
-			//	cliffs[i].draw(&ri);
-			//	leftCliffs[i].draw(&ri);
-			//	rightCliffs[i].draw(&ri);
-			//}
-			simpleCliff.draw(&ri);
-			simpleLeftCliff.draw(&ri);
-			simpleRightCliff.draw(&ri);
+			for (int i = 0; i < NUM_CLIFFS; i++)
+			{
+				cliffs[i].draw(&ri);
+				leftCliffs[i].draw(&ri);
+				rightCliffs[i].draw(&ri);
+			}
 
 			if (atLayer >= 2)
 				for (int i = 0; i < NUM_STARS; i++)
