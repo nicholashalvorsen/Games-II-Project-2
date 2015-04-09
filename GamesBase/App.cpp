@@ -742,10 +742,10 @@ void App::updateScene(float dt) {
 		// collision
 		for (int i = 0; i < NUM_DIAMONDS; i++)
 			{
-				if (player.collided(&diamonds[i]))
+				if (player.collided(&diamonds[i]) && diamonds[i].getActiveState())
 				{
 					diamonds[i].setInActive();
-					points += 100;
+					points += 200;
 					audio->playCue("splash");
 				}
 			}
@@ -883,7 +883,7 @@ void App::drawScene() {
 		D3DApp::drawScene();
 		mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 		if (atLayer == 2)
-			mClearColor = D3DXCOLOR(0, 0, 0, 1);
+			mClearColor = D3DXCOLOR(.1, .1, .1, 1);
 
 		// Restore default states, input layout and primitive topology 
 		// because mFont->DrawText changes them.  Note that we can 
