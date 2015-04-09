@@ -86,12 +86,10 @@ private:
 	Axis axis;
 	Player player;
 	Object wavesObject;
-<<<<<<< HEAD
 	
 	Object diamonds[NUM_PILLARS/5];
-=======
+
 	std::pair<Object, Object> pWings;
->>>>>>> 70b6d68ef172071b364806e55a6e91901af1a016
 	Object beginningPlatform;
 	Object pillars[NUM_PILLARS];
 	Object clouds[NUM_CLOUDS];
@@ -286,7 +284,6 @@ void App::initApp() {
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
-<<<<<<< HEAD
 
 	for (int i = 0; i < NUM_DIAMONDS; i++)
 	{
@@ -296,14 +293,14 @@ void App::initApp() {
 		diamonds[i].setColor(1,1,0, 0.5);
 	}
 
-=======
+
 	pWings.first.init(&wing, player.getPosition());
 	pWings.second.init(&wing, player.getPosition());
 	pWings.second.setRotation(Vector3(0, 0, PI));
 	pWings.first.setScale(Vector3(0.4, 0.4, 0.4));
 	pWings.second.setScale(Vector3(0.4, 0.4, 0.4));
 	
->>>>>>> 70b6d68ef172071b364806e55a6e91901af1a016
+
 	for (int i = 0; i < NUM_PILLARS; i++)
 	{
 		pillars[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*i));
@@ -720,6 +717,11 @@ void App::updateScene(float dt) {
 		{
 			for (int i = 0; i < NUM_CLOUDS; i++)
 			{
+				if(player.getPosition().z - clouds[i].getPosition().z > 0.5)
+				{
+					clouds[i].setInActive();
+				}
+				
 				if (player.collided(&clouds[i]))
 				{
 					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
