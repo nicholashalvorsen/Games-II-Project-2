@@ -36,7 +36,7 @@ private:
 	void buildVertexLayouts();
 	void updateGameState(float dt);
 	void fadeText(std::wstring msg);
-	float audio_timer;
+
 	Audio *audio;
 	//to zoom the camera in/out
 	float zoom;
@@ -47,15 +47,16 @@ private:
 	ID3D10EffectVariable* mfxEyePosVar;
 	ID3D10EffectVariable* mfxLightVar;
 	ID3D10EffectScalarVariable* mfxLightType;
+	ID3D10EffectVariable* mfxPlayerPos;
 	D3DXVECTOR3 mEyePos;
 
 	Light mLight;
 	Light pointlights[8];
 	//Geometry
 	Line line;
-	Box box;
+	ComplexGeometry box;
 	ComplexGeometry bouncerBox;
-	Box pillarBox;
+	ComplexGeometry pillarBox;
 	Quad quad;
 	Pyramid pyramid;
 	Triangle triangle;
@@ -86,6 +87,8 @@ private:
 	int atLayer;
 	float cameraYBoost;
 	float cameraZBoost;
+
+	float audio_timer;
 
 	float mTheta;
 	float mPhi;
@@ -149,17 +152,15 @@ void App::initApp() {
 	audio = new Audio();
 	audio->initialize();
 	
-	audio_timer = 0;
 	// temp, I don't feel like listening to this 100 times 
-	audio->playCue("music");
-
+	//audio->playCue("music");
+	audio_timer = 0;
 	srand(time(0));
 	zoom = 1.0f;
 	thrust_timer = 0.0f;
 	//Geometry
 	line.init(md3dDevice, WHITE);
-	box.init(md3dDevice, WHITE);
-	pillarBox.init(md3dDevice, WHITE);
+	//box.init(md3dDevice, WHITE);
 	quad.init(md3dDevice, WHITE);
 	pyramid.init(md3dDevice, WHITE);
 	triangle.init(md3dDevice, WHITE);
@@ -167,11 +168,23 @@ void App::initApp() {
 
 	//Complex Geometry
 	// ---------------------------ANIMATION TEST
+	box.init(&quad);
+	box.addChild(&quad, Vector3(0, 0, -0.5f), Vector3(ToRadian(90), 0, 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, 0, +0.5f), Vector3(ToRadian(-90), 0, 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(-0.5f, 0, 0), Vector3(0, 0, ToRadian(-90)), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(+0.5f, 0, 0), Vector3(0, 0, ToRadian(90)), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, -0.5f, 0), Vector3(0, ToRadian(180), 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, 0.5f, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), 0);
+
 	bouncerBox.init(&box);
 	AnimationState* bbani = new AnimationState();
 	bbani->addAnimation(Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
 	bbani->addAnimation(Vector3(0, 3, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1));
 	bouncerBox.addChild(&box, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), bbani, Vector4(1, 0, 0, 1));
+	bouncerBox.setRadius(1.1);
+
+	pillarBox.init(&box);
+	pillarBox.addChild(&box, Vector3(0, 0.55f, 0), Vector3(0, 0, 0), Vector3(1.2f, 0.1f, 1.2f), 0);
 
 	ComplexGeometry ship;
 	ship.init(&line);
@@ -250,7 +263,7 @@ void App::initApp() {
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
 	}
 		 
-	beginningPlatform.init(&pillarBox, Vector3(0, .5, GAME_DEPTH * .4));
+	beginningPlatform.init(&box, Vector3(0, .5, GAME_DEPTH * .4));
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
 	beginningPlatform.setVelocity(Vector3(0, 0, PILLAR_SPEED));
 	beginningPlatform.setColor(1, 1, .9, 1);
@@ -343,8 +356,8 @@ void App::initApp() {
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 10000.0f;
-	mLight.pos = Vector3(15.0f, 15.0f, 0);
-	mLight.dir = Vector3(0.0f, -1.0f, 1.0f);
+	mLight.pos = Vector3(0.0f, 15.0f, 0.0f);
+	mLight.dir = Vector3(0.0f, -1.0f, 2.0f);
 	
 	for(int i = 0; i < 8; i++){
 		pointlights[i].ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
@@ -375,9 +388,8 @@ void App::onResize() {
 
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
-	
 	audio_timer += dt;
-	if (audio_timer > 9.5){
+	if(audio_timer> 9.7){
 		audio->playCue("gliding");
 		audio_timer = 0;
 	}
@@ -386,6 +398,7 @@ void App::updateScene(float dt) {
 	case MENU:
 		mainMenu->update();
 		break;
+	case GAME_OVER:
 	case LEVEL1:
 		{
 		// Every quarter second, generate a random wave.
@@ -403,58 +416,53 @@ void App::updateScene(float dt) {
 		}*/
 
 		if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
-		if (GetAsyncKeyState('R')) player.resetPos();
-		//Thrust with a timer of a 1:2 thrust to cooldown ratio and a 2 second starting thrust bank.
-		if (GetAsyncKeyState(VK_SPACE)){ 
+		if(gameState != GAME_OVER) {
+			if (GetAsyncKeyState('R')) player.resetPos();
+			//Thrust with a timer of a 1:2 thrust to cooldown ratio and a 2 second starting thrust bank.
+			if (GetAsyncKeyState(VK_SPACE)){ 
 		
-			if(thrust_timer < 1.0f){
-				thrust_timer+=dt;
-				player.thrustUp(dt);
-			}
+				if(thrust_timer < 1.0f){
+					thrust_timer+=dt;
+					player.thrustUp(dt);
+				}
 	
-		}else if(thrust_timer > 0){
-       		  thrust_timer -= 0.5*dt;
-		}
-		if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
-		if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
-		if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
-		if (GetAsyncKeyState(VK_UP))
-		{
-			if (atLayer < 2 && !(1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * player.getPosition().y < .4 * (1.0f * LAYER_HEIGHT[atLayer+1] - 1.0f * LAYER_HEIGHT[atLayer]))) // can't glide when you just fell from a layer to prevent from staying off screen
-				player.setGliding(true);
-			else if (atLayer == 2) // max layer
-				player.setGliding(true);
+			}else if(thrust_timer > 0){
+       			  thrust_timer -= 0.5*dt;
+
+			}
+			if (GetAsyncKeyState(VK_LEFT)) player.accelLeft(dt);
+			if (GetAsyncKeyState(VK_RIGHT)) player.accelRight(dt);
+			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
+			if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
 			else
 				player.setGliding(false);
-		}
-		else
-			player.setGliding(false);
-		if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
-		else
-			player.setDiving(false);
-
-		if (GetAsyncKeyState('B')) {
-			if (atLayer == 0)
-			{
-				fadeText(LAYER_NAMES[1]);
-				player.setVelocity(Vector3(0, 18, 0));
-				atLayer = 1;
-			}
-			if (atLayer == 1 && player.getPosition().y > LAYER_HEIGHT[1])
-			{
-				fadeText(LAYER_NAMES[2]);
-				player.setVelocity(Vector3(0, 27, 0));
-				atLayer = 2;
+			if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
+			else
+				player.setDiving(false);
+			if (GetAsyncKeyState('B')) {
+				if (atLayer == 0)
+				{
+					fadeText(LAYER_NAMES[1]);
+					player.setVelocity(Vector3(0, 18, 0));
+					atLayer = 1;
+				}
+				if (atLayer == 1 && player.getPosition().y > LAYER_HEIGHT[1])
+				{
+					fadeText(LAYER_NAMES[2]);
+					player.setVelocity(Vector3(0, 27, 0));
+					atLayer = 2;
+				}
 			}
 		}
 
 		Vector3 oldPlayerPosition = player.getPosition();
-
-		player.update(dt);
+		if(gameState != GAME_OVER) {
+			player.update(dt);
+		}
 		waves.update(dt);
 		wavesObject.update(dt);
 
-		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0)
+		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
 			atLayer--;
 			fadeText(LAYER_NAMES[atLayer]);
@@ -557,6 +565,7 @@ void App::updateScene(float dt) {
 		}
 
 		// collision
+
 		if (atLayer == 0)
 		{
 			for (int i = 0; i < NUM_PILLARS; i++)
@@ -674,9 +683,11 @@ void App::drawScene() {
 	case MENU:
 		mainMenu->displayMenu(diff);
 		break;
+	case GAME_OVER:
 	case LEVEL1:
 	case LEVEL2:
 		{
+
 		D3DApp::drawScene();
 		mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 		if (atLayer == 2)
@@ -694,46 +705,56 @@ void App::drawScene() {
 		mfxEyePosVar->SetRawValue(&mEyePos, 0, sizeof(D3DXVECTOR3));
 		mfxLightVar->SetRawValue(&mLight, 0, sizeof(Light));
 		mfxLightType->SetInt(0);
+		mfxPlayerPos->SetRawValue(&player.getPosition(), 0, sizeof(D3DXVECTOR3));
 
 		//Draw Axis
 		//axis.draw(&ri);
 
 		//Draw objects
 	
-		player.draw(&ri);
-		wavesObject.draw(&ri);
+			player.draw(&ri);
+			wavesObject.draw(&ri);
 	
-		for (int i = 0; i < NUM_PILLARS; i++)
-			pillars[i].draw(&ri);
+			for (int i = 0; i < NUM_PILLARS; i++)
+				pillars[i].draw(&ri);
 
-		for (int i = 0; i < NUM_CLOUDS; i++)
-			clouds[i].draw(&ri);
+			for (int i = 0; i < NUM_CLOUDS; i++)
+				clouds[i].draw(&ri);
 
-		for (int i = 0; i < NUM_PLANETS; i++)
-			planets[i].draw(&ri);
+			for (int i = 0; i < NUM_PLANETS; i++)
+				planets[i].draw(&ri);
 
-		beginningPlatform.draw(&ri);
+			beginningPlatform.draw(&ri);
 
-		for (int i = 0; i < NUM_SCENERY; i++)
-			scenery[i].draw(&ri);
+			for (int i = 0; i < NUM_SCENERY; i++)
+				scenery[i].draw(&ri);
 		
-		for (int i = 0; i < NUM_CLIFFS; i++)
-			cliffs[i].draw(&ri);
+			for (int i = 0; i < NUM_CLIFFS; i++)
+				cliffs[i].draw(&ri);
 
-		if (atLayer >= 2)
-			for (int i = 0; i < NUM_STARS; i++)
-				stars[i].draw(&ri);
+			if (atLayer >= 2)
+				for (int i = 0; i < NUM_STARS; i++)
+					stars[i].draw(&ri);
 
 
-		break;
+			break;
 		}
-	case GAME_OVER:
-
-		break;
 	}
 
 	//Draw text to screen
-	if (fadeTextActive)
+	if (gameState == GAME_OVER) {
+		RECT rect;
+		int width;
+		int height;
+		if(GetWindowRect(mhMainWnd, &rect))
+		{
+		  width = rect.right - rect.left;
+		  height = rect.bottom - rect.top;
+		}
+		RECT R2 = {0, 100, width, height / 4};
+		std::string gameOverString = "Game Over";
+		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+	} else if (fadeTextActive)
 	{
 		RECT rect;
 		int width;
@@ -747,7 +768,6 @@ void App::drawScene() {
 
 		mFont2->DrawText(0, fadeTextMessage.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, fadeTextOpacity));
 	}
-	
 	
 	RECT R1 = {200, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
@@ -783,6 +803,12 @@ void App::updateGameState(float dt) {
 		}
 
 		break;
+	case LEVEL1:
+	case LEVEL2:
+		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y) {
+			gameState = GAME_OVER;
+		}
+		break;
 	}
 }
 
@@ -812,6 +838,7 @@ void App::buildFX() {
 	mfxEyePosVar = mFX->GetVariableByName("gEyePosW");
 	mfxLightVar  = mFX->GetVariableByName("gLight");
 	mfxLightType = mFX->GetVariableByName("gLightType")->AsScalar();
+	mfxPlayerPos = mFX->GetVariableByName("playerPos");
 }
 
 void App::buildVertexLayouts()
