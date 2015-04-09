@@ -68,6 +68,8 @@ private:
 	ComplexGeometry cliffsGeometry;
 	Object scenery[NUM_SCENERY];
 	Object cliffs[NUM_CLIFFS];
+	Object leftCliffs[NUM_CLIFFS];
+	Object rightCliffs[NUM_CLIFFS];
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
 
@@ -200,7 +202,7 @@ void App::initApp() {
 	const float SAIL_WIDTH = SHIP_WIDTH * 1.8;
 	const float SAIL_HEIGHT = SHIP_WIDTH * 1.2;
 	// deck
-	ship.addChild(&quad, Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(SHIP_WIDTH, 1, SHIP_LENGTH), shipAni, shipColor);
+	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2, 1, SHIP_LENGTH / 2), Vector3(0, 0, 0), Vector3(SHIP_WIDTH, 1, SHIP_LENGTH), shipAni, shipColor);
 	// bottom left
 	ship.addChild(&box, Vector3(0, .8, SHIP_LENGTH / 2), Vector3(ToRadian(90+20), ToRadian(-90), 0), Vector3(SHIP_LENGTH, 1, 2), shipAni, shipColor2);
 	ship.addChild(&box, Vector3(.55, -.25, SHIP_LENGTH / 2), Vector3(ToRadian(90+40), ToRadian(-90), 0), Vector3(SHIP_LENGTH, 1, 1), shipAni, shipColor2);
@@ -228,7 +230,7 @@ void App::initApp() {
 	// sail
 	sailAni->addAnimation(Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1), Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1));
 	sailAni->addAnimation(Vector3(1, 0, 0), Vector3(ToRadian(-10), 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 0), Vector3(ToRadian(10), 0, 0), Vector3(1, 1, 1));
-	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2 - SAIL_WIDTH / 2, MAST_HEIGHT * .8 + 1, SHIP_LENGTH / 2 + .25), Vector3(ToRadian(90), 0, 0), Vector3(SAIL_WIDTH, 0, SAIL_HEIGHT), sailAni, Vector4(1, 1, 1, 1));
+	ship.addChild(&quad, Vector3(SHIP_WIDTH / 2, MAST_HEIGHT * .8 + 1, SHIP_LENGTH / 2 + .25), Vector3(ToRadian(90), 0, 0), Vector3(SAIL_WIDTH, 0, SAIL_HEIGHT), sailAni, Vector4(1, 1, 1, 1));
 
 	sceneryGeometry[0] = ship;
 	sceneryGeometry[1] = ship;
@@ -290,9 +292,9 @@ void App::initApp() {
 		int xpos;
 
 		if (lr == 1)
-			xpos = -GAME_WIDTH / 2 - 7 - rand() % 5;
+			xpos = -GAME_WIDTH / 2 - 10 - rand() % 5;
 		else
-			xpos =  GAME_WIDTH / 2 + 7 + rand() % 5;
+			xpos =  GAME_WIDTH / 2 + 10 + rand() % 5;
 
 		scenery[i].init(&sceneryGeometry[i], Vector3(xpos, 1, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_SCENERY*i));
 		scenery[i].setVelocity(Vector3(0, 0, -1));
@@ -300,7 +302,11 @@ void App::initApp() {
 
 	for (int i = 0; i < NUM_CLIFFS; i++)
 	{
-		cliffs[i].init(&cliffsGeometry, Vector3(CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2, CLIFF_HEIGHT / 2, 40));
+		cliffs[i].init(&cliffsGeometry, Vector3(CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH / 4, CLIFF_HEIGHT / 2, 50));
+		leftCliffs[i].init(&cliffsGeometry, Vector3(-38, CLIFF_HEIGHT / 2, CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH * 3));
+		leftCliffs[i].setRotation(Vector3(0, ToRadian(-90), 0));
+		rightCliffs[i].init(&cliffsGeometry, Vector3(38, CLIFF_HEIGHT / 2, CLIFF_WIDTH * i - NUM_CLIFFS * CLIFF_WIDTH / 2 + CLIFF_WIDTH * 3.5));
+		rightCliffs[i].setRotation(Vector3(0, ToRadian(90), 0));
 	}
 
 	for (int i = 0; i < NUM_STARS; i++)
@@ -348,9 +354,9 @@ void App::initApp() {
 	mainMenu->setMenuItems(menuItems);
 
 	//Light
-	mLight.ambient = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
-	mLight.diffuse = D3DXCOLOR(0.4f, 0.4f, 0.4f, 0.4f);
-	mLight.specular = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
+	mLight.ambient = D3DXCOLOR(0.1f, 0.1f, 0.1f, 0.1f);
+	mLight.diffuse = D3DXCOLOR(0.8f, 0.8f, 0.8f, 0.8f);
+	mLight.specular = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
 	mLight.att.x    = 1.0f;
 	mLight.att.y    = 0.0f;
 	mLight.att.z    = 0.0f;
@@ -528,7 +534,6 @@ void App::updateScene(float dt) {
 				planets[i].setPosition(Vector3(x, LAYER_HEIGHT[2], GAME_DEPTH));
 			}
 		}
-
 		for (int i = 0; i < NUM_SCENERY; i++)
 		{
 			scenery[i].update(dt);
@@ -537,19 +542,26 @@ void App::updateScene(float dt) {
 				int lr = rand() % 2;
 				int xpos;
 
-				if (lr = 1)
-					xpos = -10 - rand() % 3;
+				if (lr == 1)
+					xpos = -GAME_WIDTH / 2 - 10 - rand() % 5;
 				else
-					xpos = 10 + rand() % 3;
+					xpos =  GAME_WIDTH / 2 + 10 + rand() % 5;
 
-				scenery[i].setPosition(Vector3(xpos, 1, GAME_DEPTH * 2));
-				//Scale boxes to get smaller every time they are re-positioned.
-			
+				scenery[i].setPosition(Vector3(xpos, -10, GAME_DEPTH *1.2));
 			}
+			if (scenery[i].getPosition().y < 0)
+				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 1, scenery[i].getVelocity().z));
+			else
+				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 0, scenery[i].getVelocity().z));
+
 		}
 
 		for (int i = 0; i < NUM_CLIFFS; i++)
+		{
 			cliffs[i].update(dt);
+			leftCliffs[i].update(dt);
+			rightCliffs[i].update(dt);
+		}
 
 		for (int i = 0; i < NUM_STARS; i++)
 		{
@@ -557,12 +569,12 @@ void App::updateScene(float dt) {
 		}
 
 		/* bottom collision, temp */ 
-		if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
+		/*if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
 		{
 			player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 
 			player.setPosition(oldPlayerPosition);
-		}
+		}*/
 
 		// collision
 
@@ -730,7 +742,11 @@ void App::drawScene() {
 				scenery[i].draw(&ri);
 		
 			for (int i = 0; i < NUM_CLIFFS; i++)
+			{
 				cliffs[i].draw(&ri);
+				leftCliffs[i].draw(&ri);
+				rightCliffs[i].draw(&ri);
+			}
 
 			if (atLayer >= 2)
 				for (int i = 0; i < NUM_STARS; i++)
@@ -752,7 +768,7 @@ void App::drawScene() {
 		  height = rect.bottom - rect.top;
 		}
 		RECT R2 = {0, 100, width, height / 4};
-		std::string gameOverString = "Game Over";
+		std::string gameOverString = "G A M E   O V E R";
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 	} else if (fadeTextActive)
 	{
@@ -807,6 +823,7 @@ void App::updateGameState(float dt) {
 	case LEVEL2:
 		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y) {
 			gameState = GAME_OVER;
+			player.setPosition(Vector3(0, -1000, 0));
 		}
 		break;
 	}

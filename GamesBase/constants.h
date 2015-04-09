@@ -22,8 +22,8 @@ const int GAME_WIDTH = 20;
 const int GAME_DEPTH = 40;
 const int GAME_BEHIND_DEPTH = 10;
 const int NUM_SCENERY = 2;
-const int NUM_STARS = 1000;
-const int NUM_CLIFFS = 30;
+const int NUM_STARS = 100;
+const int NUM_CLIFFS = 20;
 const float CLIFF_HEIGHT = 10;
 const float CLIFF_WIDTH = 3.9;
 
