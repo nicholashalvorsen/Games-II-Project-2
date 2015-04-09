@@ -604,15 +604,15 @@ void App::updateScene(float dt) {
 		for (int i = 0; i < NUM_DIAMONDS; i++)
 		{
 			diamond.increaseRotation(1);
-			diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180, 0));//Spinning effect diamond.getRotation() * M_PI / 180
+			//diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180, 0));//Spinning effect diamond.getRotation() * M_PI / 180
 			
-			if ((atLayer == 0 && diamonds[i].getPosition().y < LAYER_HEIGHT[0] + 2) || 
-				(atLayer == 1 && diamonds[i].getPosition().y < LAYER_HEIGHT[1] + 2) ||
-				(atLayer == 2 && diamonds[i].getPosition().y < LAYER_HEIGHT[2] + 2))
+			if ((atLayer == 0 && diamonds[i].getPosition().y < LAYER_HEIGHT[0] + 4) || 
+				(atLayer == 1 && diamonds[i].getPosition().y < LAYER_HEIGHT[1] + 4) ||
+				(atLayer == 2 && diamonds[i].getPosition().y < LAYER_HEIGHT[2] + 34))
 				diamonds[i].setVelocity(Vector3(diamonds[i].getVelocity().x, 100, diamonds[i].getVelocity().z));
 			else
 				{
-					diamonds[i].setVelocity(Vector3(pillars[i].getVelocity().x, 0, pillars[i].getVelocity().z));
+					diamonds[i].setVelocity(Vector3(diamonds[i].getVelocity().x, 0, diamonds[i].getVelocity().z));
 				}
 
 			if (diamonds[i].getPosition().z < -2)
@@ -723,8 +723,8 @@ void App::updateScene(float dt) {
 				if (player.collided(&diamonds[i]))
 				{
 					diamonds[i].setInActive();
-					//player.incrementPoints();
-					//audio->playCue();
+					points += 1000;
+					audio->playCue("splash");
 				}
 			}
 
