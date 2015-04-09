@@ -306,6 +306,7 @@ void App::initApp() {
 	}
 	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]-100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
     trampObject.setScale(Vector3(1,1,1));
+	trampObject.setColor(234.0f/255.0f, 228.0f/255.0f, 71.0f/255.0f, 1);
     trampObject.setVelocity(Vector3(0, 0, PILLAR_SPEED));
     trampObject.setInActive();
     trampObject.update(0.0f);
@@ -567,7 +568,7 @@ void App::updateScene(float dt) {
 					player.setVelocity(Vector3(0, 27, 0));
 					atLayer = 2;
 				} else
-					if (atLayer == 2 && player.collided(&trampObject)) {
+					if (atLayer == 2 && player.collided(&trampObject) || hitTramp) {
                     //fadeText(L"YOU WIN!");
 					gameWon = true;
                 }
