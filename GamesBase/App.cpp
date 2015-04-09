@@ -107,6 +107,8 @@ private:
 	std::wstring fadeTextMessage;
 	float fadeTextOpacity;
 	float fadeTextCurrentDuration;
+
+	int points;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
@@ -131,6 +133,7 @@ App::App(HINSTANCE hInstance):D3DApp(hInstance), mFX(0), mVertexLayout(0), rando
 	mx = 0;
 	my = 0;
 	mz = 0;
+	points = 0;
 }
 
 App::~App() {
@@ -151,7 +154,7 @@ void App::initApp() {
 	audio->initialize();
 	
 	// temp, I don't feel like listening to this 100 times 
-	//audio->playCue("music");
+	audio->playCue("music");
 
 	srand(time(0));
 	zoom = 1.0f;
@@ -394,6 +397,12 @@ void App::updateScene(float dt) {
 	case GAME_OVER:
 	case LEVEL1:
 		{
+		if (gameState != GAME_OVER) {
+			if (atLayer == 0) points += 100 * dt;
+			if (atLayer == 1) points += 200 * dt;
+			if (atLayer == 2) points += 400 * dt;
+		}
+
 		// Every quarter second, generate a random wave.
 		/*static float t_base = 0.0f;
 		if ((mTimer.getGameTime() - t_base) >= 0.25f)
@@ -664,7 +673,6 @@ void App::updateScene(float dt) {
 		}
 	case LEVEL2:
 		{
-
 		break;
 		}
 	}
@@ -728,7 +736,13 @@ void App::drawScene() {
 				for (int i = 0; i < NUM_STARS; i++)
 					stars[i].draw(&ri);
 
-
+			std::wostringstream po;
+		std::wstring pt;
+		po << "Points: " << points;
+		pt.clear();
+		pt.append(po.str());
+		RECT Rp = {600, 5, 0, 0};
+		mFont->DrawText(0, pt.c_str(), -1, &Rp, DT_NOCLIP, WHITE);
 			break;
 		}
 	}
@@ -792,6 +806,7 @@ void App::updateGameState(float dt) {
 	case MENU:
 		if(mainMenu->getMenuState() == NEW_GAME) {
 			gameState = LEVEL1;
+			points = 0;
 			elapsedTime = 0;
 		}
 
@@ -799,6 +814,7 @@ void App::updateGameState(float dt) {
 	case LEVEL1:
 	case LEVEL2:
 		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y) {
+			audio->playCue("splash");
 			gameState = GAME_OVER;
 		}
 		break;
