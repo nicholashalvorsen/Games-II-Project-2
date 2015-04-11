@@ -193,6 +193,10 @@ void Waves::disturb(DWORD i, DWORD j, float magnitude)
 
 	float halfMag = 0.5f*magnitude;
 
+
+	halfMag *= 8;//MasterTroll
+
+
 	mCurrSolution[i*mNumCols+j].y     += magnitude;
 	mCurrSolution[i*mNumCols+j+1].y   += halfMag;
 	mCurrSolution[i*mNumCols+j-1].y   += halfMag;
