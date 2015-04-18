@@ -124,6 +124,7 @@ private:
 	float fadeTextCurrentDuration;
 
 	bool gameWon;
+	bool bPressedLastFrame;
 
 	int points;
 };
@@ -169,6 +170,7 @@ void App::initApp() {
 
 	easyMode = false;
 	gameWon = false;
+	bPressedLastFrame = false;
 
 	audio = new Audio();
 	audio->initialize();
@@ -211,6 +213,7 @@ void App::initApp() {
 
 	pillarBox.init(&box);
 	pillarBox.addChild(&box, Vector3(0, 0.55f, 0), Vector3(0, 0, 0), Vector3(1.2f, 0.1f, 1.2f), 0);
+	pillarBox.setRadius(1.2);
 
 	ComplexGeometry ship;
 	ship.init(&line);
@@ -543,7 +546,8 @@ void App::updateScene(float dt) {
 				hitTramp = true;
 
 
-			if (GetAsyncKeyState('B') || player.collided(&trampObject) || hitTramp) {
+				
+			if ((!GetAsyncKeyState('B') && bPressedLastFrame) || player.collided(&trampObject) || hitTramp) {
 				char tmp[] = "boing";
 				audio->playCue(tmp);
 				elapsedTime = 0;
@@ -567,6 +571,7 @@ void App::updateScene(float dt) {
 
 					player.setVelocity(Vector3(0, 27, 0));
 					atLayer = 2;
+					audio->playCue("musiclayer2");
 				} else
 					if (atLayer == 2 && player.collided(&trampObject) || hitTramp) {
                     //fadeText(L"YOU WIN!");
@@ -574,6 +579,11 @@ void App::updateScene(float dt) {
                 }
 
 			}
+
+				if (GetAsyncKeyState('B'))
+					bPressedLastFrame = true;
+				else
+					bPressedLastFrame = false;
 		}
 
 		Vector3 oldPlayerPosition = player.getPosition();
@@ -598,7 +608,13 @@ void App::updateScene(float dt) {
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
 			atLayer--;
+
+			audio->playCue("whoosh");
+
 			fadeText(LAYER_NAMES[atLayer]);
+
+			if (atLayer < 2)
+				audio->stopCue("musiclayer2");
 		}
 
 		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4 * atLayer + 2)
@@ -747,10 +763,9 @@ void App::updateScene(float dt) {
 				{
 					diamonds[i].setInActive();
 					points += 200;
-					audio->playCue("splash");
+					//audio->playCue("splash");
 				}
 			}
-
 
 		if (atLayer == 0)
 		{
@@ -771,12 +786,7 @@ void App::updateScene(float dt) {
 		{
 			for (int i = 0; i < NUM_CLOUDS; i++)
 			{
-				if( clouds[i].getActiveState())
-				{
-					//if ((rand() % 10000) == 1)
-					//	clouds[i].setInActive();
-				}
-				
+
 				if (player.collided(&clouds[i]))
 				{
 					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));

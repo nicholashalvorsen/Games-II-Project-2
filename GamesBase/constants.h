@@ -28,7 +28,7 @@ const float CLIFF_HEIGHT = 10;
 const float CLIFF_WIDTH = 3.9;
 
 const float GRAVITY = - 8;
-const float Y_VELOCITY_LIMIT = -3;
+const float Y_VELOCITY_LIMIT = -6;
 // not used currently
 const float PLAYER_ROTATE_SPEED = 3;
 const float PLAYER_THRUST = 20;
