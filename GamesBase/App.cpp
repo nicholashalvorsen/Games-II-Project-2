@@ -23,9 +23,6 @@
 #include <random>
 #include <sstream>
 
-//MasterTroll
-float i = 0.1;
-
 class App : public D3DApp {
 public:
 	App(HINSTANCE hInstance);
@@ -424,8 +421,6 @@ void App::initApp() {
 	mLight.ambient = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
 	mLight.diffuse = D3DXCOLOR(0.4f, 0.4f, 0.4f, 0.4f);
 	mLight.specular = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
-
-	
 	mLight.att.x    = 1.0f;
 	mLight.att.y    = 0.0f;
 	mLight.att.z    = 0.0f;
@@ -470,17 +465,6 @@ void App::updateScene(float dt) {
         trampObject.setInActive();
     }
 
-
-	//MasterTroll
-	mLight.ambient = D3DXCOLOR(i, 0.6f, 0.6f, 0.6f);
-	mLight.diffuse = D3DXCOLOR(0.4f, i, 0.4f, 0.4f);
-	mLight.specular = D3DXCOLOR(0.6f, 0.6f, i, 2.6f);
-	int modAmount = 2;
-	player.setRotation(D3DXVECTOR3(player.getRotation().x + rand() % modAmount, player.getRotation().y + rand() % modAmount, player.getRotation().z + rand() % modAmount));
-	if (i < 1) i += 0.01;
-	else i = 0;
-
-
 	switch(gameState) {
 	case MENU:
 		mainMenu->update();
@@ -523,7 +507,7 @@ void App::updateScene(float dt) {
        			  thrust_timer -= 0.5*dt;
 
 			}
-			if (GetAsyncKeyState(VK_LEFT)){
+			if (GetAsyncKeyState(VK_LEFT)){ 
 				player.accelLeft(dt);
 				pWings.first.setRotation(Vector3(0 , 0, PI/6));
 				pWings.second.setRotation(Vector3(0 , 0, PI+PI/6));
