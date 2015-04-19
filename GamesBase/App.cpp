@@ -1,4 +1,4 @@
-#include "d3dApp.h"
+﻿#include "d3dApp.h"
 #include "Line.h"
 #include "Box.h"
 #include "Diamond.h"
@@ -533,12 +533,12 @@ void App::updateScene(float dt) {
        			  thrust_timer -= 0.5*dt;
 
 			}
-			if (GetAsyncKeyState(VK_LEFT)){ 
+			if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState('A')){
 				player.accelLeft(dt);
 				pWings.first.setRotation(Vector3(0 , 0, PI/6));
 				pWings.second.setRotation(Vector3(0 , 0, PI+PI/6));
 			}
-			else if (GetAsyncKeyState(VK_RIGHT)){ 
+			else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState('D')){
 				pWings.first.setRotation(Vector3(0 , 0, -PI/6));
 				pWings.second.setRotation(Vector3(0 , 0, PI-PI/6));
 				player.accelRight(dt);
@@ -547,11 +547,11 @@ void App::updateScene(float dt) {
 				pWings.first.setRotation(Vector3(0 , 0, 0));
 				pWings.second.setRotation(Vector3(0 , 0, PI));
 			}
-			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT)) player.decelX(dt);
-			if (GetAsyncKeyState(VK_UP)) player.setGliding(true);
+			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT) && !GetAsyncKeyState('A') && !GetAsyncKeyState('D')) player.decelX(dt);
+			if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W')) player.setGliding(true);
 			else
 				player.setGliding(false);
-			if (GetAsyncKeyState(VK_DOWN)) player.setDiving(true);
+			if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState('S')) player.setDiving(true);
 			else player.setDiving(false);
 
 			bool hitTramp = false;
@@ -1027,9 +1027,8 @@ void App::drawScene() {
 		std::string gameOverString = "D U N S T A N ' S   B I G   B A D \n B O U N C E   A R O U N D";
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 
-		
 		RECT R3 = {300, 200, width, height / 2};
-		gameOverString = "Controls:\nMove: Left/Right\nGlide: Up\nDive: Down\n\nMute sounds: M";
+		gameOverString = "Controls:\nMove: Left/Right or A/D\nGlide: Up or W\nDive: Down or S\n\nMute sounds: M";
 		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 	} else if (gameWon) {
 		RECT rect;
