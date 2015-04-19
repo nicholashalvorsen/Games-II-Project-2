@@ -50,10 +50,12 @@ const float DIAMOND_SIZE = 0.75;
 
 const int NUM_CLOUDS = 15;
 const float CLOUD_SPEED = -5;
+const float CLOUD_X_SPEED = 1;
 const float CLOUD_SIZE = 3;
 
 const int NUM_PLANETS = 15;
-const float PLANET_SPEED = -7;
+const float PLANET_SPEED = -6;
+const float PLANET_X_SPEED = 1;
 const float PLANET_SIZE = 2.5;
 
 const int SEA_SIZE = 150;

@@ -125,6 +125,8 @@ private:
 
 	bool gameWon;
 	bool bPressedLastFrame;
+	bool mPressedLastFrame;
+	bool muted;
 
 	int points;
 };
@@ -171,7 +173,9 @@ void App::initApp() {
 	easyMode = false;
 	gameWon = false;
 	bPressedLastFrame = false;
+	mPressedLastFrame = false;
 
+	muted = false;
 	audio = new Audio();
 	audio->initialize();
 	
@@ -331,7 +335,7 @@ void App::initApp() {
 	{
 		clouds[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_CLOUDS*i));
 		clouds[i].setScale(Vector3(CLOUD_SIZE, 1, CLOUD_SIZE));
-		clouds[i].setVelocity(Vector3(0, 0, CLOUD_SPEED));
+		clouds[i].setVelocity(Vector3(CLOUD_X_SPEED, 0, CLOUD_SPEED));
 		clouds[i].setColor(.8, .8, .8, 1);
 	}
 
@@ -339,7 +343,7 @@ void App::initApp() {
 	{
 		planets[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PLANETS*i));
 		planets[i].setScale(Vector3(PLANET_SIZE, 1, PLANET_SIZE));
-		planets[i].setVelocity(Vector3(0, 0, PLANET_SPEED));
+		planets[i].setVelocity(Vector3(PLANET_X_SPEED, 0, PLANET_SPEED));
 		planets[i].setColor(1, 1, 1, 1);
 	}
 
@@ -496,6 +500,25 @@ void App::updateScene(float dt) {
 		}*/
 
 		if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
+
+		if (GetAsyncKeyState('M'))
+			mPressedLastFrame = true;
+		else
+		{
+			if (mPressedLastFrame)
+			{
+				muted = !muted;
+				if (muted == true)
+				{
+					audio->stopCue("music");
+					audio->stopCue("musicLayer2");
+				}
+				else
+					audio->playCue("music");
+			}
+
+			mPressedLastFrame = false;
+		}
 		if(gameState != GAME_OVER && !gameWon) {
 			if (GetAsyncKeyState('R')) player.resetPos();
 			//Thrust with a timer of a 1:2 thrust to cooldown ratio and a 2 second starting thrust bank.
@@ -548,8 +571,8 @@ void App::updateScene(float dt) {
 
 				
 			if ((!GetAsyncKeyState('B') && bPressedLastFrame) || player.collided(&trampObject) || hitTramp) {
-				char tmp[] = "boing";
-				audio->playCue(tmp);
+				if (!muted)
+					audio->playCue("boing");
 				elapsedTime = 0;
 
 				if (atLayer == 0)
@@ -571,7 +594,8 @@ void App::updateScene(float dt) {
 
 					player.setVelocity(Vector3(0, 27, 0));
 					atLayer = 2;
-					audio->playCue("musiclayer2");
+					if (!muted)
+						audio->playCue("musiclayer2");
 				} else
 					if (atLayer == 2 && player.collided(&trampObject) || hitTramp) {
                     //fadeText(L"YOU WIN!");
@@ -609,11 +633,12 @@ void App::updateScene(float dt) {
 		{
 			atLayer--;
 
-			audio->playCue("whoosh");
+			if (!muted)
+				audio->playCue("whoosh");
 
 			fadeText(LAYER_NAMES[atLayer]);
 
-			if (atLayer < 2)
+			if (atLayer < 2 && !muted)
 				audio->stopCue("musiclayer2");
 		}
 
@@ -698,7 +723,7 @@ void App::updateScene(float dt) {
 			if (clouds[i].getPosition().z < -GAME_BEHIND_DEPTH)
 			{
 				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
-				clouds[i].setPosition(Vector3(x, LAYER_HEIGHT[1], GAME_DEPTH));
+				clouds[i].setPosition(Vector3(x - CLOUD_X_SPEED * 5, LAYER_HEIGHT[1], GAME_DEPTH));
 			}
 		}
 
@@ -708,8 +733,20 @@ void App::updateScene(float dt) {
 
 			if (planets[i].getPosition().z < -GAME_BEHIND_DEPTH)
 			{
+				int r = rand() % 2;
+
 				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
-				planets[i].setPosition(Vector3(x, LAYER_HEIGHT[2], GAME_DEPTH));
+
+				if (r == 0)
+				{
+					planets[i].setPosition(Vector3(x - PLANET_X_SPEED * 5, LAYER_HEIGHT[2], GAME_DEPTH));
+					planets[i].setVelocity(Vector3(PLANET_X_SPEED, 0, PLANET_SPEED));
+				}
+				else
+				{
+					planets[i].setPosition(Vector3(x + PLANET_X_SPEED * 5, LAYER_HEIGHT[2], GAME_DEPTH));
+					planets[i].setVelocity(Vector3(-PLANET_X_SPEED, 0, PLANET_SPEED));
+				}
 			}
 		}
 
@@ -992,7 +1029,7 @@ void App::drawScene() {
 
 		
 		RECT R3 = {300, 200, width, height / 2};
-		gameOverString = "Controls:\nMove: Left/Right\nGlide: Up\nDive: Down";
+		gameOverString = "Controls:\nMove: Left/Right\nGlide: Up\nDive: Down\n\nMute sounds: M";
 		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 	} else if (gameWon) {
 		RECT rect;
@@ -1084,7 +1121,8 @@ void App::updateGameState(float dt) {
 	case LEVEL1:
 	case LEVEL2:
 		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y) {
-			audio->playCue("splash");
+			if (!muted)
+				audio->playCue("splash");
 			gameState = GAME_OVER;
 			player.setPosition(Vector3(0, -1000, 0));
 			player.update(dt);
