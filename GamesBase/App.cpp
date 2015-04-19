@@ -740,12 +740,12 @@ void App::updateScene(float dt) {
 				if (r == 0)
 				{
 					planets[i].setPosition(Vector3(x - PLANET_X_SPEED * 5, LAYER_HEIGHT[2], GAME_DEPTH));
-					planets[i].setVelocity(Vector3(PLANET_X_SPEED, 0, PLANET_SPEED));
+					planets[i].setVelocity(Vector3(PLANET_X_SPEED, 0, planets[i].getVelocity().z));
 				}
 				else
 				{
 					planets[i].setPosition(Vector3(x + PLANET_X_SPEED * 5, LAYER_HEIGHT[2], GAME_DEPTH));
-					planets[i].setVelocity(Vector3(-PLANET_X_SPEED, 0, PLANET_SPEED));
+					planets[i].setVelocity(Vector3(-PLANET_X_SPEED, 0, planets[i].getVelocity().z));
 				}
 			}
 		}
