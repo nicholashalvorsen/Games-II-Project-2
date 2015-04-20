@@ -773,7 +773,7 @@ void App::updateScene(float dt) {
 				else
 					xpos =  GAME_WIDTH / 2 + 7 + rand() % 5;
 
-				scenery[i].setPosition(Vector3(xpos, 1, GAME_DEPTH * 1.2));
+				scenery[i].setPosition(Vector3(xpos, 1, GAME_DEPTH * 1.1));
 			}
 			if (scenery[i].getPosition().y < 0)
 				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 1, scenery[i].getVelocity().z));

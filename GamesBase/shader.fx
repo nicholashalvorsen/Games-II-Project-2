@@ -83,11 +83,27 @@ float4 PS(VS_OUT pIn) : SV_Target {
 		litColor = ParallelLight(v, gLight, gEyePosW);
 
 	// Blend the fog color and the lit color.
-	float3 foggedColor;
-	if (playerPos.y > 50 && pIn.posW.y < 50 && pIn.posW.z < 60)
-		foggedColor = lerp(litColor, gFogColor2, pIn.fogLerp);
-	else
-		foggedColor = lerp(litColor, gFogColor, pIn.fogLerp);
+	float3 foggedColor = lerp(litColor, gFogColor, pIn.fogLerp);
+	float3 foggedColor2 = lerp(litColor, gFogColor2, pIn.fogLerp);
+
+	const int layer2Height = 50;
+
+	if (playerPos.y > layer2Height && pIn.posW.z < layer2Height + 10)
+	{
+		foggedColor[0] -= (abs(layer2Height - 1 - playerPos.y) / 10) * (foggedColor[0] - foggedColor2[0]);
+		foggedColor[1] -= (abs(layer2Height - 1 - playerPos.y) / 10) * (foggedColor[1] - foggedColor2[1]);
+		foggedColor[2] -= (abs(layer2Height - 1 - playerPos.y) / 10) * (foggedColor[2] - foggedColor2[2]);
+
+		if (foggedColor[0] < foggedColor2[0])
+			foggedColor[0] = foggedColor2[0];
+
+		if (foggedColor[1] < foggedColor2[1])
+			foggedColor[1] = foggedColor2[1];
+
+		if (foggedColor[2] < foggedColor2[2])
+			foggedColor[2] = foggedColor2[2];
+
+	}
 
     return float4(foggedColor, pIn.diffuse.a);
 }
