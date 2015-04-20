@@ -16,8 +16,8 @@ Global Settings
     Header File = pong.h;
     Exclude Category Names = 0;
     Exclude Variable Names = 0;
-    Last Modified Low = 446865220;
-    Last Modified High = 30439919;
+    Last Modified Low = 2546025500;
+    Last Modified High = 30440193;
 
     Category
     {
@@ -227,10 +227,10 @@ Wave Bank
     Compression Preset Name = <none>;
     Xbox Bank Last Modified Low = 0;
     Xbox Bank Last Modified High = 0;
-    PC Bank Last Modified Low = 36440280;
-    PC Bank Last Modified High = 30439926;
-    Bank Last Revised Low = 4288335112;
-    Bank Last Revised High = 30439925;
+    PC Bank Last Modified Low = 853665427;
+    PC Bank Last Modified High = 30440195;
+    Bank Last Revised Low = 2305113359;
+    Bank Last Revised High = 30440192;
 
     Wave
     {
@@ -315,12 +315,12 @@ Wave Bank
             Sampling Rate = 44100;
             Bits Per Sample = 1;
             Play Region Offset = 44;
-            Play Region Length = 5958400;
+            Play Region Length = 5210588;
             Loop Region Offset = 0;
             Loop Region Length = 0;
             File Type = 1;
-            Last Modified Low = 949540696;
-            Last Modified High = 30439921;
+            Last Modified Low = 825483815;
+            Last Modified High = 30440195;
         }
     }
 
@@ -355,8 +355,8 @@ Sound Bank
     Windows File = Win\MySBank.xsb;
     Xbox Bank Path Edited = 0;
     Windows Bank Path Edited = 0;
-    Bank Last Modified Low = 362258915;
-    Bank Last Modified High = 30439926;
+    Bank Last Modified Low = 2546295515;
+    Bank Last Modified High = 30440193;
     Header Last Modified High = 0;
     Header Last Modified Low = 0;
 

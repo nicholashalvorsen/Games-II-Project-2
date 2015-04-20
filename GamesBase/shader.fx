@@ -15,6 +15,14 @@ cbuffer cbPerObject
 	float4 colorOverride;
 };
 
+cbuffer cbFixed
+{
+	float  gFogStart = 40.0f;
+	float  gFogRange = 40.0f;
+	float3 gFogColor = { 0.8f, 0.8f, 0.8f };
+	float3 gFogColor2 = { 0.15f, 0.15f, 0.15f };
+};
+
 struct VS_IN
 {
 	float3 posL    : POSITION;
@@ -29,7 +37,8 @@ struct VS_OUT
     float3 posW    : POSITION;
     float3 normalW : NORMAL;
     float4 diffuse : DIFFUSE;
-    float4 spec    : SPECULAR;
+	float4 spec    : SPECULAR;
+	float  fogLerp : FOG;
 };
 
 VS_OUT VS(VS_IN vIn) {
@@ -45,6 +54,9 @@ VS_OUT VS(VS_IN vIn) {
 	// Output vertex attributes for interpolation across triangle.
 	vOut.diffuse = colorOverride;
 	vOut.spec    = vIn.spec;
+
+	float d = distance(vOut.posW, gEyePosW);
+	vOut.fogLerp = saturate((d - gFogStart) / gFogRange);
 
 	return vOut;
 }
@@ -69,8 +81,15 @@ float4 PS(VS_OUT pIn) : SV_Target {
 		litColor = Spotlight(v, gLight, gEyePosW);
 	else 
 		litColor = ParallelLight(v, gLight, gEyePosW);
-	   
-    return float4(litColor, pIn.diffuse.a);
+
+	// Blend the fog color and the lit color.
+	float3 foggedColor;
+	if (playerPos.y > 50 && pIn.posW.y < 50 && pIn.posW.z < 60)
+		foggedColor = lerp(litColor, gFogColor2, pIn.fogLerp);
+	else
+		foggedColor = lerp(litColor, gFogColor, pIn.fogLerp);
+
+    return float4(foggedColor, pIn.diffuse.a);
 }
 
 technique10 Tech

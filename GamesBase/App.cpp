@@ -421,7 +421,6 @@ void App::initApp() {
 	std::vector<std::string> menuItems;
 	menuItems.push_back("Play");	// Menu 1
 	menuItems.push_back("Play (easy)");	// Menu 2
-	//menuItems.push_back("Music on/off");	// Menu 3
 	mainMenu->setMenuItems(menuItems);
 
 	//Light
@@ -514,7 +513,12 @@ void App::updateScene(float dt) {
 					audio->stopCue("musicLayer2");
 				}
 				else
-					audio->playCue("music");
+				{
+					if (atLayer != 2)
+						audio->playCue("music");
+					else
+						audio->playCue("musiclayer2");
+				}
 			}
 
 			mPressedLastFrame = false;
@@ -595,7 +599,10 @@ void App::updateScene(float dt) {
 					player.setVelocity(Vector3(0, 27, 0));
 					atLayer = 2;
 					if (!muted)
+					{
+						audio->stopCue("music");
 						audio->playCue("musiclayer2");
+					}
 				} else
 					if (atLayer == 2 && player.collided(&trampObject) || hitTramp) {
                     //fadeText(L"YOU WIN!");
@@ -639,7 +646,10 @@ void App::updateScene(float dt) {
 			fadeText(LAYER_NAMES[atLayer]);
 
 			if (atLayer < 2 && !muted)
+			{
+				audio->playCue("music");
 				audio->stopCue("musiclayer2");
+			}
 		}
 
 		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4 * atLayer + 2)
@@ -931,7 +941,7 @@ void App::drawScene() {
 		D3DApp::drawScene();
 		mClearColor = D3DXCOLOR(107.0f / 255.0f, 123.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 		if (atLayer == 2)
-			mClearColor = D3DXCOLOR(.1, .1, .1, 1);
+			mClearColor = D3DXCOLOR(.15, .15, .15, 1);
 
 		// Restore default states, input layout and primitive topology 
 		// because mFont->DrawText changes them.  Note that we can 

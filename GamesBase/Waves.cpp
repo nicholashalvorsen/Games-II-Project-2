@@ -177,7 +177,7 @@ void Waves::update(float dt)
 		{
 			v[i].pos     = mCurrSolution[i];
 			v[i].diffuse = BLUE;
-			v[i].spec    = D3DXCOLOR(1.0f, 1.0f, 1.0f, 128.0f);
+			v[i].spec    = D3DXCOLOR(0.6f, 0.6f, 0.7f, 0.5f);
 			v[i].normal  = mNormals[i];
 		}
 
