@@ -62,6 +62,7 @@ VS_OUT VS(VS_IN vIn) {
 }
 
 float4 PS(VS_OUT pIn) : SV_Target {
+
 	// Interpolating normal can make it not be of unit length so normalize it.
     pIn.normalW = normalize(pIn.normalW);
 
@@ -90,9 +91,11 @@ float4 PS(VS_OUT pIn) : SV_Target {
 
 	if (playerPos.y > layer2Height && pIn.posW.z < layer2Height + 10)
 	{
-		foggedColor[0] -= (abs(layer2Height - 1 - playerPos.y) / 10) * (foggedColor[0] - foggedColor2[0]);
-		foggedColor[1] -= (abs(layer2Height - 1 - playerPos.y) / 10) * (foggedColor[1] - foggedColor2[1]);
-		foggedColor[2] -= (abs(layer2Height - 1 - playerPos.y) / 10) * (foggedColor[2] - foggedColor2[2]);
+		float dist = abs(layer2Height - 1 - playerPos.y) / 10;
+
+		foggedColor[0] -= dist * (foggedColor[0] - foggedColor2[0]);
+		foggedColor[1] -= dist * (foggedColor[1] - foggedColor2[1]);
+		foggedColor[2] -= dist * (foggedColor[2] - foggedColor2[2]);
 
 		if (foggedColor[0] < foggedColor2[0])
 			foggedColor[0] = foggedColor2[0];

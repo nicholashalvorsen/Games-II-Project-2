@@ -431,7 +431,7 @@ void App::initApp() {
 	mLight.att.y    = 0.0f;
 	mLight.att.z    = 0.0f;
 	mLight.spotPow  = 64.0f;
-	mLight.range    = 10000.0f;
+	mLight.range    = 1000.0f;
 	mLight.pos = Vector3(0.0f, 15.0f, 1.0f);
 	mLight.dir = Vector3(0.0f, -1.0f, 3.0f);
 	
@@ -571,8 +571,6 @@ void App::updateScene(float dt) {
 				pos1.z - scale1.z / 2 > pos2.z - scale2.z&&
 				pos1.z + scale1.z / 2 < pos2.z + scale2.z)
 				hitTramp = true;
-
-
 				
 			if ((!GetAsyncKeyState('B') && bPressedLastFrame) || player.collided(&trampObject) || hitTramp) {
 				if (!muted)
@@ -632,9 +630,7 @@ void App::updateScene(float dt) {
 
 		waves.update(dt);
 		wavesObject.update(dt);
-		if(trampObject.getActiveState()) {
-            trampObject.update(dt);
-        }
+        trampObject.update(dt);
 
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
 		{
@@ -966,19 +962,29 @@ void App::drawScene() {
 			pWings.first.draw(&ri);
 			pWings.second.draw(&ri);
 			player.draw(&ri);
-			wavesObject.draw(&ri);
-	
+
 			for (int i = 0; i < NUM_DIAMONDS; i++)
 				diamonds[i].draw(&ri);
 
-			for (int i = 0; i < NUM_PILLARS; i++)
-				pillars[i].draw(&ri);
+			if (player.getPosition().y < LAYER_HEIGHT[2] - 10)
+			{
+				for (int i = 0; i < NUM_PILLARS; i++)
+					pillars[i].draw(&ri);
+				
+				wavesObject.draw(&ri);
+			}
 
-			for (int i = 0; i < NUM_CLOUDS; i++)
-				clouds[i].draw(&ri);
+			if (atLayer > 0)
+			{
+				for (int i = 0; i < NUM_CLOUDS; i++)
+					clouds[i].draw(&ri);
+			}
 
-			for (int i = 0; i < NUM_PLANETS; i++)
-				planets[i].draw(&ri);
+			if (atLayer == 2)
+			{
+				for (int i = 0; i < NUM_PLANETS; i++)
+					planets[i].draw(&ri);
+			}
 
 			beginningPlatform.draw(&ri);
 
@@ -991,16 +997,16 @@ void App::drawScene() {
 			simpleCliff.draw(&ri);
             simpleLeftCliff.draw(&ri);
             simpleRightCliff.draw(&ri);
+
 			if(trampObject.getActiveState()) {
 				trampObject.draw(&ri);
 			}
-
 
 			if (atLayer >= 2)
 				for (int i = 0; i < NUM_STARS; i++)
 					stars[i].draw(&ri);
 
-			std::wostringstream po;
+		std::wostringstream po;
 		std::wstring pt;
 		po << "Points: " << points;
 		pt.clear();
@@ -1086,10 +1092,10 @@ void App::drawScene() {
 
 	}
 	
-	/*
+	
 	RECT R1 = {200, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
-
+	/*
 	std::wostringstream outs;
 	std::wstring debugText;
 	outs.precision(3);
