@@ -528,8 +528,10 @@ void App::updateScene(float dt) {
 				{
 					if (atLayer < 2)
 						audio->playCue("music");
-					else
+					else if (atLayer == 2)
 						audio->playCue("musiclayer2");
+					else if (atLayer == 3)
+						audio->playCue("musiclayer3");
 				}
 			}
 
@@ -653,7 +655,12 @@ void App::updateScene(float dt) {
 		if (atLayer == 0 && player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && submarine)
 		{
 			if (!muted)
+			{
+				audio->stopCue("music");
+				audio->playCue("musiclayer3");
+				audio->playCue("splash");
 				audio->playCue("whoosh");
+			}
 
 			atLayer = 3;
 			fadeText(LAYER_NAMES[atLayer]);
@@ -846,64 +853,45 @@ void App::updateScene(float dt) {
 				}
 			}
 
-		if (atLayer == 0)
-		{
-			for (int i = 0; i < NUM_PILLARS; i++)
-			{
-				if (player.collided(&pillars[i]))
-				{
-					if (abs((oldPlayerPosition.y - player.getScale().y / 2) + .1 > pillars[i].getPosition().y + pillars[i].getScale().y / 2))
-					{
-						player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
-						player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
-						points += 10;
-					}
-				}
-			}
-		}
-		if (atLayer == 1)
-		{
-			for (int i = 0; i < NUM_CLOUDS; i++)
-			{
+		bool playerBounced = false;
 
+		if (atLayer == 0)
+			for (int i = 0; i < NUM_PILLARS; i++)
+				if (player.collided(&pillars[i]))
+					if (abs((oldPlayerPosition.y - player.getScale().y / 2) + .1 > pillars[i].getPosition().y + pillars[i].getScale().y / 2))
+						playerBounced = true;
+
+		if (atLayer == 1)
+			for (int i = 0; i < NUM_CLOUDS; i++)
 				if (player.collided(&clouds[i]))
-				{
-					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
-					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
-					points += 20;
-				}
-			}
-		}
+					playerBounced = true;
+
 		if (atLayer == 2)
-		{
 			for (int i = 0; i < NUM_PLANETS; i++)
-			{
 				if (player.collided(&planets[i]))
-				{
-					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
-					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
-					points += 40;
-				}
-			}
-		}
+					playerBounced = true;
+
 		if (atLayer == 3)
-		{
 			for (int i = 0; i < NUM_ROCKS; i++)
-			{
 				if (player.collided(&rocks[i]))
-				{
-					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
-					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
-					points += 60;
-				}
-			}
-		}
+					playerBounced = true;
 
 		if (player.collided(&beginningPlatform))
+			playerBounced = true;
+
+		if (playerBounced)
 		{
 			player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 			player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
-
+			points += 10 * (atLayer + 1);
+			if (!muted)
+			{
+				int randAudio = rand() % 2;
+				if (randAudio == 0)
+					audio->playCue("bounce");
+				else
+					audio->playCue("bounce2");
+			}
 		}
 
 		/* don't let the player go too fast */
@@ -1202,7 +1190,10 @@ void App::updateGameState(float dt) {
 			if (!submarine)
 			{
 				if (!muted)
+				{
 					audio->playCue("splash");
+					audio->playCue("death");
+				}
 				gameState = GAME_OVER;
 				player.setPosition(Vector3(player.getPosition().x, -1000, player.getPosition().z));
 				player.update(dt);
@@ -1210,6 +1201,9 @@ void App::updateGameState(float dt) {
 		}
 		if (player.getPosition().y + player.getScale().y / 2 < LAYER_HEIGHT[3] - 5)
 		{
+			if (!muted)
+				audio->playCue("death");
+
 			gameState = GAME_OVER;
 		}
 		break;
