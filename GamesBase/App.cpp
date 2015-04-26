@@ -78,9 +78,9 @@ private:
 	Object simpleCliff;
     Object simpleLeftCliff;
     Object simpleRightCliff;
-
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
+	Object rocks[NUM_PLANETS];
 
 	//Objects
 	Axis axis;
@@ -127,6 +127,7 @@ private:
 	bool bPressedLastFrame;
 	bool mPressedLastFrame;
 	bool muted;
+	bool submarine;
 
 	int points;
 };
@@ -174,6 +175,7 @@ void App::initApp() {
 	gameWon = false;
 	bPressedLastFrame = false;
 	mPressedLastFrame = false;
+	submarine = false;
 
 	muted = false;
 	audio = new Audio();
@@ -347,6 +349,14 @@ void App::initApp() {
 		planets[i].setColor(1, 1, 1, 1);
 	}
 
+	for (int i = 0; i < NUM_ROCKS; i++)
+	{
+		rocks[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_ROCKS*i));
+		rocks[i].setScale(Vector3(ROCK_SIZE, 1, ROCK_SIZE));
+		rocks[i].setVelocity(Vector3(ROCK_X_SPEED, 0, ROCK_SPEED));
+		rocks[i].setColor(.4, .4, .4, 1);
+	}
+
 	for (int i = 0; i < NUM_SCENERY; i++)
 	{
 		int lr = rand() % 2;
@@ -465,7 +475,7 @@ void App::onResize() {
 void App::updateScene(float dt) {
 	D3DApp::updateScene(dt);
 	updateGameState(dt);
-	if(elapsedTime >= 30.0f) {
+	if(elapsedTime >= 00.0f) {
         trampObject.setActive();
     } else {
         trampObject.setInActive();
@@ -499,6 +509,8 @@ void App::updateScene(float dt) {
 		}*/
 
 		if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
+		
+		if (GetAsyncKeyState('P')) submarine = true;
 
 		if (GetAsyncKeyState('M'))
 			mPressedLastFrame = true;
@@ -514,7 +526,7 @@ void App::updateScene(float dt) {
 				}
 				else
 				{
-					if (atLayer != 2)
+					if (atLayer < 2)
 						audio->playCue("music");
 					else
 						audio->playCue("musiclayer2");
@@ -563,12 +575,12 @@ void App::updateScene(float dt) {
 			Vector3 pos1 = player.getPosition();
 			Vector3 scale1 = player.getScale();
 			Vector3 pos2 = trampObject.getPosition();
-			Vector3 scale2 = trampObject.getScale();
+			Vector3 scale2 = trampObject.getScale() * 2.5;
 			if (pos1.x + scale1.x / 2 > pos2.x - scale2.x &&
 				pos1.x - scale1.x / 2 < pos2.x + scale2.x &&
 				pos1.y + scale1.y / 2 > pos2.y - scale2.y / 2 &&
 				pos1.y - scale1.y / 2 < pos2.y + scale2.y / 2 &&
-				pos1.z - scale1.z / 2 > pos2.z - scale2.z&&
+				pos1.z - scale1.z / 2 > pos2.z - scale2.z &&
 				pos1.z + scale1.z / 2 < pos2.z + scale2.z)
 				hitTramp = true;
 				
@@ -587,7 +599,7 @@ void App::updateScene(float dt) {
 					player.setVelocity(Vector3(0, 18, 0));
 					atLayer = 1;
 				} else
-				if (atLayer == 1 /*&& player.getPosition().y > LAYER_HEIGHT[1]*/)
+				if (atLayer == 1)
 				{
 					fadeText(LAYER_NAMES[2]);
 					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
@@ -602,10 +614,16 @@ void App::updateScene(float dt) {
 						audio->playCue("musiclayer2");
 					}
 				} else
-					if (atLayer == 2 && player.collided(&trampObject) || hitTramp) {
-                    //fadeText(L"YOU WIN!");
+					if (atLayer == 2) {
+					submarine = true;
+					trampObject.setInActive();
+					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+					trampObject.setPosition(Vector3(x, LAYER_HEIGHT[3] + 2, GAME_DEPTH));
+					//gameWon = true;
+                } else
+					if (atLayer == 3 && player.collided(&trampObject) || hitTramp) {
 					gameWon = true;
-                }
+				}
 
 			}
 
@@ -632,7 +650,16 @@ void App::updateScene(float dt) {
 		wavesObject.update(dt);
         trampObject.update(dt);
 
-		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0)
+		if (atLayer == 0 && player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && submarine)
+		{
+			if (!muted)
+				audio->playCue("whoosh");
+
+			atLayer = 3;
+			fadeText(LAYER_NAMES[atLayer]);
+		}
+
+		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0 && atLayer != 3)
 		{
 			atLayer--;
 
@@ -641,24 +668,24 @@ void App::updateScene(float dt) {
 
 			fadeText(LAYER_NAMES[atLayer]);
 
-			if (atLayer < 2 && !muted)
+			if (atLayer == 1 && !muted)
 			{
 				audio->playCue("music");
 				audio->stopCue("musiclayer2");
 			}
 		}
 
-		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4 * atLayer + 2)
+		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4)
 			cameraYBoost += CAMERA_MOVE_SPEED * dt;	
 
-		if (cameraZBoost < 10 && atLayer >= 1)
-			cameraZBoost += CAMERA_MOVE_SPEED * dt;
+		//if (cameraZBoost < 10 && atLayer >= 1)
+		//	cameraZBoost += CAMERA_MOVE_SPEED * dt;
 
-		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 4 * atLayer - 2)
+		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 4)
 			cameraYBoost -= CAMERA_MOVE_SPEED * dt;
 
-		if (cameraZBoost > 0 && atLayer < 1)
-			cameraZBoost -= CAMERA_MOVE_SPEED * dt;
+		//if (cameraZBoost > 0 && atLayer < 1)
+		//	cameraZBoost -= CAMERA_MOVE_SPEED * dt;
 			
 
 		beginningPlatform.update(dt);
@@ -709,24 +736,23 @@ void App::updateScene(float dt) {
 
 			pillars[i].update(dt);
 
-			if (pillars[i].getPosition().z < -GAME_BEHIND_DEPTH)
+			if (pillars[i].getPosition().z < -GAME_BEHIND_DEPTH && !submarine)
 			{
 				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 				pillars[i].setPosition(Vector3(x, 0 - PILLAR_HEIGHT_START, GAME_DEPTH));
-				//pillars[i].setScale(Vector3(pillars[i].getScale().x * 0.9f, pillars[i].getScale().y *1.15f, pillars[i].getScale().z *.9f));
 			}
-			if(trampObject.getPosition().z < -GAME_BEHIND_DEPTH) {
-                int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
-                trampObject.setPosition(Vector3(x, LAYER_HEIGHT[atLayer] + 2, GAME_DEPTH));
-            }
+		}
 
+		if (trampObject.getPosition().z < -GAME_BEHIND_DEPTH) {
+			int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+			trampObject.setPosition(Vector3(x, LAYER_HEIGHT[atLayer] + 2, GAME_DEPTH));
 		}
 
 		for (int i = 0; i < NUM_CLOUDS; i++)
 		{
 			clouds[i].update(dt);
 
-			if (clouds[i].getPosition().z < -GAME_BEHIND_DEPTH)
+			if (clouds[i].getPosition().z < -GAME_BEHIND_DEPTH && !submarine)
 			{
 				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 				clouds[i].setPosition(Vector3(x - CLOUD_X_SPEED * 5, LAYER_HEIGHT[1], GAME_DEPTH));
@@ -737,7 +763,7 @@ void App::updateScene(float dt) {
 		{
 			planets[i].update(dt);
 
-			if (planets[i].getPosition().z < -GAME_BEHIND_DEPTH)
+			if (planets[i].getPosition().z < -GAME_BEHIND_DEPTH && !submarine)
 			{
 				int r = rand() % 2;
 
@@ -753,6 +779,17 @@ void App::updateScene(float dt) {
 					planets[i].setPosition(Vector3(x + PLANET_X_SPEED * 5, LAYER_HEIGHT[2], GAME_DEPTH));
 					planets[i].setVelocity(Vector3(-PLANET_X_SPEED, 0, planets[i].getVelocity().z));
 				}
+			}
+		}
+
+		for (int i = 0; i < NUM_ROCKS; i++)
+		{
+			rocks[i].update(dt);
+
+			if (rocks[i].getPosition().z < -GAME_BEHIND_DEPTH)
+			{
+				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
+				rocks[i].setPosition(Vector3(x - ROCK_X_SPEED * 5, LAYER_HEIGHT[3], GAME_DEPTH));
 			}
 		}
 
@@ -785,19 +822,18 @@ void App::updateScene(float dt) {
         simpleRightCliff.update(dt);
 
 
-
 		for (int i = 0; i < NUM_STARS; i++)
 		{
 			stars[i].update(dt);
 		}
 
 		/* bottom collision, temp */ 
-		if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
-		{
-			player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+		//if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
+		//{
+		//	player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 
-			player.setPosition(oldPlayerPosition);
-		}
+		//	player.setPosition(oldPlayerPosition);
+		//}
 
 		// collision
 		for (int i = 0; i < NUM_DIAMONDS; i++)
@@ -847,6 +883,18 @@ void App::updateScene(float dt) {
 					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 					points += 40;
+				}
+			}
+		}
+		if (atLayer == 3)
+		{
+			for (int i = 0; i < NUM_ROCKS; i++)
+			{
+				if (player.collided(&rocks[i]))
+				{
+					player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
+					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
+					points += 60;
 				}
 			}
 		}
@@ -900,8 +948,18 @@ void App::updateScene(float dt) {
 		}*/
 		//D3DXVECTOR3 target(player.getPosition());
 
-		D3DXVECTOR3 target(/*player.getPosition() + */Vector3(0.0f, 0.0f+cameraYBoost*.7, 0.0f+cameraZBoost*atLayer));
-		D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
+
+		//D3DXVECTOR3 target(Vector3(0.0f, 0.0f + cameraYBoost*.7, 0.0f + cameraZBoost*atLayer));
+		D3DXVECTOR3 up(0, 1, 0);
+
+		mEyePos.x = player.getPosition().x;
+		mEyePos.y = cameraYBoost + 5;
+		mEyePos.z = player.getPosition().z - 8;
+
+		D3DXVECTOR3 target;
+		target.x = player.getPosition().x;
+		target.y = cameraYBoost - 5;
+		target.z = player.getPosition().z + 10;
 
 		if (fadeTextActive)
 		{
@@ -959,52 +1017,57 @@ void App::drawScene() {
 		
 
 		//Draw objects
-			pWings.first.draw(&ri);
-			pWings.second.draw(&ri);
-			player.draw(&ri);
+		pWings.first.draw(&ri);
+		pWings.second.draw(&ri);
+		player.draw(&ri);
 
-			for (int i = 0; i < NUM_DIAMONDS; i++)
-				diamonds[i].draw(&ri);
+		for (int i = 0; i < NUM_DIAMONDS; i++)
+			diamonds[i].draw(&ri);
 
-			if (player.getPosition().y < LAYER_HEIGHT[2] - 10)
-			{
-				for (int i = 0; i < NUM_PILLARS; i++)
-					pillars[i].draw(&ri);
+		if (player.getPosition().y < LAYER_HEIGHT[2])
+		{
+			for (int i = 0; i < NUM_PILLARS; i++)
+				pillars[i].draw(&ri);
 				
-				wavesObject.draw(&ri);
-			}
-
-			if (atLayer > 0)
-			{
-				for (int i = 0; i < NUM_CLOUDS; i++)
-					clouds[i].draw(&ri);
-			}
-
-			if (atLayer == 2)
-			{
-				for (int i = 0; i < NUM_PLANETS; i++)
-					planets[i].draw(&ri);
-			}
-
-			beginningPlatform.draw(&ri);
-
-			for (int i = 0; i < NUM_SCENERY; i++)
-				scenery[i].draw(&ri);
-		
-			//for (int i = 0; i < NUM_CLIFFS; i++)
-				//cliffs[i].draw(&ri);
+			wavesObject.draw(&ri);
 
 			simpleCliff.draw(&ri);
-            simpleLeftCliff.draw(&ri);
-            simpleRightCliff.draw(&ri);
+			simpleLeftCliff.draw(&ri);
+			simpleRightCliff.draw(&ri);
+		}
 
-			if(trampObject.getActiveState()) {
-				trampObject.draw(&ri);
-			}
+		if (atLayer > 0 && atLayer < 3)
+		{
+			for (int i = 0; i < NUM_CLOUDS; i++)
+				clouds[i].draw(&ri);
+		}
 
-			if (atLayer >= 2)
-				for (int i = 0; i < NUM_STARS; i++)
-					stars[i].draw(&ri);
+		if (atLayer == 2)
+		{
+			for (int i = 0; i < NUM_PLANETS; i++)
+				planets[i].draw(&ri);
+		}
+
+		if (atLayer == 3)
+		{
+			for (int i = 0; i < NUM_ROCKS; i++)
+				rocks[i].draw(&ri);
+		}
+
+		beginningPlatform.draw(&ri);
+
+		for (int i = 0; i < NUM_SCENERY; i++)
+			scenery[i].draw(&ri);
+		
+		//for (int i = 0; i < NUM_CLIFFS; i++)
+			//cliffs[i].draw(&ri);
+
+
+		trampObject.draw(&ri);
+
+		if (atLayer == 2)
+			for (int i = 0; i < NUM_STARS; i++)
+				stars[i].draw(&ri);
 
 		std::wostringstream po;
 		std::wstring pt;
@@ -1095,8 +1158,8 @@ void App::drawScene() {
 	
 	RECT R1 = {200, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
-	/*
-	std::wostringstream outs;
+	
+	/*std::wostringstream outs;
 	std::wstring debugText;
 	outs.precision(3);
 	outs << "Controls:\n"
@@ -1135,12 +1198,19 @@ void App::updateGameState(float dt) {
 		break;
 	case LEVEL1:
 	case LEVEL2:
-		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y) {
-			if (!muted)
-				audio->playCue("splash");
+		if(player.getPosition().y + player.getScale().y / 2 < wavesObject.getPosition().y - 1) {
+			if (!submarine)
+			{
+				if (!muted)
+					audio->playCue("splash");
+				gameState = GAME_OVER;
+				player.setPosition(Vector3(player.getPosition().x, -1000, player.getPosition().z));
+				player.update(dt);
+			}
+		}
+		if (player.getPosition().y + player.getScale().y / 2 < LAYER_HEIGHT[3] - 5)
+		{
 			gameState = GAME_OVER;
-			player.setPosition(Vector3(0, -1000, 0));
-			player.update(dt);
 		}
 		break;
 	}
@@ -1199,7 +1269,6 @@ void App::fadeText(std::wstring msg)
 	fadeTextCurrentDuration = 0;
 	fadeTextOpacity = 0;
 }
-
 
 void App::setEasyMode()
 {

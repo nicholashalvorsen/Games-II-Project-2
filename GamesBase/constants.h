@@ -28,7 +28,7 @@ const float CLIFF_HEIGHT = 10;
 const float CLIFF_WIDTH = 3.9;
 
 const float GRAVITY = - 8;
-const float Y_VELOCITY_LIMIT = -6;
+const float Y_VELOCITY_LIMIT = -7;
 // not used currently
 const float PLAYER_ROTATE_SPEED = 3;
 const float PLAYER_THRUST = 20;
@@ -58,13 +58,18 @@ const float PLANET_SPEED = -6;
 const float PLANET_X_SPEED = 1;
 const float PLANET_SIZE = 2.5;
 
+const int NUM_ROCKS = 15;
+const float ROCK_SPEED = -2;
+const float ROCK_X_SPEED = 0;
+const float ROCK_SIZE = 3;
+
 const int SEA_SIZE = 150;
 const float WATER_RISE_SPEED = 0;
 
 const float CAMERA_MOVE_SPEED = 20;
 
-const float LAYER_HEIGHT[3] = {0, 20, 60};
-const std::wstring LAYER_NAMES[3] = {L"S H I P W R E C K", L"S K Y L I N E", L"S P A C E"};
+const float LAYER_HEIGHT[4] = {0, 20, 60, -20};
+const std::wstring LAYER_NAMES[4] = {L"S H I P W R E C K", L"S K Y L I N E", L"S P A C E", L"U N D E R W A T E R"};
 
 const int MENU_OFFSET = 125;
 
