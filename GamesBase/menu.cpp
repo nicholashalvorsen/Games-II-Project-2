@@ -5,6 +5,7 @@ Menu* Menu::activeMenu;
 int Menu::menuState;
 int Menu::lastMenuState;
 
+
 // http://stackoverflow.com/questions/27220/how-to-convert-stdstring-to-lpcwstr-in-c-unicode
 std::wstring s2ws(const std::string& s)
 {

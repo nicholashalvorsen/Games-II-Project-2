@@ -111,6 +111,7 @@ private:
 	Menu* mainMenu;
 	bool activeMenu;
 	bool easyMode;
+	bool underwaterShader;
 
 	std::uniform_real_distribution<float> randomScaleDistribution;
 	std::mt19937 generator;
@@ -176,6 +177,7 @@ void App::initApp() {
 	bPressedLastFrame = false;
 	mPressedLastFrame = false;
 	submarine = false;
+	underwaterShader = false;
 
 	muted = false;
 	audio = new Audio();
@@ -617,12 +619,15 @@ void App::updateScene(float dt) {
 					}
 				} else
 					if (atLayer == 2) {
+					underwaterShader = true;
+					buildFX();
 					submarine = true;
 					trampObject.setInActive();
 					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 					trampObject.setPosition(Vector3(x, LAYER_HEIGHT[3] + 2, GAME_DEPTH));
 					//gameWon = true;
                 } else
+					
 					if (atLayer == 3 && player.collided(&trampObject) || hitTramp) {
 					gameWon = true;
 				}
@@ -1219,7 +1224,16 @@ void App::buildFX() {
  
 	ID3D10Blob* compilationErrors = 0;
 	HRESULT hr = 0;
-	hr = D3DX10CreateEffectFromFile(L"shader.fx", 0, 0, "fx_4_0", shaderFlags, 0, md3dDevice, 0, 0, &mFX, &compilationErrors, 0);
+
+	if(underwaterShader == true)
+	{
+		hr = D3DX10CreateEffectFromFile(L"underwaterShader.fx", 0, 0, "fx_4_0", shaderFlags, 0, md3dDevice, 0, 0, &mFX, &compilationErrors, 0);
+	}
+	else
+	{
+		hr = D3DX10CreateEffectFromFile(L"shader.fx", 0, 0, "fx_4_0", shaderFlags, 0, md3dDevice, 0, 0, &mFX, &compilationErrors, 0);
+	}
+
 	if(FAILED(hr)) {
 		if( compilationErrors ) {
 			MessageBoxA(0, (char*)compilationErrors->GetBufferPointer(), 0, 0);
