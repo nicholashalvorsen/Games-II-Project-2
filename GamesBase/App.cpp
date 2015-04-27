@@ -619,13 +619,10 @@ void App::updateScene(float dt) {
 					}
 				} else
 					if (atLayer == 2) {
-					underwaterShader = true;
-					buildFX();
 					submarine = true;
 					trampObject.setInActive();
 					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 					trampObject.setPosition(Vector3(x, LAYER_HEIGHT[3] + 2, GAME_DEPTH));
-					//gameWon = true;
                 } else
 					
 					if (atLayer == 3 && player.collided(&trampObject) || hitTramp) {
@@ -668,11 +665,15 @@ void App::updateScene(float dt) {
 			}
 
 			atLayer = 3;
+			underwaterShader = true;
+			buildFX();
 			fadeText(LAYER_NAMES[atLayer]);
 		}
 
 		if (player.getPosition().y < LAYER_HEIGHT[atLayer] - 2 && player.getVelocity().y < 0 && atLayer != 0 && atLayer != 3)
 		{
+			underwaterShader = false;
+			buildFX();
 			atLayer--;
 
 			if (!muted)
