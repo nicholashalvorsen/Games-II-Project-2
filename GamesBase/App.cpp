@@ -80,7 +80,7 @@ private:
     Object simpleRightCliff;
 	Object planets[NUM_PLANETS];
 	Object stars[NUM_STARS];
-	Object rocks[NUM_PLANETS];
+	Object rocks[NUM_ROCKS];
 
 	//Objects
 	Axis axis;
@@ -353,7 +353,7 @@ void App::initApp() {
 
 	for (int i = 0; i < NUM_ROCKS; i++)
 	{
-		rocks[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_ROCKS*i));
+		rocks[i].init(&pillarBox, Vector3(0, LAYER_HEIGHT[3], 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_ROCKS*i));
 		rocks[i].setScale(Vector3(ROCK_SIZE, 1, ROCK_SIZE));
 		rocks[i].setVelocity(Vector3(ROCK_X_SPEED, 0, ROCK_SPEED));
 		rocks[i].setColor(.4, .4, .4, 1);
@@ -677,7 +677,9 @@ void App::updateScene(float dt) {
 			atLayer--;
 
 			if (!muted)
+			{
 				audio->playCue("whoosh");
+			}
 
 			fadeText(LAYER_NAMES[atLayer]);
 
@@ -798,11 +800,26 @@ void App::updateScene(float dt) {
 		for (int i = 0; i < NUM_ROCKS; i++)
 		{
 			rocks[i].update(dt);
+			rocks[i].setRotation(rocks[i].getRotation() + Vector3(0, 0.1 * i/2 * dt, 0));
 
 			if (rocks[i].getPosition().z < -GAME_BEHIND_DEPTH)
 			{
-				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
-				rocks[i].setPosition(Vector3(x - ROCK_X_SPEED * 5, LAYER_HEIGHT[3], GAME_DEPTH));
+				int r = rand() % 2;
+
+				int x = rand() % ROCKS_WIDTH - ROCKS_WIDTH / 2;
+
+				if (r == 0)
+				{
+					rocks[i].setPosition(Vector3(x - ROCK_X_SPEED * 5, LAYER_HEIGHT[3], GAME_DEPTH));
+					rocks[i].setVelocity(Vector3(ROCK_X_SPEED, 0, rocks[i].getVelocity().z));
+				}
+				else
+				{
+					rocks[i].setPosition(Vector3(x + ROCK_X_SPEED * 5, LAYER_HEIGHT[3], GAME_DEPTH));
+					rocks[i].setVelocity(Vector3(-ROCK_X_SPEED, 0, rocks[i].getVelocity().z));
+				}
+
+
 			}
 		}
 
@@ -902,7 +919,7 @@ void App::updateScene(float dt) {
 
 		/* don't let the player go too fast */
 
-		if (player.getVelocity().y < Y_VELOCITY_LIMIT && !player.diving)
+		if (player.getVelocity().y < Y_VELOCITY_LIMIT && !player.diving && atLayer != 3 || (player.getVelocity().y < Y_VELOCITY_LIMIT / 3 && !player.diving && atLayer == 3))
 			player.setVelocity(Vector3(player.getVelocity().x, player.getVelocity().y * .99, player.getVelocity().z));
 			
 

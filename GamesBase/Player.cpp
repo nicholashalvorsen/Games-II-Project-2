@@ -18,11 +18,21 @@ void Player::draw(RenderInfo* ri) {
 }
 
 void Player::update(float dt) {
-	setVelocity(getVelocity() + Vector3(0, GRAVITY * dt, 0));
+
+	float playerGravity = GRAVITY;
+	float playerGlide = PLAYER_GLIDE_DROP;
+
+	if (getPosition().y < 0)
+	{
+		playerGlide = PLAYER_GLIDE_DROP * .65;
+		playerGravity = GRAVITY * .65;
+	}
+
+	setVelocity(getVelocity() + Vector3(0, playerGravity * dt, 0));
 	setVelocity(Vector3(getVelocity().x * .99992, getVelocity().y, getVelocity().z));
 
-	if (gliding && getVelocity().y < PLAYER_GLIDE_DROP)
-		setVelocity(getVelocity() + Vector3(0, GRAVITY * -1.5 * dt, 0));
+	if (gliding && getVelocity().y < playerGlide)
+		setVelocity(getVelocity() + Vector3(0, playerGravity * -1.5 * dt, 0));
 	
 	if (diving && getVelocity().y < PLAYER_BOUNCE_FORCE * .5)
 		setVelocity(getVelocity() + Vector3(0, PLAYER_DIVE_SPEED * dt, 0));
