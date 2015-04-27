@@ -283,7 +283,7 @@ void App::initApp() {
 
 	//Objects
 	axis.init(&line);
-	player.init(&box, Vector3(0, 0, 0));
+	player.init(&box, Vector3(0, 3, 0));
 	//player.setColor(0.5f, 0.9f, 0.4f, 1.0f);
 	player.setColor(0, 0, 0, 1);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
