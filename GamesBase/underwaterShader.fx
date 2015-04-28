@@ -108,7 +108,7 @@ float4 PS(VS_OUT pIn) : SV_Target {
 
 	}
 	
-	//if(underwaterShader == true) foggedColor[2] = 0.7;
+	foggedColor[2] = 0.7;
 
     return float4(foggedColor, pIn.diffuse.a);
 }

@@ -16,8 +16,8 @@ Global Settings
     Header File = pong.h;
     Exclude Category Names = 0;
     Exclude Variable Names = 0;
-    Last Modified Low = 4162712807;
-    Last Modified High = 30441405;
+    Last Modified Low = 1502014746;
+    Last Modified High = 30441623;
 
     Category
     {
@@ -449,6 +449,8 @@ Sound Bank
     Windows File = Win\MySBank.xsb;
     Xbox Bank Path Edited = 0;
     Windows Bank Path Edited = 0;
+    Bank Last Modified Low = 1734518045;
+    Bank Last Modified High = 30441623;
     Header Last Modified High = 0;
     Header Last Modified Low = 0;
 
@@ -645,7 +647,7 @@ Sound Bank
     Sound
     {
         Name = whoosh;
-        Volume = 0;
+        Volume = -800;
         Pitch = 0;
         Priority = 0;
 
@@ -764,7 +766,7 @@ Sound Bank
     Sound
     {
         Name = bounce;
-        Volume = -1200;
+        Volume = -500;
         Pitch = 0;
         Priority = 0;
 
@@ -811,7 +813,7 @@ Sound Bank
     Sound
     {
         Name = bounce2;
-        Volume = -1200;
+        Volume = -500;
         Pitch = 0;
         Priority = 0;
 

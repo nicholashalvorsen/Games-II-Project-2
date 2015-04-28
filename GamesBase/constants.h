@@ -58,10 +58,11 @@ const float PLANET_SPEED = -6;
 const float PLANET_X_SPEED = 1;
 const float PLANET_SIZE = 2.5;
 
-const int NUM_ROCKS = 15;
+const int NUM_ROCKS = 10;
 const float ROCK_SPEED = -2;
-const float ROCK_X_SPEED = 0;
+const float ROCK_X_SPEED = 1;
 const float ROCK_SIZE = 3;
+const int ROCKS_WIDTH = GAME_WIDTH * 3;
 
 const int SEA_SIZE = 150;
 const float WATER_RISE_SPEED = 0;
