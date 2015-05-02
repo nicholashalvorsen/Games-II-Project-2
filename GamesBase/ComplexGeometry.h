@@ -64,14 +64,14 @@ public:
 		children.push_back(c);
 	}
 
-	void draw(RenderInfo* ri, Matrix world, Vector4 color) {
-		base->draw(ri, world, color);
+	void draw(RenderInfo* ri, Matrix world, Vector4 color = Vector4(0, 0, 0, 1), Vector4 spec = Vector4(0, 0, 0, 0)) {
+		base->draw(ri, world, color, spec);
 		for (Child c : children) {
 			Matrix nw = c.m * world;
 			if (c.hasColor)
-				c.g->draw(ri, nw, c.c);
+				c.g->draw(ri, nw, c.c, spec);
 			else
-				c.g->draw(ri, nw, color);
+				c.g->draw(ri, nw, color, spec);
 		}
 	}
 
@@ -79,7 +79,7 @@ public:
 
 	void update(int animation, float time, float dt) {
 		if (time == 0) return;
-		for (int i = 0; i < children.size(); i++) {
+		for (unsigned i = 0; i < children.size(); i++) {
 			Child c = children[i];
 
 			if (c.animation == 0) continue;
@@ -110,7 +110,7 @@ public:
 	}
 
 	void setInitialState(int animation) {
-		for (int i = 0; i < children.size(); i++) {
+		for (unsigned i = 0; i < children.size(); i++) {
 			Child c = children[i];
 			Animation ani = c.animation->getAnimation(animation);
 			c.rotate = ani.Srotate;

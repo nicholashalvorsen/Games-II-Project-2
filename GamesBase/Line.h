@@ -15,13 +15,13 @@ public:
 		ReleaseCOM(mIB);
 	}
 
-	void init(ID3D10Device* device, D3DXCOLOR c) {
+	void init(ID3D10Device* device) {
 		md3dDevice = device;
 		mNumVertices = 2;
 
 		Vertex vertices[] = {
-			{D3DXVECTOR3(0.0f, 0.0f, 0.0f), c},
-			{D3DXVECTOR3(1.0f, 0.0f, 0.0f), c}};
+			{D3DXVECTOR3(0.0f, 0.0f, 0.0f)},
+			{D3DXVECTOR3(1.0f, 0.0f, 0.0f)}};
 
 		D3D10_BUFFER_DESC vbd;
 		vbd.Usage = D3D10_USAGE_IMMUTABLE;
@@ -34,11 +34,12 @@ public:
 		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));
 	}
 
-	void draw(RenderInfo* ri, Matrix world, Vector4 color) {
+	void draw(RenderInfo* ri, Matrix world, Vector4 color = Vector4(0, 0, 0, 1), Vector4 spec = Vector4(0, 0, 0, 0)) {
 		Matrix mWVP = world * ri->mView * ri->mProj;
 		ri->mfxWVPVar->SetMatrix((float*)&mWVP);
 		ri->mfxWorldVar->SetMatrix((float*)&world);
 		ri->mfxColorVar->SetFloatVectorArray(color, 0, 4);
+		ri->mfxSpecVar->SetFloatVectorArray(spec, 0, 4);
 		D3D10_TECHNIQUE_DESC techDesc;
 		ri->mTech->GetDesc( &techDesc );
 		for(UINT p = 0; p < techDesc.Passes; ++p) {

@@ -47,9 +47,9 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mFont               = 0;
 	mFont2               = 0;
 
-	mMainWndCaption = L"Game 1";
+	mMainWndCaption = L"D3D10 Application";
 	md3dDriverType  = D3D10_DRIVER_TYPE_HARDWARE;
-	mClearColor     = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+	mClearColor     = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
 	mClientWidth    = 800;
 	mClientHeight   = 600;
 }
@@ -111,7 +111,7 @@ void D3DApp::initApp()
 	initDirect3D();
 
 	D3DX10_FONT_DESC fontDesc;
-	fontDesc.Height          = 20;
+	fontDesc.Height          = 24;
     fontDesc.Width           = 0;
     fontDesc.Weight          = 0;
     fontDesc.MipLevels       = 1;
@@ -120,8 +120,8 @@ void D3DApp::initApp()
     fontDesc.OutputPrecision = OUT_DEFAULT_PRECIS;
     fontDesc.Quality         = DEFAULT_QUALITY;
     fontDesc.PitchAndFamily  = DEFAULT_PITCH | FF_DONTCARE;
-    wcscpy_s(fontDesc.FaceName, L"Tahoma");
-	
+    wcscpy_s(fontDesc.FaceName, L"Times New Roman");
+
 	D3DX10CreateFontIndirect(md3dDevice, &fontDesc, &mFont);
 
 	D3DX10_FONT_DESC fontDesc2;
@@ -137,6 +137,9 @@ void D3DApp::initApp()
     wcscpy_s(fontDesc2.FaceName, L"Batang");
 
 	D3DX10CreateFontIndirect(md3dDevice, &fontDesc2, &mFont2);  
+
+	audio = new Audio();
+	audio->initialize();
 }
  
 void D3DApp::onResize()
@@ -411,9 +414,9 @@ void D3DApp::initDirect3D()
 	// Create the device.
 
 	UINT createDeviceFlags = 0;
-//#if defined(DEBUG) || defined(_DEBUG)  
-//    createDeviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
-//#endif
+#if defined(DEBUG) || defined(_DEBUG)  
+    createDeviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
+#endif
 
 	HR( D3D10CreateDeviceAndSwapChain(
 			0,                 //default adapter

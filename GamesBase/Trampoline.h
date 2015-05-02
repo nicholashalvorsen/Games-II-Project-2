@@ -13,7 +13,7 @@ public:
 		ReleaseCOM(mIB);
 	}
 
-	void init(ID3D10Device* device, D3DXCOLOR c) {
+	void init(ID3D10Device* device) {
 		md3dDevice = device;
 		mNumVertices = 60;
 		mNumFaces    = 36;
@@ -29,26 +29,26 @@ public:
 
 		*/
 		Vertex vertices[] = {
-			{D3DXVECTOR3(-3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 0 - Top 0
-			{D3DXVECTOR3(-0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 1 - Top 1
-			{D3DXVECTOR3(0.0f, 0.5f, 3.0f),		D3DXVECTOR3(0, 1, 0), c},	// 2 - Top 2
-			{D3DXVECTOR3(0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 3 - Top 3
-			{D3DXVECTOR3(3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 4 - Top 4
-			{D3DXVECTOR3(1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 5 - Top 5
-			{D3DXVECTOR3(2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 6 - Top 6
-			{D3DXVECTOR3(0.0f, 0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0), c},	// 7 - Top 7
-			{D3DXVECTOR3(-2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 8 - Top 8
-			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 9 - Top 9
-			{D3DXVECTOR3(-3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, -1, 0), c},	// 10 - Bottom 0
-			{D3DXVECTOR3(-0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, -1, 0), c},	// 11 - Bottom 1
-			{D3DXVECTOR3(0.0f, -0.5f, 3.0f),	D3DXVECTOR3(0, -1, 0), c},	// 12 - Bottom 2
-			{D3DXVECTOR3(0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, -1, 0), c},	// 13 - Bottom 3
-			{D3DXVECTOR3(3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, -1, 0), c},	// 14 - Bottom 4
-			{D3DXVECTOR3(1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, -1, 0), c},	// 15 - Bottom 5
-			{D3DXVECTOR3(2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, -1, 0), c},	// 16 - Bottom 6
-			{D3DXVECTOR3(0.0f, -0.5f, -1.5f),	D3DXVECTOR3(0, -1, 0), c},	// 17 - Bottom 7
-			{D3DXVECTOR3(-2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, -1, 0), c},	// 18 - Bottom 8
-			{D3DXVECTOR3(-1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, -1, 0), c},	// 19 - Bottom 9
+			{D3DXVECTOR3(-3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 0 - Top 0
+			{D3DXVECTOR3(-0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 1 - Top 1
+			{D3DXVECTOR3(0.0f, 0.5f, 3.0f),		D3DXVECTOR3(0, 1, 0)},	// 2 - Top 2
+			{D3DXVECTOR3(0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 3 - Top 3
+			{D3DXVECTOR3(3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 4 - Top 4
+			{D3DXVECTOR3(1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 5 - Top 5
+			{D3DXVECTOR3(2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 6 - Top 6
+			{D3DXVECTOR3(0.0f, 0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0)},	// 7 - Top 7
+			{D3DXVECTOR3(-2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 8 - Top 8
+			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 9 - Top 9
+			{D3DXVECTOR3(-3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, -1, 0)},	// 10 - Bottom 0
+			{D3DXVECTOR3(-0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, -1, 0)},	// 11 - Bottom 1
+			{D3DXVECTOR3(0.0f, -0.5f, 3.0f),	D3DXVECTOR3(0, -1, 0)},	// 12 - Bottom 2
+			{D3DXVECTOR3(0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, -1, 0)},	// 13 - Bottom 3
+			{D3DXVECTOR3(3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, -1, 0)},	// 14 - Bottom 4
+			{D3DXVECTOR3(1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, -1, 0)},	// 15 - Bottom 5
+			{D3DXVECTOR3(2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, -1, 0)},	// 16 - Bottom 6
+			{D3DXVECTOR3(0.0f, -0.5f, -1.5f),	D3DXVECTOR3(0, -1, 0)},	// 17 - Bottom 7
+			{D3DXVECTOR3(-2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, -1, 0)},	// 18 - Bottom 8
+			{D3DXVECTOR3(-1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, -1, 0)},	// 19 - Bottom 9
 
 			// TODO: Calculate these normals
 			/*	Star layout
@@ -61,55 +61,55 @@ public:
 			8				6
 
 			*/
-			{D3DXVECTOR3(-3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 20 - Face Top 0
-			{D3DXVECTOR3(-0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 21 - Face Top 1
-			{D3DXVECTOR3(-3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 22 - Face Bottom 0
-			{D3DXVECTOR3(-0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 23 - Face Bottom 1
+			{D3DXVECTOR3(-3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 20 - Face Top 0
+			{D3DXVECTOR3(-0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 21 - Face Top 1
+			{D3DXVECTOR3(-3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 22 - Face Bottom 0
+			{D3DXVECTOR3(-0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 23 - Face Bottom 1
 
-			{D3DXVECTOR3(-0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 24 - Face Top 1
-			{D3DXVECTOR3(0.0f, 0.5f, 3.0f),		D3DXVECTOR3(0, 1, 0), c},	// 25 - Face Top 2
-			{D3DXVECTOR3(-0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 26 - Face Bottom 1
-			{D3DXVECTOR3(0.0f, -0.5f, 3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 27 - Face Bottom 2
+			{D3DXVECTOR3(-0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 24 - Face Top 1
+			{D3DXVECTOR3(0.0f, 0.5f, 3.0f),		D3DXVECTOR3(0, 1, 0)},	// 25 - Face Top 2
+			{D3DXVECTOR3(-0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 26 - Face Bottom 1
+			{D3DXVECTOR3(0.0f, -0.5f, 3.0f),	D3DXVECTOR3(0, 1, 0)},	// 27 - Face Bottom 2
 
-			{D3DXVECTOR3(0.0f, 0.5f, 3.0f),		D3DXVECTOR3(0, 1, 0), c},	// 28 - Face Top 2
-			{D3DXVECTOR3(0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 29 - Face Top 3
-			{D3DXVECTOR3(0.0f, -0.5f, 3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 30 - Face Bottom 2
-			{D3DXVECTOR3(0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 31 - Face Bottom 3
+			{D3DXVECTOR3(0.0f, 0.5f, 3.0f),		D3DXVECTOR3(0, 1, 0)},	// 28 - Face Top 2
+			{D3DXVECTOR3(0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 29 - Face Top 3
+			{D3DXVECTOR3(0.0f, -0.5f, 3.0f),	D3DXVECTOR3(0, 1, 0)},	// 30 - Face Bottom 2
+			{D3DXVECTOR3(0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 31 - Face Bottom 3
 
-			{D3DXVECTOR3(0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 32 - Face Top 3
-			{D3DXVECTOR3(3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 33 - Face Top 4
-			{D3DXVECTOR3(0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 34 - Face Bottom 3
-			{D3DXVECTOR3(3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 35 - Face Bottom 4
+			{D3DXVECTOR3(0.75f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 32 - Face Top 3
+			{D3DXVECTOR3(3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 33 - Face Top 4
+			{D3DXVECTOR3(0.75f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 34 - Face Bottom 3
+			{D3DXVECTOR3(3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 35 - Face Bottom 4
 
-			{D3DXVECTOR3(3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 36 - Face Top 4
-			{D3DXVECTOR3(1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 37 - Face Top 5
-			{D3DXVECTOR3(3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 38 - Face Bottom 4
-			{D3DXVECTOR3(1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 39 - Face Bottom 5
+			{D3DXVECTOR3(3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 36 - Face Top 4
+			{D3DXVECTOR3(1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 37 - Face Top 5
+			{D3DXVECTOR3(3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 38 - Face Bottom 4
+			{D3DXVECTOR3(1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 39 - Face Bottom 5
 
-			{D3DXVECTOR3(1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 40 - Face Top 5
-			{D3DXVECTOR3(2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 41 - Face Top 6
-			{D3DXVECTOR3(1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 42 - Face Bottom 5
-			{D3DXVECTOR3(2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 43 - Face Bottom 6
+			{D3DXVECTOR3(1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 40 - Face Top 5
+			{D3DXVECTOR3(2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 41 - Face Top 6
+			{D3DXVECTOR3(1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 42 - Face Bottom 5
+			{D3DXVECTOR3(2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 43 - Face Bottom 6
 
-			{D3DXVECTOR3(2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 44 - Face Top 6
-			{D3DXVECTOR3(0.0f, 0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0), c},	// 45 - Face Top 7
-			{D3DXVECTOR3(2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 46 - Face Bottom 6
-			{D3DXVECTOR3(0.0f, -0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0), c},	// 47 - Face Bottom 7
+			{D3DXVECTOR3(2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 44 - Face Top 6
+			{D3DXVECTOR3(0.0f, 0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0)},	// 45 - Face Top 7
+			{D3DXVECTOR3(2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 46 - Face Bottom 6
+			{D3DXVECTOR3(0.0f, -0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0)},	// 47 - Face Bottom 7
 
-			{D3DXVECTOR3(0.0f, 0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0), c},	// 48 - Face Top 7
-			{D3DXVECTOR3(-2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 49 - Face Top 8
-			{D3DXVECTOR3(0.0f, -0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0), c},	// 50 - Face Bottom 7
-			{D3DXVECTOR3(-2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 51 - Face Bottom 8
+			{D3DXVECTOR3(0.0f, 0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0)},	// 48 - Face Top 7
+			{D3DXVECTOR3(-2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 49 - Face Top 8
+			{D3DXVECTOR3(0.0f, -0.5f, -1.5f),	D3DXVECTOR3(0, 1, 0)},	// 50 - Face Bottom 7
+			{D3DXVECTOR3(-2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 51 - Face Bottom 8
 
-			{D3DXVECTOR3(-2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 52 - Face Top 8
-			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 53 - Face Top 9
-			{D3DXVECTOR3(-2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0), c},	// 54 - Face Bottom 8
-			{D3DXVECTOR3(-1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 55 - Face Bottom 9
+			{D3DXVECTOR3(-2.0f, 0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 52 - Face Top 8
+			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 53 - Face Top 9
+			{D3DXVECTOR3(-2.0f, -0.5f, -3.0f),	D3DXVECTOR3(0, 1, 0)},	// 54 - Face Bottom 8
+			{D3DXVECTOR3(-1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 55 - Face Bottom 9
 			
-			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 56 - Face Top 9
-			{D3DXVECTOR3(-3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 57 - Face Top 0
-			{D3DXVECTOR3(-1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0), c},	// 58 - Face Bottom 9
-			{D3DXVECTOR3(-3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0), c},	// 59 - Face Bottom 0
+			{D3DXVECTOR3(-1.5f, 0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 56 - Face Top 9
+			{D3DXVECTOR3(-3.0f, 0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 57 - Face Top 0
+			{D3DXVECTOR3(-1.5f, -0.5f, -0.25f),	D3DXVECTOR3(0, 1, 0)},	// 58 - Face Bottom 9
+			{D3DXVECTOR3(-3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 59 - Face Bottom 0
 		};
 
 		D3D10_BUFFER_DESC vbd;
@@ -199,11 +199,12 @@ public:
 		HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
 	}
 
-	void draw(RenderInfo* ri, Matrix world, Vector4 color) {
+	void draw(RenderInfo* ri, Matrix world, Vector4 color = Vector4(0, 0, 0, 1), Vector4 spec = Vector4(0, 0, 0, 0)) {
 		Matrix mWVP = world * ri->mView * ri->mProj;
 		ri->mfxWVPVar->SetMatrix((float*)&mWVP);
 		ri->mfxWorldVar->SetMatrix((float*)&world);
 		ri->mfxColorVar->SetFloatVectorArray(color, 0, 4);
+		ri->mfxSpecVar->SetFloatVectorArray(spec, 0, 4);
 		D3D10_TECHNIQUE_DESC techDesc;
 		ri->mTech->GetDesc( &techDesc );
 		for(UINT p = 0; p < techDesc.Passes; ++p) {

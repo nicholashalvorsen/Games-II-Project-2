@@ -1,7 +1,7 @@
 //=======================================================================================
 // d3dUtil.h by Frank Luna (C) 2008 All Rights Reserved.
 //=======================================================================================
-#pragma warning (disable : 4005)
+
 #ifndef D3DUTIL_H
 #define D3DUTIL_H
 
@@ -138,7 +138,6 @@ const D3DXCOLOR BLUE(0.0f, 0.0f, 1.0f, 1.0f);
 const D3DXCOLOR YELLOW(1.0f, 1.0f, 0.0f, 1.0f);
 const D3DXCOLOR CYAN(0.0f, 1.0f, 1.0f, 1.0f);
 const D3DXCOLOR MAGENTA(1.0f, 0.0f, 1.0f, 1.0f);
-const D3DXCOLOR SEA(0.380f, 0.796f, 0.909f, 1.0f);
 
 const D3DXCOLOR BEACH_SAND(1.0f, 0.96f, 0.62f, 1.0f);
 const D3DXCOLOR LIGHT_YELLOW_GREEN(0.48f, 0.77f, 0.46f, 1.0f);

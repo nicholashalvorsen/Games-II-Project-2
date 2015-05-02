@@ -176,8 +176,8 @@ void Waves::update(float dt)
 		for(DWORD i = 0; i < mNumVertices; ++i)
 		{
 			v[i].pos     = mCurrSolution[i];
-			v[i].diffuse = BLUE;
-			v[i].spec    = D3DXCOLOR(0.6f, 0.6f, 0.7f, 0.5f);
+			//v[i].diffuse = BLUE;
+			//v[i].spec    = D3DXCOLOR(0.6f, 0.6f, 0.7f, 0.5f);
 			v[i].normal  = mNormals[i];
 		}
 
@@ -200,22 +200,22 @@ void Waves::disturb(DWORD i, DWORD j, float magnitude)
 	mCurrSolution[(i-1)*mNumCols+j].y += halfMag;
 }
 
-void Waves::draw(RenderInfo* ri, Matrix world, Vector4 color)
-{
+void Waves::draw(RenderInfo* ri, Matrix world, Vector4 color, Vector4 spec) {
 	Matrix mWVP = world * ri->mView * ri->mProj;
 	ri->mfxWVPVar->SetMatrix((float*)&mWVP);
 	ri->mfxWorldVar->SetMatrix((float*)&world);
 	ri->mfxColorVar->SetFloatVectorArray(color, 0, 4);
+	ri->mfxSpecVar->SetFloatVectorArray(spec, 0, 4);
 	D3D10_TECHNIQUE_DESC techDesc;
-	ri->mTech->GetDesc(&techDesc);
-	for (UINT p = 0; p < techDesc.Passes; ++p) {
-		ri->mTech->GetPassByIndex(p)->Apply(0);
+	ri->mTech->GetDesc( &techDesc );
+	for(UINT p = 0; p < techDesc.Passes; ++p) {
+		ri->mTech->GetPassByIndex( p )->Apply(0);
 
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		md3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		md3dDevice->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
 		md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
-		md3dDevice->DrawIndexed(mNumFaces * 3, 0, 0);
+		md3dDevice->DrawIndexed(mNumFaces*3, 0, 0);
 	}
 }

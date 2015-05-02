@@ -9,7 +9,13 @@
 class Object {
 public:
 	Object() {Identity(&world);}
-	~Object() { geometry = NULL;}
+	~Object() { 
+		geometry = NULL;
+		if (hasTexture) {
+			ReleaseCOM(mDiffuseMapRV);
+			ReleaseCOM(mSpecMapRV);
+		}
+	}
 	
 	void init(Geometry *g, Vector3 pos) {
 		geometry = g;
@@ -19,10 +25,18 @@ public:
 		rotation = Vector3(0, 0, 0);
 		velocity = Vector3(0, 0, 0);
 		color = Vector4(0, 0, 0, 1.0f);
+		specular = Vector4(0, 0, 0, 0.0f);
 		active = true;
 		newAnimation = false;
 		animation = 0;
 		animationLength = 0;
+		hasTexture = 0;
+	}
+
+	void setTexture(ID3D10Device* md3dDevice, LPCWSTR diffuse, LPCWSTR spec) {
+		hasTexture = 1;
+		HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, diffuse, 0, 0, &mDiffuseMapRV, 0 ));
+		HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, spec, 0, 0, &mSpecMapRV, 0 ));
 	}
 
 	void update(float dt) {
@@ -46,7 +60,17 @@ public:
 
 	void draw(RenderInfo* ri) {
 		if (!active) return;
-		geometry->draw(ri, world, color);
+		ri->mfxHasTexture->SetInt(hasTexture);
+		if (hasTexture) {
+			ri->mfxDiffuseMapVar->SetResource(mDiffuseMapRV);
+			ri->mfxSpecMapVar->SetResource(mSpecMapRV);
+
+			// Don't transform texture coordinates, so just use identity transformation.
+			D3DXMATRIX texMtx;
+			D3DXMatrixIdentity(&texMtx);
+			ri->mfxTexMtxVar->SetMatrix((float*)&texMtx);
+		}
+		geometry->draw(ri, world, color, specular);
 	}
 
 	bool collided(Object *object) {
@@ -103,6 +127,13 @@ public:
 		color.w = a;
 	}
 
+	void setSpecular(float r, float g, float b, float a) {
+		specular.x = r;
+		specular.y = g;
+		specular.z = b;
+		specular.w = a;
+	}
+
 	void setAnimation(int animation, float animationLength) {
 		newAnimation = true;
 		this->animation = animation;
@@ -115,6 +146,7 @@ private:
 	Vector3 scale;
 	Vector3 rotation;
 	Vector4 color;
+	Vector4 specular;
 
 	Vector3 velocity;
 	float radiusSquared;
@@ -126,6 +158,10 @@ private:
 	bool active;
 
 	Matrix world;
+
+	ID3D10ShaderResourceView* mDiffuseMapRV;
+	ID3D10ShaderResourceView* mSpecMapRV;
+	int hasTexture;
 };
 
 #endif

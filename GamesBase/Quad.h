@@ -16,17 +16,17 @@ public:
 		ReleaseCOM(mIB);
 	}
 
-	void init(ID3D10Device* device, D3DXCOLOR c) {
+	void init(ID3D10Device* device) {
 		md3dDevice = device;
  
 		mNumVertices = 4;
-		mNumFaces    = 4; 
+		mNumFaces    = 2; 
 
 		 Vertex vertices[] = {
-			{D3DXVECTOR3(-0.5f, 0.0f, -0.5f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(0.5f, 0.0f, -0.5f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(-0.5f, 0.0f, 0.5f), D3DXVECTOR3(0, 1, 0), c},
-			{D3DXVECTOR3(0.5f, 0.0f, 0.5f), D3DXVECTOR3(0, 1, 0), c}};
+			{D3DXVECTOR3(-0.5f, 0.0f, -0.5f), D3DXVECTOR3(0, 1, 0), D3DXVECTOR2(0.0f, 0.0f)},
+			{D3DXVECTOR3(0.5f, 0.0f, -0.5f), D3DXVECTOR3(0, 1, 0), D3DXVECTOR2(0.0f, 1.0f)},
+			{D3DXVECTOR3(-0.5f, 0.0f, 0.5f), D3DXVECTOR3(0, 1, 0), D3DXVECTOR2(1.0f, 0.0f)},
+			{D3DXVECTOR3(0.5f, 0.0f, 0.5f), D3DXVECTOR3(0, 1, 0),  D3DXVECTOR2(1.0f, 1.0f)}};
 
 		D3D10_BUFFER_DESC vbd;
 		vbd.Usage = D3D10_USAGE_IMMUTABLE;
@@ -40,12 +40,8 @@ public:
 
 		DWORD indices[] = {
 			// front face
-			0, 1, 3,
-			0, 3, 2,
-
-			//back face
-			0, 3, 1,
-			0, 2, 3
+			0, 2, 1,
+			1, 3, 2
 		};
 
 		D3D10_BUFFER_DESC ibd;
@@ -59,11 +55,12 @@ public:
 		HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
 	}
 
-	void draw(RenderInfo* ri, Matrix world, Vector4 color) {
+	void draw(RenderInfo* ri, Matrix world, Vector4 color = Vector4(0, 0, 0, 1), Vector4 spec = Vector4(0, 0, 0, 0)) {
 		Matrix mWVP = world * ri->mView * ri->mProj;
 		ri->mfxWVPVar->SetMatrix((float*)&mWVP);
 		ri->mfxWorldVar->SetMatrix((float*)&world);
 		ri->mfxColorVar->SetFloatVectorArray(color, 0, 4);
+		ri->mfxSpecVar->SetFloatVectorArray(spec, 0, 4);
 		D3D10_TECHNIQUE_DESC techDesc;
 		ri->mTech->GetDesc( &techDesc );
 		for(UINT p = 0; p < techDesc.Passes; ++p) {

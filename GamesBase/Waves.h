@@ -4,6 +4,7 @@
 
 #ifndef WAVES_H
 #define WAVES_H
+#pragma warning (disable : 4005)
 
 #include "d3dUtil.h"
 #include "Geometry.h"
@@ -18,7 +19,7 @@ public:
 	void init(ID3D10Device* device, DWORD m, DWORD n, float dx, float dt, float speed, float damping);
 	void update(float dt);
 	void disturb(DWORD i, DWORD j, float magnitude);
-	void draw(RenderInfo* ri, Matrix world, Vector4 color);
+	void draw(RenderInfo* ri, Matrix world, Vector4 color = Vector4(0, 0, 0, 1), Vector4 spec = Vector4(0, 0, 0, 0));
 
 	float getRadius() { return 0; }
 

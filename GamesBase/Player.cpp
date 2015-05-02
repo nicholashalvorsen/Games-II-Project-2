@@ -6,7 +6,6 @@
 #include "constants.h"
 
 Player::Player() {
-	Object();
 	rotationAngle = 0;
 	animationTimer = 0;
 	gliding = false;

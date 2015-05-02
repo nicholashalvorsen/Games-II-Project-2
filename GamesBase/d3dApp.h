@@ -6,12 +6,14 @@
 // Link d3dx10.lib for release mode builds instead of d3dx10d.lib.
 //=======================================================================================
 #pragma warning (disable : 4005)
+
 #ifndef D3DAPP_H
 #define D3DAPP_H
 
 
 #include "d3dUtil.h"
 #include "GameTimer.h"
+#include "audio.h"
 #include <string>
 
 
@@ -20,6 +22,7 @@ class D3DApp
 public:
 	D3DApp(HINSTANCE hInstance);
 	virtual ~D3DApp();
+
 	HINSTANCE getAppInst();
 	HWND      getMainWnd();
 
@@ -48,6 +51,7 @@ protected:
 	bool      mResizing;
 
 	GameTimer mTimer;
+	Audio *audio;
 
 	std::wstring mFrameStats;
  
@@ -65,7 +69,6 @@ protected:
 	D3DXCOLOR mClearColor;
 	int mClientWidth;
 	int mClientHeight;
-	
 };
 
 
