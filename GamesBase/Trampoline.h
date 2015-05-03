@@ -126,7 +126,7 @@ public:
 				diff2 = p1-p2;
 			}
 			D3DXVec3Cross(&calculatedNormal, &diff1, &diff2);
-
+			 D3DXVec3Normalize(&calculatedNormal,&calculatedNormal);
 			for(int j=0;j<4;++j) {
 				vertices[i+j].normal = calculatedNormal;
 			}
