@@ -24,6 +24,24 @@ Waves::~Waves()
 	ReleaseCOM(mIB);
 }
 
+void Waves::reset(DWORD m, DWORD n, float dx)
+{
+
+	Vertex* v = 0;
+	HR(mVB->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&v));
+
+	for (DWORD i = 0; i < mNumVertices; ++i)
+	{
+		v[i].pos = Vector3(0, 0, 0);
+		v[i].diffuse = BLUE;
+		v[i].spec = D3DXCOLOR(0.3f, 0.3f, 0.35f, 0.3f);
+		v[i].normal = mNormals[i];
+	}
+
+	mVB->Unmap();
+
+}
+
 void Waves::init(ID3D10Device* device, DWORD m, DWORD n, float dx, float dt, float speed, float damping)
 {
 	md3dDevice = device;
@@ -177,7 +195,7 @@ void Waves::update(float dt)
 		{
 			v[i].pos     = mCurrSolution[i];
 			v[i].diffuse = BLUE;
-			v[i].spec    = D3DXCOLOR(0.6f, 0.6f, 0.7f, 0.5f);
+			v[i].spec    = D3DXCOLOR(0.3f, 0.3f, 0.35f, 0.3f);
 			v[i].normal  = mNormals[i];
 		}
 

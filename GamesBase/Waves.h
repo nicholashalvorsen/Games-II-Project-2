@@ -14,7 +14,7 @@ public:
 	Waves();
 	~Waves();
 
- 
+	void reset(DWORD m, DWORD n, float dx);
 	void init(ID3D10Device* device, DWORD m, DWORD n, float dx, float dt, float speed, float damping);
 	void update(float dt);
 	void disturb(DWORD i, DWORD j, float magnitude);
