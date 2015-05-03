@@ -112,6 +112,26 @@ public:
 			{D3DXVECTOR3(-3.0f, -0.5f, 0.75f),	D3DXVECTOR3(0, 1, 0)},	// 59 - Face Bottom 0
 		};
 
+		// Calculate some surface normals
+		for(int i=20; i<60; i+=4) {
+			Vector3 p1 = vertices[i].pos;
+			Vector3 p2 = vertices[i+1].pos;
+			Vector3 p3 = vertices[i+2].pos;
+
+			Vector3 calculatedNormal;
+			Vector3 diff1 = p1-p2;
+			Vector3 diff2 = p1-p3;
+			if(i==52) {		// Weird workaround for some broken normals?
+				diff1 = p1-p3;
+				diff2 = p1-p2;
+			}
+			D3DXVec3Cross(&calculatedNormal, &diff1, &diff2);
+			 D3DXVec3Normalize(&calculatedNormal,&calculatedNormal);
+			for(int j=0;j<4;++j) {
+				vertices[i+j].normal = calculatedNormal;
+			}
+		}
+
 		D3D10_BUFFER_DESC vbd;
 		vbd.Usage = D3D10_USAGE_IMMUTABLE;
 		vbd.ByteWidth = sizeof(Vertex) * mNumVertices;
@@ -229,6 +249,7 @@ private:
 	ID3D10Buffer* mVB;
 	ID3D10Buffer* mIB;
 };
+
 
 
 #endif
