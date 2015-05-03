@@ -33,7 +33,7 @@ public:
 	void updateScene(float dt);
 	void drawScene(); 
 	void setEasyMode();
-	void setUpGame();
+	void setUpGame(bool menu);
 
 private:
 	void buildFX();
@@ -452,7 +452,7 @@ void App::initApp() {
 		pointlights[i].dir = Vector3(0.0f, 1.0f, 0.0f);
 	}*/
 
-	setUpGame();
+	setUpGame(true);
 }
 
 void App::onResize() {
@@ -568,7 +568,7 @@ void App::updateScene(float dt) {
 		{
 			if (rPressedLastFrame)
 			{
-				setUpGame();
+				setUpGame(false);
 			}
 
 			rPressedLastFrame = false;
@@ -1387,9 +1387,12 @@ void App::setEasyMode()
 }
 
 
-void App::setUpGame()
+void App::setUpGame(bool menu)
 {
-	gameState = LEVEL1;
+	if (menu)
+		gameState = MENU;
+	else
+		gameState = LEVEL1;
 	easyMode = false;
 	gameWon = false;
 	bPressedLastFrame = false;
