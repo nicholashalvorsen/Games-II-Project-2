@@ -483,6 +483,7 @@ void App::updateScene(float dt) {
 				{
 					audio->stopCue("music");
 					audio->stopCue("musicLayer2");
+					audio->stopCue("musicLayer3");
 					audio->stopCue("waterstream");
 					audio->stopCue("winnermusic");
 				}
@@ -511,11 +512,6 @@ void App::updateScene(float dt) {
 	case GAME_OVER:
 	case LEVEL1:
 		{
-		//if (gameState != GAME_OVER) {
-		//	if (atLayer == 0) points += 100 * dt;
-		//	if (atLayer == 1) points += 200 * dt;
-		//	if (atLayer == 2) points += 400 * dt;
-		//}
 
 		// Every quarter second, generate a random wave.
 		/*static float t_base = 0.0f;
@@ -601,11 +597,29 @@ void App::updateScene(float dt) {
 				pWings.second.setRotation(Vector3(0 , 0, PI));
 			}
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT) && !GetAsyncKeyState('A') && !GetAsyncKeyState('D')) player.decelX(dt);
-			if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W')) player.setGliding(true);
+			if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W'))
+			{
+				if (player.gliding == false && !muted)
+					audio->playCue("glide");
+				player.setGliding(true);
+			}
 			else
+			{
+				audio->stopCue("glide");
 				player.setGliding(false);
-			if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState('S')) player.setDiving(true);
-			else player.setDiving(false);
+			}
+			if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState('S'))
+			{
+				if (player.diving == false && !muted)
+					audio->playCue("dive");
+
+				player.setDiving(true);
+			}
+			else
+			{
+				audio->stopCue("dive");
+				player.setDiving(false);
+			}
 
 			bool hitTramp = false;
 
@@ -1425,6 +1439,8 @@ void App::setUpGame(bool menu)
 	beginningPlatform.setPosition(Vector3(0, .5, GAME_DEPTH * .4));
 
 	points = 0;
+	atLayer = 0;
+	underwaterShader = false;
 	waves.reset(SEA_SIZE + 7, SEA_SIZE + 7, 0.5f);
 	fadeText(LAYER_NAMES[0]);
 }
