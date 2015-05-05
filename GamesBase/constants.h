@@ -64,6 +64,8 @@ const float ROCK_X_SPEED = 1;
 const float ROCK_SIZE = 3;
 const int ROCKS_WIDTH = GAME_WIDTH * 3;
 
+const int NUM_BUBBLES = 400;
+
 const int SEA_SIZE = 150;
 const float WATER_RISE_SPEED = 0;
 

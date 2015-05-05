@@ -90,6 +90,9 @@ private:
 
 	//Billboard
 	BillBoard billboard;
+	BillBoard bubble;
+
+	Vector3 bubbleCenters[NUM_BUBBLES];
 
 	RenderInfo ri;
 	ID3D10Effect* mFX;
@@ -351,6 +354,13 @@ void App::initApp() {
 		centers[i] = D3DXVECTOR3(x,y,z);
 	}
 	billboard.init(md3dDevice, centers, 1.0f, 1.0f, L"flare.dds", 2);
+
+	for(int i = 0; i < NUM_BUBBLES; ++i) {
+		// Define bubbleCenters
+		bubbleCenters[i] = Vector3(rand()%10-5, LAYER_HEIGHT[3]+3,(GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_BUBBLES*i);
+	}
+	bubble.init(md3dDevice, bubbleCenters, 0.5, 0.5, L"bubble.png", NUM_BUBBLES);
+
 
 	//Menu
 	activeMenu = false;
@@ -990,6 +1000,7 @@ void App::drawScene() {
 		{
 			for (int i = 0; i < NUM_ROCKS; i++)
 				rocks[i].draw(&ri);
+				bubble.draw(mLight, mEyePos, ri.mView*ri.mProj);
 		}
 
 		beginningPlatform.draw(&ri);
