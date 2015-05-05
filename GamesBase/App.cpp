@@ -1068,21 +1068,35 @@ void App::drawScene() {
 		}
 		RECT R2 = {0, 100, width, height / 4};
 		std::string gameOverString = "G A M E   O V E R";
-		//NEC
-		gameOverString.append("\n");
-		for(int i = 0; i < HighScoresVector.size(); i++)
-		{
-			gameOverString.append(HighScoresVector[i].first);
-			gameOverString.append(" Score: ");
-			gameOverString.append(HighScoresVector[i].second);
-			gameOverString.append("\n");
-		}
-
-
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+
 		RECT R3 = { 0, 400, width, 3 * height / 4 };
 		gameOverString = "(R) to restart";
 		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+
+		//NEC
+		gameOverString = "";
+		RECT R4 = { 0, 400, width, 3 * height };
+		for(int i = 1; i < HighScoresVector.size(); i++)
+		{//sorting
+			int test1 = std::stoi(HighScoresVector[i].second);
+			int test2 = std::stoi(HighScoresVector[i-1].second);
+			if(test1 > test2)
+			{
+				std::string temp = HighScoresVector[i-1].second;
+				HighScoresVector[i-1].second = HighScoresVector[i].second;
+				HighScoresVector[i].second = temp;
+			}
+		}
+		for(int i = 0; i < HighScoresVector.size(); i++)
+		{
+			gameOverString.append(std::to_string(i+1));
+			gameOverString.append(".      ");
+			gameOverString.append(HighScoresVector[i].second);
+			gameOverString.append("\n");
+		}
+		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R4, DT_CENTER, D3DXCOLOR(1, 0.5, 1, 1));
+
 	} else if (gameState == MENU) {
 		RECT rect;
 		int width;
@@ -1112,14 +1126,27 @@ void App::drawScene() {
 		std::string gameOverString = "Y O U   W I N !";
 
 		//NEC
-		gameOverString.append("\n");
+		gameOverString = "";
+		RECT R4 = { 0, 400, width, 3 * height };
+		for(int i = 1; i < HighScoresVector.size(); i++)
+		{//sorting
+			int test1 = std::stoi(HighScoresVector[i].second);
+			int test2 = std::stoi(HighScoresVector[i-1].second);
+			if(test1 > test2)
+			{
+				std::string temp = HighScoresVector[i-1].second;
+				HighScoresVector[i-1].second = HighScoresVector[i].second;
+				HighScoresVector[i].second = temp;
+			}
+		}
 		for(int i = 0; i < HighScoresVector.size(); i++)
 		{
-			gameOverString.append(HighScoresVector[i].first);
-			gameOverString.append(" Score: ");
+			gameOverString.append(std::to_string(i+1));
+			gameOverString.append(".      ");
 			gameOverString.append(HighScoresVector[i].second);
 			gameOverString.append("\n");
 		}
+		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R4, DT_CENTER, D3DXCOLOR(1, 0.5, 1, 1));
 
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 		RECT R3 = { 0, 400, width, 3 * height / 4 };
