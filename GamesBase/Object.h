@@ -11,7 +11,7 @@ public:
 	Object() {Identity(&world);}
 	~Object() { 
 		geometry = NULL;
-		if (hasTexture) {
+		if (hasTexture == 1) {
 			ReleaseCOM(mDiffuseMapRV);
 			ReleaseCOM(mSpecMapRV);
 		}

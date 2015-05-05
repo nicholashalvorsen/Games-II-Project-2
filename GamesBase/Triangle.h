@@ -20,7 +20,7 @@ public:
 		md3dDevice = device;
  
 		mNumVertices = 3;
-		mNumFaces    = 1; 
+		mNumFaces    = 2; 
 
 		 Vertex vertices[] = {
 			{D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f)},
@@ -39,7 +39,8 @@ public:
 
 		DWORD indices[] = {
 			// front face
-			0, 2, 1
+			0, 2, 1,
+			0, 1, 2
 		};
 
 		D3D10_BUFFER_DESC ibd;

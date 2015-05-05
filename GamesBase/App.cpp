@@ -216,8 +216,14 @@ void App::initApp() {
 	buildScenery();
 	//Player
 	playerGeo.init(&box);
-	playerGeo.addChild(&triangle, Vector3(0, 0, 0.5f), Vector3(0, 0, 0), Vector3(1, 1, 1), 0);
-	playerGeo.addChild(&triangle, Vector3(0, 0, -0.5f), Vector3(0, ToRadian(90), 0), Vector3(1, 1, 1), 0);
+	AnimationState* flap = new AnimationState();
+	flap->addAnimation(Vector3(0, 0, 0.5f), Vector3(ToRadian(-30), 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 0.5f), Vector3(ToRadian(30), 0, 0), Vector3(1, 1, 1));
+	flap->addAnimation(Vector3(0, 0, 0.5f), Vector3(ToRadian(30), 0, 0), Vector3(1, 1, 1), Vector3(0, 0, 0.5f), Vector3(ToRadian(-30), 0, 0), Vector3(1, 1, 1));
+	AnimationState* flap2 = new AnimationState();
+	flap2->addAnimation(Vector3(0, 0, -0.5f), Vector3(ToRadian(210), 0, 0), Vector3(1, 1, 1), Vector3(0, 0, -0.5f), Vector3(ToRadian(150), 0, 0), Vector3(1, 1, 1));
+	flap2->addAnimation(Vector3(0, 0, -0.5f), Vector3(ToRadian(150), 0, 0), Vector3(1, 1, 1), Vector3(0, 0, -0.5f), Vector3(ToRadian(210), 0, 0), Vector3(1, 1, 1));
+	playerGeo.addChild(&triangle, Vector3(0, 0, 0.5f), Vector3(0, 0, 0), Vector3(1, 1, 1), flap);
+	playerGeo.addChild(&triangle, Vector3(0, 0, -0.5f), Vector3(0, ToRadian(90), 0), Vector3(1, 1, 1), flap2);
 	//Cliffs
 	Vector3 cliffsColor(0.3f, 0.3f, 0.3f);
 	simpleCliff.init(&box, Vector3(0, CLIFF_HEIGHT / 2, 53));
@@ -240,12 +246,6 @@ void App::initApp() {
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
 	player.setTexture(md3dDevice, L"tex/feathers.jpg", L"defaultspec.dds");
-	//Player Wings
-	/*pWings.first.init(&wing, player.getPosition());
-	pWings.second.init(&wing, player.getPosition());
-	pWings.second.setRotation(Vector3(0, 0, PI));
-	pWings.first.setScale(Vector3(0.4, 0.4, 0.4));
-	pWings.second.setScale(Vector3(0.4, 0.4, 0.4));*/
 	//Waves
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);

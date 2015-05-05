@@ -90,6 +90,11 @@ float4 PS(VS_OUT pIn) : SV_Target {
 	// Interpolating normal can make it not be of unit length so normalize it.
     pIn.normalW = normalize(pIn.normalW);
 
+	if (pIn.posW.z < 0.25f && pIn.posW.z > -0.25 &&
+		pIn.posW.x < playerPos.x + 0.25f && pIn.posW.x > playerPos.x - 0.25f &&
+		pIn.posW.y < playerPos.y - 0.5f)
+		pIn.diffuse *= float4(0.5f, 0.5f, 0.5f, 1);
+
 	SurfaceInfo v = {pIn.posW, pIn.normalW, pIn.diffuse, pIn.spec};
 
 	float3 litColor;
