@@ -201,7 +201,7 @@ void App::initApp() {
 	triangle.init(md3dDevice);
 	box.init(md3dDevice);
 	testTramp.init(md3dDevice);
-	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
+	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.5f);
 
 	//Complex Geometry
 	//Diamond
@@ -250,16 +250,7 @@ void App::initApp() {
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
 	wavesObject.setVelocity(Vector3(0, WATER_RISE_SPEED, 0));
-	for (int x = 0; x < SEA_SIZE / 20; x++)
-	{
 
-		DWORD i = SEA_SIZE - 10;
-		DWORD j = 5 + rand() % SEA_SIZE;
-
-		float r = RandF(1.5f, 1.8f);
-
-		waves.disturb(i, j, r);
-	}
 	//Trampoline
 	trampObject.init(&testTramp, Vector3(0, LAYER_HEIGHT[0]-100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*3));
     trampObject.setScale(Vector3(1,1,1));
@@ -413,6 +404,7 @@ void App::updateScene(float dt) {
 			}
 
 			mPressedLastFrame = false;
+			}
 			
 	if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
 
@@ -551,12 +543,15 @@ void App::updateScene(float dt) {
 						DWORD i = 15;
 						DWORD j = 5 + rand() % SEA_SIZE;
 
-						float r = RandF(2.0f, 2.2f);
+						float r = RandF(8.0f, 8.2f);
 
 						waves.disturb(i, j, r);
 					}
 					if (!muted)
+					{
 						audio->playCue("waterstream");
+						audio->playCue("gong");
+					}
 
 					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
                 } else
@@ -574,6 +569,7 @@ void App::updateScene(float dt) {
 
 					if (!muted)
 					{
+						audio->stopCue("glide");
 						audio->stopCue("waterstream");
 						audio->stopCue("music");
 						audio->stopCue("musiclayer2");
@@ -595,7 +591,12 @@ void App::updateScene(float dt) {
 			player.update(dt);
 		}
 		if (gameWon)
-			player.setVelocity(Vector3(0, 20, 0));
+		{
+			if (player.getPosition().y < -5)
+				player.setVelocity(Vector3(0, 20, 0));
+			else
+				player.setVelocity(Vector3(0, 0, 0));
+		}
 
 		/*pWings.first.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
 		pWings.second.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
@@ -820,7 +821,8 @@ void App::updateScene(float dt) {
 				{
 					diamonds[i].setInActive();
 					points += 200;
-					//audio->playCue("splash");
+					if (!muted)
+					audio->playCue("collect");
 				}
 			}
 
@@ -862,6 +864,17 @@ void App::updateScene(float dt) {
 					audio->playCue("bounce");
 				else
 					audio->playCue("bounce2");
+			}
+
+			// disturb waves
+			for (int x = 0; x < SEA_SIZE / 20; x++)
+			{
+				DWORD i = SEA_SIZE - 10;
+				DWORD j = 5 + rand() % SEA_SIZE;
+
+				float r = RandF(1.5f, 1.8f);
+
+				waves.disturb(i, j, r);
 			}
 		}
 
@@ -935,7 +948,6 @@ void App::updateScene(float dt) {
 		D3DXMatrixLookAtLH(&ri.mView, &mEyePos, &target, &up);
 		break;
 		}
-	}
 }
 
 void App::drawScene() {
@@ -978,7 +990,7 @@ void App::drawScene() {
 		for (int i = 0; i < NUM_DIAMONDS; i++)
 			diamonds[i].draw(&ri);
 
-		if (player.getPosition().y < LAYER_HEIGHT[2])
+		if (player.getPosition().y < LAYER_HEIGHT[2] - 5)
 		{
 			for (int i = 0; i < NUM_PILLARS; i++)
 				pillars[i].draw(&ri);
@@ -989,6 +1001,7 @@ void App::drawScene() {
 			simpleLeftCliff.draw(&ri);
 			simpleRightCliff.draw(&ri);
 		}
+
 
 		if (atLayer > 0 && atLayer < 3)
 			for (int i = 0; i < NUM_CLOUDS; i++)
@@ -1092,6 +1105,9 @@ void App::drawScene() {
 		}
 
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+		RECT R3 = { 0, 400, width, 3 * height / 4 };
+		gameOverString = "(R) to restart";
+		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 		}
 	else if (fadeTextActive)
 	{
@@ -1405,7 +1421,15 @@ void App::setUpGame(bool menu)
 	for (int i = 0; i < NUM_PILLARS; i++)
 		pillars[i].setPosition(Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PILLARS*i));
 
+	for (int i = 0; i < NUM_CLOUDS; i++)
+		clouds[i].setPosition(Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_CLOUDS*i));
+
 	beginningPlatform.setPosition(Vector3(0, .5, GAME_DEPTH * .4));
+
+	waves.setDamping(1000.0);
+	for (int i = 0; i < 50; i++)
+		waves.update(1);
+	waves.setDamping(0.2);
 
 	points = 0;
 	fadeText(LAYER_NAMES[0]);
