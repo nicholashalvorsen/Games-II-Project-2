@@ -508,7 +508,7 @@ void App::updateScene(float dt) {
 				pos1.z + scale1.z / 2 < pos2.z + scale2.z)
 				hitTramp = true;
 
-			if(elapsedTime >= 00.0f) {
+			if(elapsedTime >= 30.0f) {
 				trampObject.setActive();
 			} else {
 				trampObject.setInActive();
