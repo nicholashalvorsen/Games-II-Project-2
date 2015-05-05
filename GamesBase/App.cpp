@@ -1479,6 +1479,9 @@ void App::setUpGame(bool menu)
 	for (int i = 0; i < NUM_CLOUDS; i++)
 		clouds[i].setPosition(Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_CLOUDS*i));
 
+	for (int i = 0; i < NUM_PLANETS; i++)
+		planets[i].setPosition(Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PLANETS*i));
+
 	beginningPlatform.setPosition(Vector3(0, .5, GAME_DEPTH * .4));
 
 	waves.setDamping(1000.0);
