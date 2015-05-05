@@ -85,6 +85,7 @@
     <ClInclude Include="audio.h" />
     <ClInclude Include="Axis.h" />
     <ClInclude Include="Billboard.h" />
+    <ClInclude Include="Box.h" />
     <ClInclude Include="ComplexGeometry.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="d3dApp.h" />
@@ -103,12 +104,12 @@
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Waves.h" />
-    <ClInclude Include="wing.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="Billboard.cpp" />
+    <ClCompile Include="Box.cpp" />
     <ClCompile Include="d3dApp.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="menu.cpp" />

@@ -12,7 +12,7 @@
 #include "Triangle.h"
 #include "Waves.h"
 #include "Trampoline.h"
-#include "wing.h"
+#include "Box.h"
 
 #include "Object.h"
 #include "Axis.h"
@@ -24,6 +24,7 @@
 #include <ctime>
 #include <random>
 #pragma warning (disable : 4305)
+#pragma warning (disable : 4244)
 
 class App : public D3DApp {
 public:
@@ -50,15 +51,15 @@ private:
 	Triangle triangle;
 	Pyramid pyramid;
 	Waves waves;
-	Wing wing;
 	Trampoline testTramp;
 
 	//Models
-	ComplexGeometry box;
+	Box box;
 	ComplexGeometry diamond;
 	ComplexGeometry pillarBox;
 	ComplexGeometry sceneryGeometry[NUM_SCENERY];
 	ComplexGeometry cliffsGeometry;
+	ComplexGeometry playerGeo;
 
 	//Objects
 	Axis axis;
@@ -76,7 +77,6 @@ private:
 	Object rocks[NUM_ROCKS];
 	Object wavesObject;
 	Object diamonds[NUM_PILLARS/5];
-	std::pair<Object, Object> pWings;
 	Object beginningPlatform;
 
 	//Lighting
@@ -204,19 +204,19 @@ void App::initApp() {
 	quad.init(md3dDevice);
 	pyramid.init(md3dDevice);
 	triangle.init(md3dDevice);
+	box.init(md3dDevice);
 	testTramp.init(md3dDevice);
-	wing.init(md3dDevice);
 	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
 
 	//Complex Geometry
 	//Box
-	box.init(&quad);
+	/*box.init(&quad);
 	box.addChild(&quad, Vector3(0, 0, -0.5f), Vector3(ToRadian(-90), 0, 0), Vector3(1, 1, 1), 0);
 	box.addChild(&quad, Vector3(0, 0, +0.5f), Vector3(ToRadian(90), 0, 0), Vector3(1, 1, 1), 0);
 	box.addChild(&quad, Vector3(-0.5f, 0, 0), Vector3(0, 0, ToRadian(90)), Vector3(1, 1, 1), 0);
 	box.addChild(&quad, Vector3(+0.5f, 0, 0), Vector3(0, 0, ToRadian(-90)), Vector3(1, 1, 1), 0);
 	box.addChild(&quad, Vector3(0, -0.5f, 0), Vector3(0, 0, ToRadian(180)), Vector3(1, 1, 1), 0);
-	box.addChild(&quad, Vector3(0, 0.5f, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), 0);
+	box.addChild(&quad, Vector3(0, 0.5f, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), 0);*/
 	//Diamond
 	diamond.init(&pyramid);
 	diamond.addChild(&pyramid, Vector3(0, -1.0f, 0), Vector3(0, 0, ToRadian(180)), Vector3(1, 1, 1), 0);
@@ -238,22 +238,25 @@ void App::initApp() {
 	cliffsGeometry.addChild(&box, Vector3(2.2, 0, .2), Vector3(ToRadian(95), 0, ToRadian(90)), Vector3(CLIFF_HEIGHT, 1, 1), 0, cliffsColor);
 	cliffsGeometry.addChild(&box, Vector3(2.9, 0, .2), Vector3(ToRadian(80), 0, ToRadian(90)), Vector3(CLIFF_HEIGHT, 1, 1), 0, cliffsColor);
 	cliffsGeometry.addChild(&box, Vector3(0, CLIFF_HEIGHT / 2 + .25/2, 0), Vector3(ToRadian(90), 0, ToRadian(90)), Vector3(.25, .25, CLIFF_WIDTH), 0, cliffsColor2);
-
+	//Player
+	playerGeo.init(&box);
+	playerGeo.addChild(&triangle, Vector3(0, 0, 0.5f), Vector3(0, 0, 0), Vector3(1, 1, 1), 0);
+	playerGeo.addChild(&triangle, Vector3(0, 0, -0.5f), Vector3(0, ToRadian(90), 0), Vector3(1, 1, 1), 0);
 	
 	//Objects
 	axis.init(&line);
 	//Player
-	player.init(&box, Vector3(0, 3, 0));
+	player.init(&playerGeo, Vector3(0, 3, 0));
 	player.setColor(0, 0, 0, 1);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
-	//player.setTexture(md3dDevice, L"flare.dds", L"defaultspec.dds");
+	player.setTexture(md3dDevice, L"tex/feathers.jpg", L"defaultspec.dds");
 	//Player Wings
-	pWings.first.init(&wing, player.getPosition());
+	/*pWings.first.init(&wing, player.getPosition());
 	pWings.second.init(&wing, player.getPosition());
 	pWings.second.setRotation(Vector3(0, 0, PI));
 	pWings.first.setScale(Vector3(0.4, 0.4, 0.4));
-	pWings.second.setScale(Vector3(0.4, 0.4, 0.4));
+	pWings.second.setScale(Vector3(0.4, 0.4, 0.4));*/
 	//Waves
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
@@ -482,17 +485,17 @@ void App::updateScene(float dt) {
 			}
 			if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState('A')){
 				player.accelLeft(dt);
-				pWings.first.setRotation(Vector3(0 , 0, PI/6));
-				pWings.second.setRotation(Vector3(0 , 0, PI+PI/6));
+				//pWings.first.setRotation(Vector3(0 , 0, PI/6));
+				//pWings.second.setRotation(Vector3(0 , 0, PI+PI/6));
 			}
 			else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState('D')){
-				pWings.first.setRotation(Vector3(0 , 0, -PI/6));
-				pWings.second.setRotation(Vector3(0 , 0, PI-PI/6));
+				//pWings.first.setRotation(Vector3(0 , 0, -PI/6));
+				//pWings.second.setRotation(Vector3(0 , 0, PI-PI/6));
 				player.accelRight(dt);
 			}
 			else{
-				pWings.first.setRotation(Vector3(0 , 0, 0));
-				pWings.second.setRotation(Vector3(0 , 0, PI));
+				//pWings.first.setRotation(Vector3(0 , 0, 0));
+				//pWings.second.setRotation(Vector3(0 , 0, PI));
 			}
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT) && !GetAsyncKeyState('A') && !GetAsyncKeyState('D')) player.decelX(dt);
 			if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W')) player.setGliding(true);
@@ -571,11 +574,11 @@ void App::updateScene(float dt) {
 		if (gameWon)
 			player.setVelocity(Vector3(0, 20, 0));
 
-		pWings.first.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
+		/*pWings.first.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
 		pWings.second.setPosition(player.getPosition()+Vector3(0.0f, 0.0f, 1.0f));
 	
 		pWings.first.update(dt);
-		pWings.second.update(dt);
+		pWings.second.update(dt);*/
 
 		waves.update(dt);
 		wavesObject.update(dt);
@@ -955,8 +958,8 @@ void App::drawScene() {
 		
 
 		//Draw objects
-		pWings.first.draw(&ri);
-		pWings.second.draw(&ri);
+		/*pWings.first.draw(&ri);
+		pWings.second.draw(&ri);*/
 		player.draw(&ri);
 
 		for (int i = 0; i < NUM_DIAMONDS; i++)
