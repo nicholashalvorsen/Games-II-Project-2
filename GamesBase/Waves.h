@@ -21,6 +21,8 @@ public:
 	void disturb(DWORD i, DWORD j, float magnitude);
 	void draw(RenderInfo* ri, Matrix world, Vector4 color = Vector4(0, 0, 0, 1), Vector4 spec = Vector4(0, 0, 0, 0));
 
+	void setDamping(float damping);
+
 	float getRadius() { return 0; }
 
 private:

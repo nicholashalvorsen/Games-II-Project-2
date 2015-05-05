@@ -219,3 +219,14 @@ void Waves::draw(RenderInfo* ri, Matrix world, Vector4 color, Vector4 spec) {
 		md3dDevice->DrawIndexed(mNumFaces*3, 0, 0);
 	}
 }
+
+void Waves::setDamping(float damping)
+{
+	float speed = 3.25f;
+
+	float d = damping*mTimeStep + 2.0f;
+	float e = (speed*speed)*(mTimeStep*mTimeStep) / (mSpatialStep*mSpatialStep);
+	mK1 = (damping*mTimeStep - 2.0f) / d;
+	mK2 = (4.0f - 8.0f*e) / d;
+	mK3 = (2.0f*e) / d;
+}

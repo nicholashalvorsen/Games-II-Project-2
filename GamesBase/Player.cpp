@@ -5,10 +5,13 @@
 #include "Player.h"
 #include "constants.h"
 
+int s;
+
 Player::Player() {
 	rotationAngle = 0;
 	animationTimer = 0;
 	gliding = false;
+	s = 0;
 }
 
 void Player::draw(RenderInfo* ri) {
@@ -36,14 +39,18 @@ void Player::update(float dt) {
 	if (diving && getVelocity().y < PLAYER_BOUNCE_FORCE * .5)
 		setVelocity(getVelocity() + Vector3(0, PLAYER_DIVE_SPEED * dt, 0));
 
+	animationTimer -= dt;
+	if (animationTimer < 0) {
+		if (gliding) {
+			animationTimer = 0.2;
+			setAnimation(s, 0.2f);
+		} else {
+			animationTimer = 1;
+			setAnimation(s, 1.0f);
+		}
+		if (s) s = 0; else s = 1;
+	}
 	Object::update(dt);
-
-	animationTimer += dt;
-	if (animationTimer < 6) {
-		geometry->update(1, 5.0f, dt);
-	} else if (animationTimer < 12) {
-		geometry->update(0, 5.0f, dt);
-	} else animationTimer = 0;
 }
 
 // not used currently

@@ -22,9 +22,9 @@ const int GAME_WIDTH = 20;
 const int GAME_DEPTH = 40;
 const int GAME_BEHIND_DEPTH = 10;
 const int NUM_SCENERY = 2;
-const int NUM_STARS = 100;
+const int NUM_STARS = 300;
 const int NUM_CLIFFS = 30;
-const float CLIFF_HEIGHT = 500;
+const float CLIFF_HEIGHT = 300;
 const float CLIFF_WIDTH = 3.9;
 
 const float GRAVITY = - 8;
