@@ -35,7 +35,7 @@ public:
 	void updateScene(float dt);
 	void drawScene();
 	void setEasyMode();
-	void setUpGame();
+	void setUpGame(bool menu);
 
 private:
 	void buildFX();
@@ -370,7 +370,7 @@ void App::initApp() {
 		pointlights[i].dir = Vector3(0.0f, 1.0f, 0.0f);
 	}*/
 
-	setUpGame();
+	setUpGame(true);
 }
 
 void App::onResize() {
@@ -430,7 +430,7 @@ void App::updateScene(float dt) {
 			else
 			{
 				if (rPressedLastFrame)
-					setUpGame();
+					setUpGame(false);
 
 				rPressedLastFrame = false;
 			}
@@ -464,11 +464,29 @@ void App::updateScene(float dt) {
 				pWings.second.setRotation(Vector3(0 , 0, PI));
 			}
 			if (!GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT) && !GetAsyncKeyState('A') && !GetAsyncKeyState('D')) player.decelX(dt);
-			if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W')) player.setGliding(true);
+						if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W'))
+			{
+				if (player.gliding == false && !muted)
+					audio->playCue("glide");
+				player.setGliding(true);
+			}
 			else
+			{
+				audio->stopCue("glide");
 				player.setGliding(false);
-			if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState('S')) player.setDiving(true);
-			else player.setDiving(false);
+			}
+			if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState('S'))
+			{
+				if (player.diving == false && !muted)
+					audio->playCue("dive");
+
+				player.setDiving(true);
+			}
+			else
+			{
+				audio->stopCue("dive");
+				player.setDiving(false);
+			}
 
 			bool hitTramp = false;
 
@@ -1316,9 +1334,12 @@ void App::setEasyMode()
 
 }
 
-void App::setUpGame()
+void App::setUpGame(bool menu)
 {
-	gameState = LEVEL1;
+	if (menu)
+		gameState = MENU;
+	else
+		gameState = LEVEL1;
 	easyMode = false;
 	gameWon = false;
 	bPressedLastFrame = false;
