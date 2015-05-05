@@ -18,6 +18,7 @@
 #include "Axis.h"
 #include "Player.h"
 
+#include <utility>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -35,6 +36,7 @@ public:
 	void updateScene(float dt);
 	void drawScene();
 	void setEasyMode();
+
 
 private:
 	void buildFX();
@@ -114,6 +116,8 @@ private:
 	Menu* mainMenu;
 	bool activeMenu;
 	bool easyMode;
+
+	std::vector<std::pair<std::string, std::string>> HighScoresVector;
 
 	int gameState;
 	float elapsedTime;
@@ -553,6 +557,14 @@ void App::updateScene(float dt) {
                 } else
 					
 					if (atLayer == 3 && player.collided(&trampObject) || hitTramp) {
+
+					//NEC - start Highscore
+					int randNum = rand() % 100000 + 1;
+					std::string tempPlayer = "Player ";
+					tempPlayer.append(std::to_string(randNum));
+					std::pair <std::string,std::string> temp (tempPlayer ,std::to_string(points));//NEC
+					HighScoresVector.push_back(temp);
+					//NEC - end Highscore
 					gameWon = true;
 				}
 
@@ -1030,6 +1042,17 @@ void App::drawScene() {
 		}
 		RECT R2 = {0, 100, width, height / 4};
 		std::string gameOverString = "G A M E   O V E R";
+		//NEC
+		gameOverString.append("\n");
+		for(int i = 0; i < HighScoresVector.size(); i++)
+		{
+			gameOverString.append(HighScoresVector[i].first);
+			gameOverString.append(" Score: ");
+			gameOverString.append(HighScoresVector[i].second);
+			gameOverString.append("\n");
+		}
+
+
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 	} else if (gameState == MENU) {
 		RECT rect;
@@ -1058,6 +1081,17 @@ void App::drawScene() {
 		}
 		RECT R2 = { 0, 100, width, height / 4 };
 		std::string gameOverString = "Y O U   W I N !";
+
+		//NEC
+		gameOverString.append("\n");
+		for(int i = 0; i < HighScoresVector.size(); i++)
+		{
+			gameOverString.append(HighScoresVector[i].first);
+			gameOverString.append(" Score: ");
+			gameOverString.append(HighScoresVector[i].second);
+			gameOverString.append("\n");
+		}
+
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 		}
 	else if (fadeTextActive)
