@@ -321,7 +321,7 @@ void App::initApp() {
 		z = fabs(z);
 		stars[i] = D3DXVECTOR3(x, y, z);
 	}
-	starBB.init(md3dDevice, stars, 1.0f, 1.0f, L"star.jpg", NUM_STARS);
+	starBB.init(md3dDevice, stars, 1.0f, 1.0f, L"star.png", NUM_STARS);
 
 	//Billboards
 	D3DXVECTOR3 centers[2];
@@ -1014,15 +1014,12 @@ void App::drawScene() {
 		//for (int i = 0; i < NUM_SCENERY; i++)
 		//	scenery[i].draw(&ri);
 		
-
 		trampObject.draw(&ri);
 
-		//if (atLayer == 2)
+		if (atLayer == 2)
 			starBB.draw(mLight, mEyePos, ri.mView*ri.mProj);
 
 		md3dDevice->RSSetState(0); // restore default
-
-
 
 
 		std::wostringstream po;
@@ -1076,7 +1073,7 @@ void App::drawScene() {
 		std::string gameOverString = "D U N S T A N ' S   B I G   B A D \n B O U N C E   A R O U N D";
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 
-		RECT R3 = {300, 200, width, height / 2};
+		RECT R3 = {300, 200, width, height / 1};
 		gameOverString = "Controls:\nMove: Left/Right or A/D\nGlide: Up or W\nDive: Down or S\n\nMute sounds: M";
 		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 	} else if (gameWon) {
@@ -1088,7 +1085,7 @@ void App::drawScene() {
 			width = rect.right - rect.left;
 			height = rect.bottom - rect.top;
 		}
-		RECT R2 = { 0, 100, width, height / 4 };
+		RECT R2 = { 0, 100, width, height / 1 };
 		std::string gameOverString = "Y O U   W I N !";
 
 		//NEC
