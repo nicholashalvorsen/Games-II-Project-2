@@ -76,7 +76,6 @@ private:
 	Object pillars[NUM_PILLARS];
 	Object clouds[NUM_CLOUDS];
 	Object planets[NUM_PLANETS];
-	Object stars[NUM_STARS];
 	Object rocks[NUM_ROCKS];
 	Object wavesObject;
 	Object diamonds[NUM_PILLARS/5];
@@ -93,6 +92,7 @@ private:
 
 	//Billboard
 	BillBoard billboard;
+	BillBoard starBB;
 
 	RenderInfo ri;
 	ID3D10Effect* mFX;
@@ -305,23 +305,24 @@ void App::initApp() {
 	}
 
 	//Stars
+	D3DXVECTOR3 stars[NUM_STARS];
 	for (int i = 0; i < NUM_STARS; i++)
 	{
 		float theta = (float)rand() / (float)RAND_MAX * 3.14;
 		float phi = (float)rand() / (float)RAND_MAX * 3.14;
-		float radius = 80;
+		float radius = 130;
 		if (rand() % 2 == 0)
 			theta *= -1;
 		if (rand() % 2 == 0)
 			phi *= -1;
-		float x= radius * cos(theta) * sin(phi);
+		float x = radius * cos(theta) * sin(phi);
 		float y = radius * sin(theta) * sin(phi);
 		float z = radius * cos(phi);
 		z = fabs(z);
-		stars[i].init(&box, Vector3(x, y, z));
-		stars[i].setColor(1, 1, 1, 1);
-		stars[i].setScale(Vector3(.1, .1, .1));
+		stars[i] = D3DXVECTOR3(x, y, z);
 	}
+	starBB.init(md3dDevice, stars, 1.0f, 1.0f, L"star.jpg", NUM_STARS);
+
 	//Billboards
 	D3DXVECTOR3 centers[2];
 	for(UINT i = 0; i < 2; ++i)
@@ -333,6 +334,7 @@ void App::initApp() {
 		centers[i] = D3DXVECTOR3(x,y,z);
 	}
 	billboard.init(md3dDevice, centers, 1.0f, 1.0f, L"flare.dds", 2);
+
 
 	//Menu
 	activeMenu = false;
@@ -403,16 +405,23 @@ void App::updateScene(float dt) {
 				}
 				else
 				{
-					if (atLayer < 2)
-						audio->playCue("music");
-					else if (atLayer == 2)
-						audio->playCue("musiclayer2");
-					else if (atLayer == 3)
-						audio->playCue("musiclayer3");
+					if (gameWon)
+						audio->playCue("winnermusic");
+					else
+					{
+						if (atLayer < 2)
+							audio->playCue("music");
+						else if (atLayer == 2)
+							audio->playCue("musiclayer2");
+						else if (atLayer == 3)
+							audio->playCue("musiclayer3");
+					}
 				}
 			}
 
 			mPressedLastFrame = false;
+			
+	if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
 
 	switch(gameState) {
 	case MENU:
@@ -421,8 +430,6 @@ void App::updateScene(float dt) {
 	case GAME_OVER:
 	case LEVEL1:
 		{
-
-		if (GetAsyncKeyState(VK_ESCAPE)) exit(0);
 		
 		if (GetAsyncKeyState('P')) submarine = true; // debug
 
@@ -805,12 +812,6 @@ void App::updateScene(float dt) {
         simpleLeftCliff.update(dt);
         simpleRightCliff.update(dt);
 
-
-		for (int i = 0; i < NUM_STARS; i++)
-		{
-			stars[i].update(dt);
-		}
-
 		/* bottom collision, temp */ 
 		//if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
 		//{
@@ -1016,9 +1017,13 @@ void App::drawScene() {
 
 		trampObject.draw(&ri);
 
-		if (atLayer == 2)
-			for (int i = 0; i < NUM_STARS; i++)
-				stars[i].draw(&ri);
+		//if (atLayer == 2)
+			starBB.draw(mLight, mEyePos, ri.mView*ri.mProj);
+
+		md3dDevice->RSSetState(0); // restore default
+
+
+
 
 		std::wostringstream po;
 		std::wstring pt;
@@ -1276,7 +1281,7 @@ void App::buildBoxes() {
 
 	for (int i = 0; i < NUM_PLANETS; i++)
 	{
-		planets[i].init(&pillarBox, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PLANETS*i));
+		planets[i].init(&box, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_PLANETS*i));
 		planets[i].setScale(Vector3(PLANET_SIZE, 1, PLANET_SIZE));
 		planets[i].setVelocity(Vector3(PLANET_X_SPEED, 0, PLANET_SPEED));
 		planets[i].setColor(1, 1, 1, 1);
@@ -1285,7 +1290,7 @@ void App::buildBoxes() {
 
 	for (int i = 0; i < NUM_ROCKS; i++)
 	{
-		rocks[i].init(&pillarBox, Vector3(0, LAYER_HEIGHT[3], 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_ROCKS*i));
+		rocks[i].init(&box, Vector3(0, LAYER_HEIGHT[3], 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_ROCKS*i));
 		rocks[i].setScale(Vector3(ROCK_SIZE, 1, ROCK_SIZE));
 		rocks[i].setVelocity(Vector3(ROCK_X_SPEED, 0, ROCK_SPEED));
 		rocks[i].setColor(.4, .4, .4, 1);
