@@ -12,6 +12,10 @@ BillBoard::~BillBoard() {
 	ReleaseCOM(mVertexLayout);
 }
 
+void BillBoard::setCenters(const D3DXVECTOR3 centers[], const float height, const float width) {
+	buildVB(centers, width, height);
+}
+
 void BillBoard::init(ID3D10Device* device, const D3DXVECTOR3 centers[], const float height, const float width, std::wstring filename, UINT num) {
 	md3dDevice = device;
 	this->num = num;

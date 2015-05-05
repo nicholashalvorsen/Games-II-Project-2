@@ -17,7 +17,7 @@ public:
 
 	BillBoard();
 	~BillBoard();
-
+	void setCenters(const D3DXVECTOR3[], float, float);
 	void init(ID3D10Device* device, const D3DXVECTOR3 centers[], const float height, const float width, std::wstring filename, UINT num);
 	void draw(const Light& L, const D3DXVECTOR3& eyePosW, const D3DXMATRIX& viewProj);
 
