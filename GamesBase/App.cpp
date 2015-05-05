@@ -508,7 +508,7 @@ void App::updateScene(float dt) {
 				pos1.z + scale1.z / 2 < pos2.z + scale2.z)
 				hitTramp = true;
 
-			if(elapsedTime >= 30.0f) {
+			if(elapsedTime >= 00.0f) {
 				trampObject.setActive();
 			} else {
 				trampObject.setInActive();
@@ -567,7 +567,7 @@ void App::updateScene(float dt) {
 					player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
                 } else
 					
-					if (atLayer == 3 && player.collided(&trampObject) || hitTramp) {
+					if (atLayer == 3 /*&& player.collided(&trampObject) || hitTramp*/) {
 
 					//NEC - start Highscore
 					int randNum = rand() % 100000 + 1;
@@ -1130,10 +1130,10 @@ void App::drawScene() {
 			height = rect.bottom - rect.top;
 		}
 		RECT R2 = { 0, 100, width, height / 1 };
-		std::string gameOverString = "Y O U   W I N !";
+		std::string gameOverString = "Y O U   W I N !\n\n";
 
 		//NEC
-		gameOverString = "";
+		//gameOverString = "";
 		RECT R4 = { 0, 400, width, 3 * height };
 		for(int i = 1; i < HighScoresVector.size(); i++)
 		{//sorting
@@ -1153,7 +1153,7 @@ void App::drawScene() {
 			gameOverString.append(HighScoresVector[i].second);
 			gameOverString.append("\n");
 		}
-		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R4, DT_CENTER, D3DXCOLOR(1, 0.5, 1, 1));
+		//mFont->DrawTextA(0, gameOverString.c_str(), -1, &R4, DT_CENTER, D3DXCOLOR(1, 0.5, 1, 1));
 
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 		RECT R3 = { 0, 400, width, 3 * height / 4 };
