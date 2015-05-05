@@ -243,7 +243,7 @@ void App::initApp() {
 	player.setColor(0, 0, 0, 1);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
-	player.setTexture(md3dDevice, L"flare.dds", L"defaultspec.dds");
+	//player.setTexture(md3dDevice, L"flare.dds", L"defaultspec.dds");
 	//Player Wings
 	pWings.first.init(&wing, player.getPosition());
 	pWings.second.init(&wing, player.getPosition());
@@ -1210,6 +1210,7 @@ void App::buildBoxes() {
 		pillars[i].setScale(Vector3(PILLAR_SIZE, rand() % 2 + PILLAR_HEIGHT_START * 2, PILLAR_SIZE));
 		pillars[i].setVelocity(Vector3(0, 0, PILLAR_SPEED));
 		pillars[i].setColor(181.0f / 255.0f, 152.0f / 255.0f, 108.0f / 255.0f, 1);
+		pillars[i].setTexture(md3dDevice, L"tex/wood.jpg", L"defaultspec.dds");
 	}
 	for (int i = 0; i < NUM_CLOUDS; i++)
 	{
@@ -1217,13 +1218,7 @@ void App::buildBoxes() {
 		clouds[i].setScale(Vector3(CLOUD_SIZE, 1, CLOUD_SIZE));
 		clouds[i].setVelocity(Vector3(CLOUD_X_SPEED, 0, CLOUD_SPEED));
 		clouds[i].setColor(.8, .8, .8, 1);
-	}
-	for (int i = 0; i < NUM_CLOUDS; i++)
-	{
-		clouds[i].init(&box, Vector3(0, -100, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_CLOUDS*i));
-		clouds[i].setScale(Vector3(CLOUD_SIZE, 1, CLOUD_SIZE));
-		clouds[i].setVelocity(Vector3(CLOUD_X_SPEED, 0, CLOUD_SPEED));
-		clouds[i].setColor(.8, .8, .8, 1);
+		clouds[i].setTexture(md3dDevice, L"tex/cloud.jpg", L"defaultspec.dds");
 	}
 
 	for (int i = 0; i < NUM_PLANETS; i++)
@@ -1232,6 +1227,7 @@ void App::buildBoxes() {
 		planets[i].setScale(Vector3(PLANET_SIZE, 1, PLANET_SIZE));
 		planets[i].setVelocity(Vector3(PLANET_X_SPEED, 0, PLANET_SPEED));
 		planets[i].setColor(1, 1, 1, 1);
+		planets[i].setTexture(md3dDevice, L"tex/moon.jpg", L"defaultspec.dds");
 	}
 
 	for (int i = 0; i < NUM_ROCKS; i++)
@@ -1240,6 +1236,7 @@ void App::buildBoxes() {
 		rocks[i].setScale(Vector3(ROCK_SIZE, 1, ROCK_SIZE));
 		rocks[i].setVelocity(Vector3(ROCK_X_SPEED, 0, ROCK_SPEED));
 		rocks[i].setColor(.4, .4, .4, 1);
+		rocks[i].setTexture(md3dDevice, L"tex/rock.jpg", L"defaultspec.dds");
 	}
 }
 
