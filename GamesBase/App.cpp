@@ -497,7 +497,7 @@ void App::updateScene(float dt) {
 				pos1.z + scale1.z / 2 < pos2.z + scale2.z)
 				hitTramp = true;
 
-			if(elapsedTime >= 00.0f) {
+			if(elapsedTime >= 30.0f) {
 				trampObject.setActive();
 			} else {
 				trampObject.setInActive();
@@ -1033,7 +1033,7 @@ void App::drawScene() {
 		po << "Points: " << points;
 		pt.clear();
 		pt.append(po.str());
-		RECT Rp = {580, 5, 0, 0};
+		RECT Rp = {570, 5, 0, 0};
 		mFont->DrawText(0, pt.c_str(), -1, &Rp, DT_NOCLIP, WHITE);
 			break;
 		}
@@ -1143,8 +1143,8 @@ void App::drawScene() {
 	}
 	
 	
-	RECT R1 = {200, 5, 0, 0};
-	mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
+	//RECT R1 = {200, 5, 0, 0};
+	//mFont->DrawText(0, mFrameStats.c_str(), -1, &R1, DT_NOCLIP, D3DXCOLOR(1, 1, 1, .4));
 	
 	/*std::wostringstream outs;
 	std::wstring debugText;
@@ -1381,7 +1381,7 @@ void App::setEasyMode()
 
 	for (int i = 0; i < NUM_ROCKS; i++)
 	{
-		rocks[i].setScale(planets[i].getScale() + Vector3(2, 0, 2));
+		rocks[i].setScale(rocks[i].getScale() + Vector3(2, 0, 2));
 	}
 
 }
