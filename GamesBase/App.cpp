@@ -325,7 +325,7 @@ void App::initApp() {
 
 	for(int i = 0; i < NUM_BUBBLES; ++i) {
 		// Define bubbleCenters
-		bubbleCenters[i] = Vector3(rand()%100/10.0-5, LAYER_HEIGHT[3]+3,i);
+		bubbleCenters[i] = Vector3(rand() % 100 - 50, rand() % 10 + LAYER_HEIGHT[3] - 10, (GAME_DEPTH*20 + GAME_BEHIND_DEPTH) / NUM_BUBBLES*i);
 	}
 	bubble.init(md3dDevice, bubbleCenters, 0.5, 0.5, L"bubble.png", NUM_BUBBLES);
 
@@ -588,10 +588,6 @@ void App::updateScene(float dt) {
 						audio->playCue("winnermusic");
 					}
 
-					for(int i=0;i<NUM_BUBBLES;++i) {
-						bubbleCenters[i].y += rand() % 50 / 500.0;
-					}
-					bubble.setCenters(bubbleCenters, .5, .5);
 				}
 
 			}
@@ -894,6 +890,16 @@ void App::updateScene(float dt) {
 			}
 		}
 
+		for (int i = 0; i < NUM_BUBBLES; ++i) {
+			bubbleCenters[i] = Vector3(bubbleCenters[i].x + 0.1 * dt, bubbleCenters[i].y + 0.2 * i/2 * dt, bubbleCenters[i].z);
+			if (bubbleCenters[i].y > -1)
+				bubbleCenters[i].y = LAYER_HEIGHT[3] - 40;
+			if (bubbleCenters[i].x > 50)
+				bubbleCenters[i].x = -50;
+
+		}
+		bubble.setCenters(bubbleCenters, 0.5, 0.5);
+
 		/* don't let the player go too fast */
 
 		if (player.getVelocity().y < Y_VELOCITY_LIMIT && !player.diving && atLayer != 3 || (player.getVelocity().y < Y_VELOCITY_LIMIT / 3 && !player.diving && atLayer == 3))
@@ -967,14 +973,14 @@ void App::updateScene(float dt) {
 }
 
 void App::drawScene() {
-	switch(gameState) {
+	switch (gameState) {
 	case MENU:
 		mainMenu->displayMenu(diff);
 		break;
 	case GAME_OVER:
 	case LEVEL1:
 	case LEVEL2:
-		{
+	{
 		D3DApp::drawScene();
 		mClearColor = D3DXCOLOR(.419f, .482f, .64f, 1.0f);
 		if (atLayer == 2)
@@ -984,7 +990,7 @@ void App::drawScene() {
 		// because mFont->DrawText changes them.  Note that we can 
 		// restore the default states by passing null.
 		md3dDevice->OMSetDepthStencilState(0, 0);
-		float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
+		float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
 		md3dDevice->IASetInputLayout(mVertexLayout);
 
@@ -997,7 +1003,7 @@ void App::drawScene() {
 		//Draw Axis
 		//axis.draw(&ri);
 
-		
+
 		//Draw objects
 		/*pWings.first.draw(&ri);
 		pWings.second.draw(&ri);*/
@@ -1010,7 +1016,7 @@ void App::drawScene() {
 		{
 			for (int i = 0; i < NUM_PILLARS; i++)
 				pillars[i].draw(&ri);
-				
+
 			wavesObject.draw(&ri);
 
 			simpleCliff.draw(&ri);
@@ -1028,16 +1034,17 @@ void App::drawScene() {
 				planets[i].draw(&ri);
 
 		if (atLayer == 3)
+		{
 			for (int i = 0; i < NUM_ROCKS; i++)
 				rocks[i].draw(&ri);
-				bubble.draw(mLight, mEyePos, ri.mView*ri.mProj);
+			bubble.draw(mLight, mEyePos, ri.mView*ri.mProj);
 		}
 
 		beginningPlatform.draw(&ri);
 
 		//for (int i = 0; i < NUM_SCENERY; i++)
 		//	scenery[i].draw(&ri);
-		
+
 		trampObject.draw(&ri);
 
 		if (atLayer == 2)
@@ -1051,11 +1058,11 @@ void App::drawScene() {
 		po << "Points: " << points;
 		pt.clear();
 		pt.append(po.str());
-		RECT Rp = {570, 5, 0, 0};
+		RECT Rp = { 570, 5, 0, 0 };
 		mFont->DrawText(0, pt.c_str(), -1, &Rp, DT_NOCLIP, WHITE);
-			break;
-		}
-
+		break;
+	}
+	}
 	//Draw text to screen
 	if (gameState == GAME_OVER) {
 		RECT rect;
@@ -1376,7 +1383,7 @@ void App::updateGameState(float dt) {
 					audio->playCue("death");
 				}
 				gameState = GAME_OVER;
-				player.setPosition(Vector3(player.getPosition().x, -1000, player.getPosition().z));
+				player.setPosition(Vector3(player.getPosition().x, 15, player.getPosition().z));
 				player.update(dt);
 			}
 		}
