@@ -1083,7 +1083,7 @@ void App::drawScene() {
 
 		//NEC
 		gameOverString = "";
-		RECT R4 = { 0, 400, width, 3 * height };
+		RECT R4 = { 0, 150, width, 3 * height };
 		for(int i = 1; i < HighScoresVector.size(); i++)
 		{//sorting
 			int test1 = std::stoi(HighScoresVector[i].second);
@@ -1102,7 +1102,7 @@ void App::drawScene() {
 			gameOverString.append(HighScoresVector[i].second);
 			gameOverString.append("\n");
 		}
-		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R4, DT_CENTER, D3DXCOLOR(1, 0.5, 1, 1));
+		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R4, DT_CENTER, D3DXCOLOR(1, 0, 0, 1));
 
 	} else if (gameState == MENU) {
 		RECT rect;
@@ -1132,9 +1132,14 @@ void App::drawScene() {
 		RECT R2 = { 0, 100, width, height / 1 };
 		std::string gameOverString = "Y O U   W I N !";
 
+		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+		RECT R3 = { 0, 400, width, 3 * height / 4 };
+		gameOverString = "(R) to restart";
+		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+
 		//NEC
 		gameOverString = "";
-		RECT R4 = { 0, 400, width, 3 * height };
+		RECT R4 = { 0, 150, width, 3 * height };
 		for(int i = 1; i < HighScoresVector.size(); i++)
 		{//sorting
 			int test1 = std::stoi(HighScoresVector[i].second);
@@ -1153,12 +1158,7 @@ void App::drawScene() {
 			gameOverString.append(HighScoresVector[i].second);
 			gameOverString.append("\n");
 		}
-		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R4, DT_CENTER, D3DXCOLOR(1, 0.5, 1, 1));
-
-		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
-		RECT R3 = { 0, 400, width, 3 * height / 4 };
-		gameOverString = "(R) to restart";
-		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
+		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R4, DT_CENTER, D3DXCOLOR(1, 0, 0, 1));
 		}
 	else if (fadeTextActive)
 	{
