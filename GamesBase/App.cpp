@@ -204,14 +204,6 @@ void App::initApp() {
 	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
 
 	//Complex Geometry
-	//Box
-	/*box.init(&quad);
-	box.addChild(&quad, Vector3(0, 0, -0.5f), Vector3(ToRadian(-90), 0, 0), Vector3(1, 1, 1), 0);
-	box.addChild(&quad, Vector3(0, 0, +0.5f), Vector3(ToRadian(90), 0, 0), Vector3(1, 1, 1), 0);
-	box.addChild(&quad, Vector3(-0.5f, 0, 0), Vector3(0, 0, ToRadian(90)), Vector3(1, 1, 1), 0);
-	box.addChild(&quad, Vector3(+0.5f, 0, 0), Vector3(0, 0, ToRadian(-90)), Vector3(1, 1, 1), 0);
-	box.addChild(&quad, Vector3(0, -0.5f, 0), Vector3(0, 0, ToRadian(180)), Vector3(1, 1, 1), 0);
-	box.addChild(&quad, Vector3(0, 0.5f, 0), Vector3(0, 0, 0), Vector3(1, 1, 1), 0);*/
 	//Diamond
 	diamond.init(&pyramid);
 	diamond.addChild(&pyramid, Vector3(0, -1.0f, 0), Vector3(0, 0, ToRadian(180)), Vector3(1, 1, 1), 0);
@@ -244,7 +236,7 @@ void App::initApp() {
 	axis.init(&line);
 	//Player
 	player.init(&playerGeo, Vector3(0, 3, 0));
-	player.setColor(0, 0, 0, 1);
+	player.setColor(1, 0, 0, 1);
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
 	player.setTexture(md3dDevice, L"tex/feathers.jpg", L"defaultspec.dds");

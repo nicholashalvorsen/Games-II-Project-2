@@ -80,7 +80,7 @@ float4 PS(VS_OUT pIn) : SV_Target {
 
 	if (hasTexture) {
 		// Get materials from texture maps.
-		pIn.diffuse = gDiffuseMap.Sample( gTriLinearSam, pIn.texC );
+		pIn.diffuse *= gDiffuseMap.Sample( gTriLinearSam, pIn.texC );
 		pIn.spec    = gSpecMap.Sample( gTriLinearSam, pIn.texC );
 	
 		// Map [0,1] --> [0,256]
