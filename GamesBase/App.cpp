@@ -86,6 +86,7 @@ private:
 	ID3D10EffectVariable* mfxLightVar;
 	ID3D10EffectScalarVariable* mfxLightType;
 	ID3D10EffectVariable* mfxPlayerPos;
+	ID3D10EffectVariable* mfxUnderwaterShader;
 
 	Light mLight;
 	Light pointlights[8];
@@ -1191,6 +1192,8 @@ void App::buildFX() {
 	mfxLightVar  = mFX->GetVariableByName("gLight");
 	mfxLightType = mFX->GetVariableByName("gLightType")->AsScalar();
 	mfxPlayerPos = mFX->GetVariableByName("playerPos");
+	mfxUnderwaterShader = mFX->GetVariableByName("underwaterShader");
+	
 }
 
 void App::buildVertexLayouts()
@@ -1368,6 +1371,10 @@ void App::setEasyMode()
 		planets[i].setVelocity(planets[i].getVelocity() + Vector3(0, 0, 2));
 	}
 
+	for (int i = 0; i < NUM_ROCKS; i++)
+	{
+		rocks[i].setScale(planets[i].getScale() + Vector3(2, 0, 2));
+	}
 
 }
 

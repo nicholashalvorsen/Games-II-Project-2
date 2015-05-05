@@ -3,7 +3,10 @@
 cbuffer cbPerFrame
 {
 	Light gLight;
+	int gLightType;
 	float3 gEyePosW;
+	float3 playerPos;
+	bool underwaterShader;
 };
 
 cbuffer cbPerObject
@@ -14,6 +17,14 @@ cbuffer cbPerObject
 	float4 spec;
 	float4x4 gTexMtx;
 	int hasTexture;
+};
+
+cbuffer cbFixed
+{
+	float gFogStart = 25.0f;
+	float gFogRange = 35.0f;
+	float3 gFogColor = { 0.8f, 0.8f, 0.8f };
+	float3 gFogColor2 = { 0.15f, 0.15f, 0.15f };
 };
 
 Texture2D gDiffuseMap;//new
@@ -34,6 +45,7 @@ struct VS_OUT
     float4 diffuse : DIFFUSE;
 	float4 spec    : SPECULAR;
 	float2 texC    : TEXCOORD; //New
+	float fogLerp  : FOG;
 };
 
 SamplerState gTriLinearSam
@@ -58,6 +70,9 @@ VS_OUT VS(VS_IN vIn) {
 	vOut.spec    = spec;
 	if (hasTexture) vOut.texC  = mul(float4(vIn.texC, 0.0f, 1.0f), gTexMtx);
 
+	float d = distance(vOut.posW, gEyePosW);
+	vOut.fogLerp = saturate((d - gFogStart) / gFogRange);
+
 	return vOut;
 }
 
@@ -80,7 +95,29 @@ float4 PS(VS_OUT pIn) : SV_Target {
 	float3 litColor;
 	litColor = ParallelLight(v, gLight, gEyePosW);
 
-    return float4(litColor, pIn.diffuse.a);
+	// Blend the fog color and the lit color.
+	float3 foggedColor = lerp(litColor, gFogColor, pIn.fogLerp);
+	float3 foggedColor2 = lerp(litColor, gFogColor2, pIn.fogLerp);
+	const int layer2Height = 50;
+	if (playerPos.y > layer2Height && pIn.posW.z < layer2Height + 10)
+	{
+		float dist = abs(layer2Height - 1 - playerPos.y) / 10;
+		foggedColor[0] -= dist * (foggedColor[0] - foggedColor2[0]);
+		foggedColor[1] -= dist * (foggedColor[1] - foggedColor2[1]);
+		foggedColor[2] -= dist * (foggedColor[2] - foggedColor2[2]);
+		if (foggedColor[0] < foggedColor2[0])
+			foggedColor[0] = foggedColor2[0];
+		if (foggedColor[1] < foggedColor2[1])
+			foggedColor[1] = foggedColor2[1];
+		if (foggedColor[2] < foggedColor2[2])
+			foggedColor[2] = foggedColor2[2];
+	}
+
+	if (playerPos.y < -4)
+		foggedColor[2] = 0.7;
+
+	return float4(foggedColor, pIn.diffuse.a);
+
 }
 
 technique10 Tech
