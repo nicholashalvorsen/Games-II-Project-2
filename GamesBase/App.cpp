@@ -505,15 +505,10 @@ void App::updateScene(float dt) {
 				pos1.y + scale1.y / 2 > pos2.y - scale2.y / 2 &&
 				pos1.y - scale1.y / 2 < pos2.y + scale2.y / 2 &&
 				pos1.z - scale1.z / 2 > pos2.z - scale2.z &&
-				pos1.z + scale1.z / 2 < pos2.z + scale2.z)
+				pos1.z + scale1.z / 2 < pos2.z + scale2.z && trampObject.getActiveState())
 				hitTramp = true;
 
-			if(elapsedTime >= 30.0f) {
-				trampObject.setActive();
-			} else {
-				trampObject.setInActive();
-			}
-				
+	
 			if ((!GetAsyncKeyState('B') && bPressedLastFrame) || player.collided(&trampObject) || hitTramp) {
 				if (!muted)
 					audio->playCue("boing");
@@ -728,6 +723,13 @@ void App::updateScene(float dt) {
 		if (trampObject.getPosition().z < -GAME_BEHIND_DEPTH) {
 			int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 			trampObject.setPosition(Vector3(x, LAYER_HEIGHT[atLayer] + 2, GAME_DEPTH));
+
+			if (elapsedTime >= 30.0f) {
+				trampObject.setActive();
+			}
+			else {
+				trampObject.setInActive();
+			}
 		}
 
 		for (int i = 0; i < NUM_CLOUDS; i++)

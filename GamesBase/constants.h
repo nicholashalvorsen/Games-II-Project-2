@@ -18,7 +18,7 @@
 const wchar_t WAVE_BANK[]  = L"audio\\Win\\MyWBank.xwb";
 const wchar_t SOUND_BANK[] = L"audio\\Win\\MySBank.xsb";
 
-const int GAME_WIDTH = 20;
+const int GAME_WIDTH = 25;
 const int GAME_DEPTH = 40;
 const int GAME_BEHIND_DEPTH = 10;
 const int NUM_SCENERY = 2;
@@ -56,9 +56,9 @@ const float CLOUD_SIZE = 3;
 const int NUM_PLANETS = 15;
 const float PLANET_SPEED = -6;
 const float PLANET_X_SPEED = 1;
-const float PLANET_SIZE = 2.5;
+const float PLANET_SIZE = 2.75;
 
-const int NUM_ROCKS = 10;
+const int NUM_ROCKS = 15;
 const float ROCK_SPEED = -2;
 const float ROCK_X_SPEED = 1;
 const float ROCK_SIZE = 3;

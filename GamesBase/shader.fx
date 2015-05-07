@@ -118,7 +118,7 @@ float4 PS(VS_OUT pIn) : SV_Target {
 			foggedColor[2] = foggedColor2[2];
 	}
 
-	if (playerPos.y < -4)
+	if (gEyePosW.y < 0)
 		foggedColor[2] = 0.7;
 
 	return float4(foggedColor, pIn.diffuse.a);
