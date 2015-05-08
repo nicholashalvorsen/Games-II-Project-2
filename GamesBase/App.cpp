@@ -471,22 +471,9 @@ void App::updateScene(float dt) {
 				player.setDiving(false);
 			}
 
-			bool hitTramp = false;
+			bool hitTramp = player.collided(&trampObject);
 
-			Vector3 pos1 = player.getPosition();
-			Vector3 scale1 = player.getScale();
-			Vector3 pos2 = trampObject.getPosition();
-			Vector3 scale2 = trampObject.getScale() * 2.5;
-			if (pos1.x + scale1.x / 2 > pos2.x - scale2.x &&
-				pos1.x - scale1.x / 2 < pos2.x + scale2.x &&
-				pos1.y + scale1.y / 2 > pos2.y - scale2.y / 2 &&
-				pos1.y - scale1.y / 2 < pos2.y + scale2.y / 2 &&
-				pos1.z - scale1.z / 2 > pos2.z - scale2.z &&
-				pos1.z + scale1.z / 2 < pos2.z + scale2.z && trampObject.getActiveState())
-				hitTramp = true;
-
-	
-			if ((!GetAsyncKeyState('B') && bPressedLastFrame) || player.collided(&trampObject) || hitTramp) {
+			if ((!GetAsyncKeyState('B') && bPressedLastFrame) || hitTramp) {
 				if (!muted)
 					audio->playCue("boing");
 				elapsedTime = 0;
