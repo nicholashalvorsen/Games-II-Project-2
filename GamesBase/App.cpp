@@ -80,7 +80,7 @@ private:
 	Object wavesObject;
 	Object diamonds[NUM_PILLARS/5];
 	Object beginningPlatform;
-
+	std::pair<Object, Object> lasers;
 	//Lighting
 	ID3D10EffectVariable* mfxEyePosVar;
 	ID3D10EffectVariable* mfxLightVar;
@@ -147,6 +147,8 @@ private:
 	bool underwaterShader;
 	std::uniform_real_distribution<float> randomScaleDistribution;
 	std::mt19937 generator;
+
+	bool lasers_fired;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
@@ -194,6 +196,8 @@ void App::initApp() {
 	muted = false;
 	audio = new Audio();
 	audio->initialize();
+
+	lasers_fired = false;
 
 	//Camera
 	zoom = 1.0f;
@@ -250,6 +254,17 @@ void App::initApp() {
 	player.setRotation(Vector3(0, -90 * M_PI / 180, 0));
 	player.setScale(Vector3(0.5, 0.5, 0.5));
 	player.setTexture(md3dDevice, L"tex/feathers.jpg", L"defaultspec.dds");
+
+
+	//Motha flippin Lasers
+	lasers.first.init(&box, player.getPosition() - Vector3(0.5,0,0));
+	lasers.second.init(&box, player.getPosition() + Vector3(0.5,0,0));
+	lasers.first.setScale(Vector3(0.1, 0.1, 1.0));
+	lasers.second.setScale(Vector3(0.1, 0.1, 1.0));
+	lasers.first.setColor(1, 0, 0, 1);
+	lasers.second.setColor(1, 0, 0, 1);
+	lasers.first.setTexture(md3dDevice, L"tex/laser.png", L"defaultspec.dds");
+	lasers.second.setTexture(md3dDevice, L"tex/laser.png", L"defaultspec.dds");
 	//Waves
 	wavesObject.init(&waves, Vector3(0, -.5, SEA_SIZE / 8));
 	wavesObject.setColor(9.0f / 255.0f, 72.0f / 255.0f, 105.0f / 255.0f, 1);
@@ -470,6 +485,28 @@ void App::updateScene(float dt) {
 				audio->stopCue("dive");
 				player.setDiving(false);
 			}
+
+			//fire lasers
+			
+
+			if(GetAsyncKeyState('F')){
+				lasers.second.setVelocity(Vector3(0, 0, 10));
+				lasers.first.setVelocity(Vector3(0, 0, 10));
+				lasers_fired = true;
+			}
+			if(lasers.first.getPosition().z > 30){
+				lasers.first.setPosition(player.getPosition() - Vector3(0.5, 0, 0));
+				lasers.second.setPosition(player.getPosition() + Vector3(0.5, 0, 0));
+				lasers.first.setVelocity(Vector3(0, 0, 0));
+				lasers.second.setVelocity(Vector3(0, 0, 0));
+				lasers_fired = false;
+			}
+			if(!lasers_fired){
+				lasers.first.setPosition(Vector3(player.getPosition().x + 0.5, player.getPosition().y, lasers.first.getPosition().z));
+				lasers.second.setPosition(Vector3(player.getPosition().x - 0.5, player.getPosition().y, lasers.second.getPosition().z));
+			}
+			lasers.first.update(dt);
+			lasers.second.update(dt);
 
 			bool hitTramp = false;
 
@@ -816,6 +853,12 @@ void App::updateScene(float dt) {
 					if (!muted)
 					audio->playCue("collect");
 				}
+				if(lasers.first.collided(&diamonds[i]) && diamonds[i].getActiveState()){
+					diamonds[i].setInActive();
+					points += 500;
+				if (!muted)
+					audio->playCue("lasered");
+				}
 			}
 
 		bool playerBounced = false;
@@ -977,6 +1020,10 @@ void App::drawScene() {
 		/*pWings.first.draw(&ri);
 		pWings.second.draw(&ri);*/
 		player.draw(&ri);
+		if(lasers_fired){
+			lasers.first.draw(&ri);
+			lasers.second.draw(&ri);
+		}
 
 		for (int i = 0; i < NUM_DIAMONDS; i++)
 			diamonds[i].draw(&ri);
@@ -1087,7 +1134,7 @@ void App::drawScene() {
 		mFont2->DrawTextA(0, gameOverString.c_str(), -1, &R2, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 
 		RECT R3 = {300, 200, width, height / 1};
-		gameOverString = "Controls:\nMove: Left/Right or A/D\nGlide: Up or W\nDive: Down or S\n\nMute sounds: M";
+		gameOverString = "Controls:\nMove: Left/Right or A/D\nGlide: Up or W\nDive: Down or S\n\nMute sounds: M\nFire lasers at diamonds for bonus points: F";
 		mFont->DrawTextA(0, gameOverString.c_str(), -1, &R3, DT_CENTER, D3DXCOLOR(1, 1, 1, 1));
 	} else if (gameWon) {
 		RECT rect;
