@@ -24,46 +24,53 @@ Waves::~Waves()
 	ReleaseCOM(mIB);
 }
 
+void Waves::setUp(DWORD m, DWORD n, float dx, float dt, float speed, float damping)
+{
+
+	mNumRows = m;
+	mNumCols = n;
+
+	mNumVertices = m*n;
+	mNumFaces = (m - 1)*(n - 1) * 2;
+
+	mTimeStep = dt;
+	mSpatialStep = dx;
+
+	float d = damping*dt + 2.0f;
+	float e = (speed*speed)*(dt*dt) / (dx*dx);
+	mK1 = (damping*dt - 2.0f) / d;
+	mK2 = (4.0f - 8.0f*e) / d;
+	mK3 = (2.0f*e) / d;
+
+	mPrevSolution = new D3DXVECTOR3[m*n];
+	mCurrSolution = new D3DXVECTOR3[m*n];
+	mNormals = new D3DXVECTOR3[m*n];
+
+	// Generate grid vertices in system memory.
+
+	float halfWidth = (n - 1)*dx*0.5f;
+	float halfDepth = (m - 1)*dx*0.5f;
+	for (DWORD i = 0; i < m; ++i)
+	{
+		float z = halfDepth - i*dx;
+		for (DWORD j = 0; j < n; ++j)
+		{
+			float x = -halfWidth + j*dx;
+
+			mPrevSolution[i*n + j] = D3DXVECTOR3(x, 0.0f, z);
+			mCurrSolution[i*n + j] = D3DXVECTOR3(x, 0.0f, z);
+			mNormals[i*n + j] = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+		}
+	}
+}
+
 void Waves::init(ID3D10Device* device, DWORD m, DWORD n, float dx, float dt, float speed, float damping)
 {
 	md3dDevice = device;
 
-	mNumRows  = m;
-	mNumCols  = n;
-
-	mNumVertices = m*n;
-	mNumFaces    = (m-1)*(n-1)*2;
-
-	mTimeStep    = dt;
-	mSpatialStep = dx;
-
-	float d = damping*dt+2.0f;
-	float e = (speed*speed)*(dt*dt)/(dx*dx);
-	mK1     = (damping*dt-2.0f)/ d;
-	mK2     = (4.0f-8.0f*e) / d;
-	mK3     = (2.0f*e) / d;
-
-	mPrevSolution = new D3DXVECTOR3[m*n];
-	mCurrSolution = new D3DXVECTOR3[m*n];
-	mNormals      = new D3DXVECTOR3[m*n];
-
-	// Generate grid vertices in system memory.
-
-	float halfWidth = (n-1)*dx*0.5f;
-	float halfDepth = (m-1)*dx*0.5f;
-	for(DWORD i = 0; i < m; ++i)
-	{
-		float z = halfDepth - i*dx;
-		for(DWORD j = 0; j < n; ++j)
-		{
-			float x = -halfWidth + j*dx;
-
-			mPrevSolution[i*n+j] = D3DXVECTOR3(x, 0.0f, z);
-			mCurrSolution[i*n+j] = D3DXVECTOR3(x, 0.0f, z);
-			mNormals[i*n+j]      = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-		}
-	}
  
+	setUp(m, n, dx, dt, speed, damping);
+
 	// Create the vertex buffer.  Note that we allocate space only, as
 	// we will be updating the data every time step of the simulation.
 

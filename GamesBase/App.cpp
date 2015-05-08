@@ -205,7 +205,7 @@ void App::initApp() {
 	triangle.init(md3dDevice);
 	box.init(md3dDevice);
 	testTramp.init(md3dDevice);
-	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.5f);
+	waves.init(md3dDevice, SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
 
 	//Complex Geometry
 	//Diamond
@@ -277,6 +277,7 @@ void App::initApp() {
 	beginningPlatform.setScale(Vector3(10, PILLAR_HEIGHT_START, GAME_DEPTH * 1.5));
 	beginningPlatform.setVelocity(Vector3(0, 0, PILLAR_SPEED));
 	beginningPlatform.setColor(191.0f / 255.0f, 162.0f / 255.0f, 118.0f / 255.0f, 1);
+	beginningPlatform.setTexture(md3dDevice, L"tex/wood.jpg", L"defaultspec.dds");
 	//Scenery
 	for (int i = 0; i < NUM_SCENERY; i++)
 	{
@@ -291,6 +292,8 @@ void App::initApp() {
 		scenery[i].init(&sceneryGeometry[i], Vector3(xpos, 1, 1.0f * (GAME_DEPTH + GAME_BEHIND_DEPTH) / NUM_SCENERY*i));
 		scenery[i].setVelocity(Vector3(0, 0, -1));
 	}
+
+	//Billboards
 
 	//Stars
 	D3DXVECTOR3 stars[NUM_STARS];
@@ -311,24 +314,11 @@ void App::initApp() {
 	}
 	starBB.init(md3dDevice, stars, 1.0f, 1.0f, L"star.png", NUM_STARS);
 
-	//Billboards
-	D3DXVECTOR3 centers[2];
-	for(UINT i = 0; i < 2; ++i)
-	{
-		float x = 1;
-		float z = 2 + i;
-		float y = 0;
-
-		centers[i] = D3DXVECTOR3(x,y,z);
-	}
-	billboard.init(md3dDevice, centers, 1.0f, 1.0f, L"flare.dds", 2);
-
 	for(int i = 0; i < NUM_BUBBLES; ++i) {
 		// Define bubbleCenters
 		bubbleCenters[i] = Vector3(rand() % 100 - 50, rand() % 10 + LAYER_HEIGHT[3] - 10, (GAME_DEPTH*20 + GAME_BEHIND_DEPTH) / NUM_BUBBLES*i);
 	}
 	bubble.init(md3dDevice, bubbleCenters, 0.5, 0.5, L"bubble.png", NUM_BUBBLES);
-
 
 
 	//Menu
@@ -356,19 +346,6 @@ void App::initApp() {
 	mLight.range    = 1000.0f;
 	mLight.pos = Vector3(0.0f, 15.0f, 1.0f);
 	mLight.dir = Vector3(0.0f, -1.0f, 3.0f);
-	
-	/*for(int i = 0; i < 8; i++){
-		pointlights[i].ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 0.2f);
-		pointlights[i].diffuse = D3DXCOLOR(0.1f, 0.1f, 0.1f, 0.1f);
-		pointlights[i].specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 0.7f);
-		pointlights[i].att.x    = 1.0f;
-		pointlights[i].att.y    = 0.0f;
-		pointlights[i].att.z    = 0.0f;
-		pointlights[i].spotPow  = 64.0f;
-		pointlights[i].range    = 10000.0f;
-		pointlights[i].pos = Vector3(15.0f * i, 0, 0);
-		pointlights[i].dir = Vector3(0.0f, 1.0f, 0.0f);
-	}*/
 
 	setUpGame(true);
 }
@@ -444,7 +421,7 @@ void App::updateScene(float dt) {
 		if(gameState != GAME_OVER && !gameWon) {
 
 			//Thrust with a timer of a 1:2 thrust to cooldown ratio and a 2 second starting thrust bank.
-			if (GetAsyncKeyState(VK_SPACE)){ 
+			/*if (GetAsyncKeyState(VK_SPACE)){ 
 		
 				if(thrust_timer < 1.0f){
 					thrust_timer+=dt;
@@ -454,7 +431,7 @@ void App::updateScene(float dt) {
 			}else if(thrust_timer > 0){
        			  thrust_timer -= 0.5*dt;
 
-			}
+			}*/
 			if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState('A')){
 				player.accelLeft(dt);
 				//pWings.first.setRotation(Vector3(0 , 0, PI/6));
@@ -544,6 +521,7 @@ void App::updateScene(float dt) {
 					trampObject.setInActive();
 					int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 					trampObject.setPosition(Vector3(x, LAYER_HEIGHT[3] + 2, GAME_DEPTH));
+					waves.setDamping(0.1f);
 					for (int x = 0; x < 20; x++)
 					{
 						DWORD i = 15;
@@ -878,17 +856,6 @@ void App::updateScene(float dt) {
 					audio->playCue("bounce");
 				else
 					audio->playCue("bounce2");
-			}
-
-			// disturb waves
-			for (int x = 0; x < SEA_SIZE / 20; x++)
-			{
-				DWORD i = SEA_SIZE - 10;
-				DWORD j = 5 + rand() % SEA_SIZE;
-
-				float r = RandF(1.5f, 1.8f);
-
-				waves.disturb(i, j, r);
 			}
 		}
 
@@ -1416,12 +1383,12 @@ void App::setEasyMode()
 {
 	easyMode = true;
 
-	beginningPlatform.setVelocity(beginningPlatform.getVelocity() + Vector3(0, 0, 2));
+	beginningPlatform.setVelocity(beginningPlatform.getVelocity() + Vector3(0, 0, 1));
 
 	for (int i = 0; i < NUM_PILLARS; i++)
 	{
 		pillars[i].setScale(pillars[i].getScale() + Vector3(2, 0, 2));
-		pillars[i].setVelocity(pillars[i].getVelocity() + Vector3(0, 0, 2));
+		pillars[i].setVelocity(pillars[i].getVelocity() + Vector3(0, 0, 1));
 	}
 
 	for (int i = 0; i < NUM_CLOUDS; i++)
@@ -1460,6 +1427,7 @@ void App::setUpGame(bool menu)
 	cameraYBoost = 0;
 	cameraZBoost = 0;
 	thrust_timer = 0.0f;
+	elapsedTime = 0;
 	if (!muted)
 	{
 		audio->stopCue("music");
@@ -1486,10 +1454,18 @@ void App::setUpGame(bool menu)
 
 	beginningPlatform.setPosition(Vector3(0, .5, GAME_DEPTH * .4));
 
-	waves.setDamping(1000.0);
-	for (int i = 0; i < 50; i++)
-		waves.update(1);
-	waves.setDamping(0.2);
+	waves.setUp(SEA_SIZE + 7, SEA_SIZE + 7, 0.5f, 0.03f, 3.25f, 0.0f);
+
+	// disturb waves
+	for (int x = 0; x < SEA_SIZE / 20; x++)
+	{
+		DWORD i = SEA_SIZE - 10;
+		DWORD j = 5 + rand() % SEA_SIZE;
+
+		float r = RandF(1.5f, 1.8f);
+
+		waves.disturb(i, j, r);
+	}
 
 	points = 0;
 	fadeText(LAYER_NAMES[0]);
