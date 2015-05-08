@@ -42,11 +42,11 @@ void Player::update(float dt) {
 	animationTimer -= dt;
 	if (animationTimer < 0) {
 		if (gliding) {
-			animationTimer = 0.2;
-			setAnimation(s, 0.2f);
+			animationTimer = 0.1;
+			setAnimation(s, 0.1f);
 		} else {
-			animationTimer = 1;
-			setAnimation(s, 1.0f);
+			animationTimer = .8;
+			setAnimation(s, 0.8f);
 		}
 		if (s) s = 0; else s = 1;
 	}

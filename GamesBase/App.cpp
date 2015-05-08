@@ -140,6 +140,7 @@ private:
 	bool muted;
 	bool submarine;
 
+	float lastBounced; // to fix the sound playing 10x per second if you bounce up through the bottom of an object
 	int points;
 
 	//other
@@ -360,7 +361,7 @@ void App::initApp() {
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 1000.0f;
 	mLight.pos = Vector3(0.0f, 15.0f, 1.0f);
-	mLight.dir = Vector3(0.0f, -1.0f, 3.0f);
+	mLight.dir = Vector3(0.0f, -1.0f, 1.0f);
 
 	setUpGame(true);
 }
@@ -465,12 +466,12 @@ void App::updateScene(float dt) {
 						if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W'))
 			{
 				if (player.gliding == false && !muted)
-					audio->playCue("glide");
+					audio->playCue("wingflap");
 				player.setGliding(true);
 			}
 			else
 			{
-				audio->stopCue("glide");
+				audio->stopCue("wingflap");
 				player.setGliding(false);
 			}
 			if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState('S'))
@@ -486,6 +487,7 @@ void App::updateScene(float dt) {
 				player.setDiving(false);
 			}
 
+<<<<<<< HEAD
 			//fire lasers
 			
 
@@ -509,21 +511,11 @@ void App::updateScene(float dt) {
 			lasers.second.update(dt);
 
 			bool hitTramp = false;
+=======
+			bool hitTramp = player.collided(&trampObject);
+>>>>>>> origin/Textures+Billboards
 
-			Vector3 pos1 = player.getPosition();
-			Vector3 scale1 = player.getScale();
-			Vector3 pos2 = trampObject.getPosition();
-			Vector3 scale2 = trampObject.getScale() * 2.5;
-			if (pos1.x + scale1.x / 2 > pos2.x - scale2.x &&
-				pos1.x - scale1.x / 2 < pos2.x + scale2.x &&
-				pos1.y + scale1.y / 2 > pos2.y - scale2.y / 2 &&
-				pos1.y - scale1.y / 2 < pos2.y + scale2.y / 2 &&
-				pos1.z - scale1.z / 2 > pos2.z - scale2.z &&
-				pos1.z + scale1.z / 2 < pos2.z + scale2.z && trampObject.getActiveState())
-				hitTramp = true;
-
-	
-			if ((!GetAsyncKeyState('B') && bPressedLastFrame) || player.collided(&trampObject) || hitTramp) {
+			if ((!GetAsyncKeyState('B') && bPressedLastFrame) || hitTramp) {
 				if (!muted)
 					audio->playCue("boing");
 				elapsedTime = 0;
@@ -590,7 +582,7 @@ void App::updateScene(float dt) {
 
 					if (!muted)
 					{
-						audio->stopCue("glide");
+						audio->stopCue("wingflap");
 						audio->stopCue("waterstream");
 						audio->stopCue("music");
 						audio->stopCue("musiclayer2");
@@ -670,14 +662,8 @@ void App::updateScene(float dt) {
 		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4)
 			cameraYBoost += CAMERA_MOVE_SPEED * dt;	
 
-		//if (cameraZBoost < 10 && atLayer >= 1)
-		//	cameraZBoost += CAMERA_MOVE_SPEED * dt;
-
 		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 4)
 			cameraYBoost -= CAMERA_MOVE_SPEED * dt;
-
-		//if (cameraZBoost > 0 && atLayer < 1)
-		//	cameraZBoost -= CAMERA_MOVE_SPEED * dt;
 			
 
 		beginningPlatform.update(dt);
@@ -687,14 +673,7 @@ void App::updateScene(float dt) {
 			beginningPlatform.setVelocity(Vector3(beginningPlatform.getVelocity().x, 0, beginningPlatform.getVelocity().z));
 
 		for (int i = 0; i < NUM_DIAMONDS; i++)
-		{
-			//diamond.increaseRotation(1);
-
-			//diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180, 0));//Spinning effect diamond.getRotation() * M_PI / 180
-
-			//diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180*dt, 0));//Spinning effect diamond.getRotation() * M_PI / 180
-
-			
+		{			
 			if ((atLayer == 0 && diamonds[i].getPosition().y < LAYER_HEIGHT[0] + 4) || 
 				(atLayer == 1 && diamonds[i].getPosition().y < LAYER_HEIGHT[1] + 4) ||
 				(atLayer == 2 && diamonds[i].getPosition().y < LAYER_HEIGHT[2] + 34))
@@ -828,20 +807,9 @@ void App::updateScene(float dt) {
 				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 0, scenery[i].getVelocity().z));
 		}
 
-		//for (int i = 0; i < NUM_CLIFFS; i++)
-			//cliffs[i].update(dt);
-
 		simpleCliff.update(dt);
         simpleLeftCliff.update(dt);
         simpleRightCliff.update(dt);
-
-		/* bottom collision, temp */ 
-		//if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
-		//{
-		//	player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
-
-		//	player.setPosition(oldPlayerPosition);
-		//}
 
 		// collision
 		for (int i = 0; i < NUM_DIAMONDS; i++)
@@ -862,6 +830,7 @@ void App::updateScene(float dt) {
 			}
 
 		bool playerBounced = false;
+		lastBounced += dt;
 
 		if (atLayer == 0)
 			for (int i = 0; i < NUM_PILLARS; i++)
@@ -889,10 +858,11 @@ void App::updateScene(float dt) {
 
 		if (playerBounced)
 		{
+
 			player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 			player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 			points += 10 * (atLayer + 1);
-			if (!muted)
+			if (!muted && lastBounced > 0.5)
 			{
 				int randAudio = rand() % 2;
 				if (randAudio == 0)
@@ -900,6 +870,8 @@ void App::updateScene(float dt) {
 				else
 					audio->playCue("bounce2");
 			}
+
+			lastBounced = 0;
 		}
 
 		for (int i = 0; i < NUM_BUBBLES; ++i) {
@@ -1014,7 +986,6 @@ void App::drawScene() {
 
 		//Draw Axis
 		//axis.draw(&ri);
-
 
 		//Draw objects
 		/*pWings.first.draw(&ri);
@@ -1509,11 +1480,11 @@ void App::setUpGame(bool menu)
 		DWORD i = SEA_SIZE - 10;
 		DWORD j = 5 + rand() % SEA_SIZE;
 
-		float r = RandF(1.5f, 1.8f);
+		float r = RandF(1.5f, 1.7f);
 
 		waves.disturb(i, j, r);
 	}
-
+	lastBounced = 0;
 	points = 0;
 	fadeText(LAYER_NAMES[0]);
 }

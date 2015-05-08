@@ -26,7 +26,7 @@ void Box::init(ID3D10Device* device)
 	// Create vertex buffer
     Vertex v[] = {
 		// Fill in the front face vertex data.
-		{D3DXVECTOR3(-1.0f, -1.0f, -1.0), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 1.0f)},
+		{D3DXVECTOR3(-1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 1.0f)},
 		{D3DXVECTOR3(-1.0f,  1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 0.0f)},
 		{D3DXVECTOR3(1.0f,  1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(1.0f, 0.0f)},
 		{D3DXVECTOR3(1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(1.0f, 1.0f)},
@@ -46,7 +46,7 @@ void Box::init(ID3D10Device* device)
 		{D3DXVECTOR3( 1.0f, -1.0f,  1.0f), D3DXVECTOR3(0.0f, -1.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f)},
 		{D3DXVECTOR3(-1.0f, -1.0f,  1.0f), D3DXVECTOR3(0.0f, -1.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f)},
 		// Fill in the left face vertex data.
-		{D3DXVECTOR3(-1.0f, -1.0f,  1.0f), D3DXVECTOR3(-1.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f)},
+		{D3DXVECTOR3(-1.0f, -1.0f,  1.0f), D3DXVECTOR3(-1.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f)}, // 16
 		{D3DXVECTOR3(-1.0f,  1.0f,  1.0f), D3DXVECTOR3(-1.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f)},
 		{D3DXVECTOR3(-1.0f,  1.0f, -1.0f), D3DXVECTOR3(-1.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f)},
 		{D3DXVECTOR3(-1.0f, -1.0f, -1.0f), D3DXVECTOR3(-1.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f)},
@@ -93,11 +93,11 @@ void Box::init(ID3D10Device* device)
 
 	// Fill in the left face index data
 	i[24] = 16; i[25] = 17; i[26] = 18;
-	i[27] = 16; i[28] = 18; i[29] = 19;
+	i[27] = 16; i[28] = 19; i[29] = 18;
 
 	// Fill in the right face index data
 	i[30] = 20; i[31] = 21; i[32] = 22;
-	i[33] = 20; i[34] = 22; i[35] = 23;
+	i[33] = 20; i[34] = 23; i[35] = 22;
 
 	D3D10_BUFFER_DESC ibd;
     ibd.Usage = D3D10_USAGE_IMMUTABLE;

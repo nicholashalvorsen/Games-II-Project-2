@@ -84,6 +84,10 @@ public:
 		return false;
 		*/
 
+		if( !this->active || !object->active ) {
+			return false;
+		}
+
 		// box collision
 
 		Vector3 pos1 = getPosition();
