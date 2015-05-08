@@ -140,6 +140,7 @@ private:
 	bool muted;
 	bool submarine;
 
+	float lastBounced; // to fix the sound playing 10x per second if you bounce up through the bottom of an object
 	int points;
 
 	//other
@@ -795,6 +796,7 @@ void App::updateScene(float dt) {
 			}
 
 		bool playerBounced = false;
+		lastBounced += dt;
 
 		if (atLayer == 0)
 			for (int i = 0; i < NUM_PILLARS; i++)
@@ -822,10 +824,11 @@ void App::updateScene(float dt) {
 
 		if (playerBounced)
 		{
+
 			player.setPosition(oldPlayerPosition + Vector3(0, 0.1, 0));
 			player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
 			points += 10 * (atLayer + 1);
-			if (!muted)
+			if (!muted && lastBounced > 0.5)
 			{
 				int randAudio = rand() % 2;
 				if (randAudio == 0)
@@ -833,6 +836,8 @@ void App::updateScene(float dt) {
 				else
 					audio->playCue("bounce2");
 			}
+
+			lastBounced = 0;
 		}
 
 		for (int i = 0; i < NUM_BUBBLES; ++i) {
@@ -1441,7 +1446,7 @@ void App::setUpGame(bool menu)
 
 		waves.disturb(i, j, r);
 	}
-
+	lastBounced = 0;
 	points = 0;
 	fadeText(LAYER_NAMES[0]);
 }
