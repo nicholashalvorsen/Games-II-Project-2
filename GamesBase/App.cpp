@@ -487,7 +487,6 @@ void App::updateScene(float dt) {
 				player.setDiving(false);
 			}
 
-<<<<<<< HEAD
 			//fire lasers
 			
 
@@ -510,10 +509,8 @@ void App::updateScene(float dt) {
 			lasers.first.update(dt);
 			lasers.second.update(dt);
 
-			bool hitTramp = false;
-=======
+
 			bool hitTramp = player.collided(&trampObject);
->>>>>>> origin/Textures+Billboards
 
 			if ((!GetAsyncKeyState('B') && bPressedLastFrame) || hitTramp) {
 				if (!muted)
