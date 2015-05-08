@@ -451,12 +451,12 @@ void App::updateScene(float dt) {
 						if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState('W'))
 			{
 				if (player.gliding == false && !muted)
-					audio->playCue("glide");
+					audio->playCue("wingflap");
 				player.setGliding(true);
 			}
 			else
 			{
-				audio->stopCue("glide");
+				audio->stopCue("wingflap");
 				player.setGliding(false);
 			}
 			if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState('S'))
@@ -541,7 +541,7 @@ void App::updateScene(float dt) {
 
 					if (!muted)
 					{
-						audio->stopCue("glide");
+						audio->stopCue("wingflap");
 						audio->stopCue("waterstream");
 						audio->stopCue("music");
 						audio->stopCue("musiclayer2");
