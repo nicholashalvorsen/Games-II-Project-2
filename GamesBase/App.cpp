@@ -345,7 +345,7 @@ void App::initApp() {
 	mLight.spotPow  = 64.0f;
 	mLight.range    = 1000.0f;
 	mLight.pos = Vector3(0.0f, 15.0f, 1.0f);
-	mLight.dir = Vector3(0.0f, -1.0f, 3.0f);
+	mLight.dir = Vector3(0.0f, -1.0f, 1.0f);
 
 	setUpGame(true);
 }
@@ -620,14 +620,8 @@ void App::updateScene(float dt) {
 		if (cameraYBoost < LAYER_HEIGHT[atLayer] + 4)
 			cameraYBoost += CAMERA_MOVE_SPEED * dt;	
 
-		//if (cameraZBoost < 10 && atLayer >= 1)
-		//	cameraZBoost += CAMERA_MOVE_SPEED * dt;
-
 		if (cameraYBoost > LAYER_HEIGHT[atLayer] + 4)
 			cameraYBoost -= CAMERA_MOVE_SPEED * dt;
-
-		//if (cameraZBoost > 0 && atLayer < 1)
-		//	cameraZBoost -= CAMERA_MOVE_SPEED * dt;
 			
 
 		beginningPlatform.update(dt);
@@ -637,14 +631,7 @@ void App::updateScene(float dt) {
 			beginningPlatform.setVelocity(Vector3(beginningPlatform.getVelocity().x, 0, beginningPlatform.getVelocity().z));
 
 		for (int i = 0; i < NUM_DIAMONDS; i++)
-		{
-			//diamond.increaseRotation(1);
-
-			//diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180, 0));//Spinning effect diamond.getRotation() * M_PI / 180
-
-			//diamonds[i].setRotation(Vector3(0, diamond.getRotation() * M_PI / 180*dt, 0));//Spinning effect diamond.getRotation() * M_PI / 180
-
-			
+		{			
 			if ((atLayer == 0 && diamonds[i].getPosition().y < LAYER_HEIGHT[0] + 4) || 
 				(atLayer == 1 && diamonds[i].getPosition().y < LAYER_HEIGHT[1] + 4) ||
 				(atLayer == 2 && diamonds[i].getPosition().y < LAYER_HEIGHT[2] + 34))
@@ -778,20 +765,9 @@ void App::updateScene(float dt) {
 				scenery[i].setVelocity(Vector3(scenery[i].getVelocity().x, 0, scenery[i].getVelocity().z));
 		}
 
-		//for (int i = 0; i < NUM_CLIFFS; i++)
-			//cliffs[i].update(dt);
-
 		simpleCliff.update(dt);
         simpleLeftCliff.update(dt);
         simpleRightCliff.update(dt);
-
-		/* bottom collision, temp */ 
-		//if (player.getPosition().y - player.getScale().y < wavesObject.getPosition().y - 1)
-		//{
-		//	player.setVelocity(Vector3(player.getVelocity().x, PLAYER_BOUNCE_FORCE, player.getVelocity().z));
-
-		//	player.setPosition(oldPlayerPosition);
-		//}
 
 		// collision
 		for (int i = 0; i < NUM_DIAMONDS; i++)
@@ -958,7 +934,6 @@ void App::drawScene() {
 
 		//Draw Axis
 		//axis.draw(&ri);
-
 
 		//Draw objects
 		/*pWings.first.draw(&ri);
@@ -1449,7 +1424,7 @@ void App::setUpGame(bool menu)
 		DWORD i = SEA_SIZE - 10;
 		DWORD j = 5 + rand() % SEA_SIZE;
 
-		float r = RandF(1.5f, 1.8f);
+		float r = RandF(1.5f, 1.7f);
 
 		waves.disturb(i, j, r);
 	}
