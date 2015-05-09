@@ -708,6 +708,7 @@ void App::updateScene(float dt) {
 			{
 				int x = rand() % GAME_WIDTH - GAME_WIDTH / 2;
 				diamonds[i].setPosition(Vector3(x, 0 - PILLAR_HEIGHT_START, GAME_DEPTH));
+				diamonds[i].setActive();
 			}
 		}
 
