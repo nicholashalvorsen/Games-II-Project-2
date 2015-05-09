@@ -84,6 +84,9 @@
     <ClInclude Include="Box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Ship.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameTimer.cpp">
@@ -113,6 +116,9 @@
     <ClCompile Include="Box.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Ship.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.fx">
@@ -122,6 +128,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="billboard.fx">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shipBillboard.fx">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
