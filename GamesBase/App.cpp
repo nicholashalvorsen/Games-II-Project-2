@@ -346,7 +346,7 @@ void App::initApp() {
     for(int i = 0; i < NUM_SHIPS; ++i) {
         // Define bubbleCenters
         if(i < NUM_SHIPS/2) {
-            shipCenters[i] = Vector3(-15.0, 2.5, i%10 * 10.0);
+            shipCenters[i] = Vector3(-15.0, 2.5, i%10 * 13.0 + rand()%10);
         } else {
             shipCenters[i] = Vector3(15.0, 2.5, i%10 * 10.0);
         }
@@ -901,6 +901,15 @@ void App::updateScene(float dt) {
 		}
 		bubble.setCenters(bubbleCenters, 0.5, 0.5);
 
+		for (int i = 0; i < NUM_SHIPS; ++i) {
+			shipCenters[i] = Vector3(shipCenters[i].x, shipCenters[i].y, shipCenters[i].z + 1.0 * dt);
+			if(shipCenters[i].z > 100) {
+				shipCenters[i].z = 0;
+			}
+
+		}
+		ship.setCenters(shipCenters, 5.0, 5.0);
+
 		/* don't let the player go too fast */
 
 		if (player.getVelocity().y < Y_VELOCITY_LIMIT && !player.diving && atLayer != 3 || (player.getVelocity().y < Y_VELOCITY_LIMIT / 3 && !player.diving && atLayer == 3))
@@ -1053,8 +1062,8 @@ void App::drawScene() {
 
 		if (atLayer == 2)
 			starBB.draw(mLight, mEyePos, ri.mView*ri.mProj);
-
-		ship.draw(mLight, mEyePos, ri.mView*ri.mProj);
+		if(atLayer == 0 || atLayer == 1)
+			ship.draw(mLight, mEyePos, ri.mView*ri.mProj);
 
 		md3dDevice->RSSetState(0); // restore default
 
