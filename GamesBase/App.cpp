@@ -1061,8 +1061,8 @@ void App::drawScene() {
 
 		if (atLayer == 2)
 			starBB.draw(mLight, mEyePos, ri.mView*ri.mProj);
-
-		ship.draw(mLight, mEyePos, ri.mView*ri.mProj);
+		if(atLayer == 0 || atLayer == 1)
+			ship.draw(mLight, mEyePos, ri.mView*ri.mProj);
 
 		md3dDevice->RSSetState(0); // restore default
 
