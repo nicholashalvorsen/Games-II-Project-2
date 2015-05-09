@@ -346,7 +346,7 @@ void App::initApp() {
     for(int i = 0; i < NUM_SHIPS; ++i) {
         // Define bubbleCenters
         if(i < NUM_SHIPS/2) {
-            shipCenters[i] = Vector3(-15.0, 2.5, i%10 * 10.0);
+            shipCenters[i] = Vector3(-15.0, 2.5, i%10 * 13.0 + rand()%10);
         } else {
             shipCenters[i] = Vector3(15.0, 2.5, i%10 * 10.0);
         }
@@ -899,6 +899,15 @@ void App::updateScene(float dt) {
 
 		}
 		bubble.setCenters(bubbleCenters, 0.5, 0.5);
+
+		for (int i = 0; i < NUM_SHIPS; ++i) {
+			shipCenters[i] = Vector3(shipCenters[i].x, shipCenters[i].y, shipCenters[i].z + 1.0 * dt);
+			if(shipCenters[i].z > 100) {
+				shipCenters[i].z = 0;
+			}
+
+		}
+		ship.setCenters(shipCenters, 5.0, 5.0);
 
 		/* don't let the player go too fast */
 
