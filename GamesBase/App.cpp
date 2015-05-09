@@ -13,6 +13,8 @@
 #include "Waves.h"
 #include "Trampoline.h"
 #include "Box.h"
+#include "Ship.h"
+
 
 #include "Object.h"
 #include "Axis.h"
@@ -95,8 +97,12 @@ private:
 	BillBoard billboard;
 	BillBoard bubble;
 	BillBoard starBB;
+	Ship ship;
+
 
 	Vector3 bubbleCenters[NUM_BUBBLES];
+	Vector3 shipCenters[NUM_SHIPS];
+
 	
 
 	RenderInfo ri;
@@ -335,6 +341,19 @@ void App::initApp() {
 		bubbleCenters[i] = Vector3(rand() % 100 - 50, rand() % 10 + LAYER_HEIGHT[3] - 10, (GAME_DEPTH*20 + GAME_BEHIND_DEPTH) / NUM_BUBBLES*i);
 	}
 	bubble.init(md3dDevice, bubbleCenters, 0.5, 0.5, L"bubble.png", NUM_BUBBLES);
+
+	//Bubbles
+    for(int i = 0; i < NUM_SHIPS; ++i) {
+        // Define bubbleCenters
+        if(i < NUM_SHIPS/2) {
+            shipCenters[i] = Vector3(-15.0, 2.5, i%10 * 10.0);
+        } else {
+            shipCenters[i] = Vector3(15.0, 2.5, i%10 * 10.0);
+        }
+        
+    }
+    ship.init(md3dDevice, shipCenters, 5.0, 5.0, L"ship.png", NUM_SHIPS);
+
 
 
 	//Menu
@@ -1034,8 +1053,9 @@ void App::drawScene() {
 		if (atLayer == 2)
 			starBB.draw(mLight, mEyePos, ri.mView*ri.mProj);
 
-		md3dDevice->RSSetState(0); // restore default
+		ship.draw(mLight, mEyePos, ri.mView*ri.mProj);
 
+		md3dDevice->RSSetState(0); // restore default
 
 		std::wostringstream po;
 		std::wstring pt;
