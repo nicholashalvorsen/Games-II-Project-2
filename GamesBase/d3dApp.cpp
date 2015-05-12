@@ -50,8 +50,8 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mMainWndCaption = L"D3D10 Application";
 	md3dDriverType  = D3D10_DRIVER_TYPE_HARDWARE;
 	mClearColor     = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
-	mClientWidth    = 800;
-	mClientHeight   = 600;
+	mClientWidth    = 1260;
+	mClientHeight   = 760;
 }
 
 D3DApp::~D3DApp()
