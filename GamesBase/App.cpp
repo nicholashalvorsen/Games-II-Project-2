@@ -838,7 +838,7 @@ void App::updateScene(float dt) {
 					if (!muted)
 					audio->playCue("collect");
 				}
-				if(lasers.first.collided(&diamonds[i]) && diamonds[i].getActiveState()){
+				if((lasers.first.collided(&diamonds[i]) || lasers.second.collided(&diamonds[i])) && diamonds[i].getActiveState()){
 					diamonds[i].setInActive();
 					points += 500;
 				if (!muted)
